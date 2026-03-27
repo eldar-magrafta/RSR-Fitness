@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f1a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="My Trainer" />
@@ -11,42 +11,507 @@
   <link rel="apple-touch-icon" href="icon-192.png" />
   <title>My Trainer</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --accent: #e94560;
+      --muted: #8892a4;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #1a1a2e;
-      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: calc(var(--safe-top) + 16px) 20px 16px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .back-btn {
+      background: var(--card);
+      border: none;
+      color: var(--accent);
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      display: none;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      flex-shrink: 0;
+    }
+    .back-btn.visible { display: flex; }
+    .header-title { font-size: 1.4rem; font-weight: 700; }
+
+    /* ── Views ── */
+    .view { display: none; padding: 20px; padding-bottom: calc(var(--safe-bottom) + 24px); }
+    .view.active { display: block; }
+
+    /* ── Muscle Group Grid ── */
+    .muscle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .muscle-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 24px 16px;
       text-align: center;
-      padding: 20px;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 10px; }
-    p  { font-size: 1.1rem; color: #aaa; margin-bottom: 40px; }
-    .btn {
-      background: #e94560;
-      color: white;
-      border: none;
-      padding: 16px 40px;
-      border-radius: 50px;
-      font-size: 1.1rem;
       cursor: pointer;
-      font-weight: bold;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.15s;
+      position: relative;
+      overflow: hidden;
     }
-    .btn:active { opacity: 0.8; }
+    .muscle-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .muscle-card:active { transform: scale(0.96); }
+    .muscle-card:active::after { opacity: 1; }
+    .muscle-card .icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .muscle-card .name { font-size: 0.95rem; font-weight: 600; }
+    .muscle-card .count { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .muscle-card.wide { grid-column: 1 / -1; }
+
+    /* ── Exercise List ── */
+    .exercise-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .exercise-item {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.12s;
+    }
+    .exercise-item:active { transform: scale(0.98); background: var(--card2); }
+    .exercise-item .ex-name { font-size: 1rem; font-weight: 500; }
+    .exercise-item .ex-sets { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .exercise-item .arrow { color: var(--accent); font-size: 1.3rem; flex-shrink: 0; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px 20px calc(var(--safe-bottom) + 20px);
+      animation: slideUp 0.28s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 700; flex: 1; padding-right: 12px; }
+    .modal-close {
+      background: rgba(255,255,255,0.1);
+      border: none; color: #fff;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .modal-tag {
+      display: inline-block;
+      background: rgba(233,69,96,0.18);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .modal-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .tips-list { list-style: none; margin-bottom: 20px; }
+    .tips-list li {
+      padding: 9px 0 9px 22px;
+      position: relative;
+      font-size: 0.95rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .tips-list li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+    .sets-box {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sets-box .sets-icon { font-size: 1.4rem; }
+    .sets-box .sets-label { font-size: 0.78rem; color: var(--muted); }
+    .sets-box .sets-value { font-size: 1rem; font-weight: 600; }
+
+    .yt-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+    }
+    .yt-btn:active { opacity: 0.85; }
   </style>
 </head>
 <body>
-  <h1>My Trainer 💪</h1>
-  <p>Your personal training app</p>
-  <button class="btn" onclick="alert('App is working!')">Start Training</button>
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" onclick="goHome()">‹</button>
+    <span class="header-title" id="headerTitle">My Trainer 💪</span>
+  </div>
+
+  <!-- Home: Muscle Groups -->
+  <div class="view active" id="homeView">
+    <div class="muscle-grid" id="muscleGrid"></div>
+  </div>
+
+  <!-- Exercise List -->
+  <div class="view" id="exerciseView">
+    <div class="exercise-list" id="exerciseList"></div>
+  </div>
+
+  <!-- Exercise Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle"></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-tag" id="modalTag"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="section-label">Key Tips</div>
+      <ul class="tips-list" id="modalTips"></ul>
+      <div class="sets-box">
+        <span class="sets-icon">📊</span>
+        <div>
+          <div class="sets-label">Recommended Volume</div>
+          <div class="sets-value" id="modalSets"></div>
+        </div>
+      </div>
+      <button class="yt-btn" id="ytBtn">▶&nbsp; Watch Tutorial on YouTube</button>
+    </div>
+  </div>
+
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+
+    const data = {
+      chest: {
+        name: 'Chest', icon: '🏋️',
+        exercises: [
+          { name: 'Barbell Bench Press', sets: '3–4 sets × 6–10 reps',
+            desc: 'The foundational chest exercise. Builds overall chest mass, tricep strength, and anterior deltoid size.',
+            tips: ['Retract and depress shoulder blades', 'Keep feet flat on the floor', 'Lower bar to lower chest', 'Drive bar up and slightly back'],
+            yt: 'barbell bench press proper form tutorial' },
+          { name: 'Incline Dumbbell Press', sets: '3 sets × 8–12 reps',
+            desc: 'Targets the upper chest. The dumbbell variation allows a greater range of motion than a barbell.',
+            tips: ['Set bench to 30–45 degrees', 'Press in a slight arc', 'Touch dumbbells at the top', 'Control the descent slowly'],
+            yt: 'incline dumbbell press proper form tutorial' },
+          { name: 'Push Up', sets: '3 sets × 10–20 reps',
+            desc: 'A bodyweight staple for chest, triceps, and core. Can be done anywhere with zero equipment.',
+            tips: ['Keep body in a straight line', 'Hands slightly wider than shoulders', 'Lower chest to just above floor', 'Squeeze chest at the top'],
+            yt: 'perfect push up form tutorial' },
+          { name: 'Cable Fly', sets: '3 sets × 12–15 reps',
+            desc: 'Keeps constant tension on the chest through the full range of motion. Great for the chest stretch.',
+            tips: ['Slight forward lean', 'Slight bend in elbows throughout', 'Squeeze hard at center', 'Slow controlled negative'],
+            yt: 'cable fly chest exercise tutorial' },
+          { name: 'Chest Dips', sets: '3 sets × 8–12 reps',
+            desc: 'Hits the lower chest and triceps heavily. Leaning forward shifts the emphasis to the chest.',
+            tips: ['Lean forward 20–30 degrees', 'Lower until shoulder crease is at handle height', 'Flare elbows slightly', 'Full lockout at top'],
+            yt: 'chest dips proper form tutorial' }
+        ]
+      },
+      back: {
+        name: 'Back', icon: '🎯',
+        exercises: [
+          { name: 'Pull Up', sets: '3–4 sets × 5–10 reps',
+            desc: 'The ultimate upper back exercise. Builds lat width and overall pulling strength.',
+            tips: ['Start from a full dead hang', 'Pull elbows down and back', 'Chin clears the bar', 'Avoid swinging or kipping'],
+            yt: 'pull up proper form tutorial' },
+          { name: 'Deadlift', sets: '3–4 sets × 3–6 reps',
+            desc: 'The king of all lifts. Works the entire posterior chain — lower back, glutes, and hamstrings.',
+            tips: ['Bar over mid-foot', 'Hip hinge, not a squat', 'Keep bar close to body throughout', 'Neutral spine — no rounding'],
+            yt: 'conventional deadlift proper form tutorial' },
+          { name: 'Bent Over Row', sets: '3–4 sets × 6–10 reps',
+            desc: 'Builds thickness across the entire back, especially the mid and lower traps and rhomboids.',
+            tips: ['Hinge to about 45 degrees', 'Pull bar to lower chest or navel', 'Squeeze shoulder blades at top', 'Keep lower back neutral'],
+            yt: 'barbell bent over row form tutorial' },
+          { name: 'Lat Pulldown', sets: '3 sets × 10–12 reps',
+            desc: 'Develops lat width. A great starting point before you can do full pull-ups.',
+            tips: ['Lean back slightly', 'Pull bar to upper chest', 'Initiate with lats, not biceps', 'Full stretch at the top'],
+            yt: 'lat pulldown proper form tutorial' },
+          { name: 'Seated Cable Row', sets: '3 sets × 10–12 reps',
+            desc: 'Builds mid-back thickness with constant tension. Targets rhomboids and middle traps.',
+            tips: ['Sit tall with chest up', 'Pull handle to lower abs', 'Squeeze shoulder blades together', 'Full forward stretch between reps'],
+            yt: 'seated cable row proper form tutorial' }
+        ]
+      },
+      shoulders: {
+        name: 'Shoulders', icon: '⬆️',
+        exercises: [
+          { name: 'Overhead Press', sets: '3–4 sets × 6–10 reps',
+            desc: 'The primary compound shoulder movement. Builds all three deltoid heads and overall pressing strength.',
+            tips: ['Bar at upper chest to start', 'Press bar in a straight vertical line', 'Squeeze glutes for stability', 'Full lockout overhead'],
+            yt: 'barbell overhead press proper form tutorial' },
+          { name: 'Dumbbell Lateral Raise', sets: '3–4 sets × 12–15 reps',
+            desc: 'Isolates the medial (side) deltoid — the muscle that gives shoulders their width and roundness.',
+            tips: ['Slight forward lean', 'Lead with elbows, not wrists', 'Raise to just above shoulder height', 'Lower slowly — 3 seconds down'],
+            yt: 'dumbbell lateral raise proper form tutorial' },
+          { name: 'Rear Delt Fly', sets: '3 sets × 12–15 reps',
+            desc: 'Targets the posterior deltoid — often neglected but crucial for shoulder health and balanced aesthetics.',
+            tips: ['Hinge forward or use incline bench', 'Arms nearly straight, slight bend', 'Lead with elbows, not hands', 'Squeeze rear delts at the top'],
+            yt: 'rear delt fly exercise tutorial' },
+          { name: 'Arnold Press', sets: '3 sets × 10–12 reps',
+            desc: 'A rotational dumbbell press invented by Arnold Schwarzenegger. Hits all three deltoid heads.',
+            tips: ['Start with palms facing you at chin', 'Rotate outward as you press up', 'Full range of motion each rep', 'Control the rotation on the way down'],
+            yt: 'arnold press dumbbell tutorial' }
+        ]
+      },
+      biceps: {
+        name: 'Biceps', icon: '💪',
+        exercises: [
+          { name: 'Barbell Curl', sets: '3–4 sets × 8–10 reps',
+            desc: 'The best mass-builder for biceps. Allows the most weight to be used in a curl movement.',
+            tips: ['Keep elbows pinned at your sides', 'Full stretch at the bottom', 'Squeeze hard at the top', 'No swinging or momentum'],
+            yt: 'barbell curl proper form tutorial' },
+          { name: 'Hammer Curl', sets: '3 sets × 10–12 reps',
+            desc: 'Neutral grip targets the brachialis and brachioradialis, adding thickness to the overall arm.',
+            tips: ['Palms face each other throughout', 'Elbows stay at sides', 'Full range of motion', 'Can alternate arms each rep'],
+            yt: 'hammer curl proper form tutorial' },
+          { name: 'Incline Dumbbell Curl', sets: '3 sets × 10–12 reps',
+            desc: 'The incline position creates a long-head stretch at the bottom, maximizing bicep activation.',
+            tips: ['Set bench to 45–60 degrees', 'Let arms hang fully at the bottom', 'Curl without moving elbows forward', 'Peak squeeze at the top'],
+            yt: 'incline dumbbell curl tutorial' },
+          { name: 'Cable Curl', sets: '3 sets × 12–15 reps',
+            desc: 'Provides constant tension through the full range of motion, unlike free weights.',
+            tips: ['Use straight bar or EZ bar', 'Keep elbows at your sides', 'Full extension at the bottom', 'Peak contraction at the top'],
+            yt: 'cable curl bicep exercise tutorial' }
+        ]
+      },
+      triceps: {
+        name: 'Triceps', icon: '⚡',
+        exercises: [
+          { name: 'Tricep Pushdown', sets: '3–4 sets × 10–15 reps',
+            desc: 'The most common tricep exercise. Isolates the lateral head especially and allows easy load progression.',
+            tips: ['Elbows pinned tight at sides', 'Full extension at the bottom', 'Controlled return — do not let it snap back', 'Try rope or straight bar'],
+            yt: 'tricep pushdown proper form tutorial' },
+          { name: 'Skull Crusher', sets: '3 sets × 8–12 reps',
+            desc: 'A lying extension that heavily loads the long head of the tricep for size and strength.',
+            tips: ['Lower bar to forehead or just behind the head', 'Keep upper arms vertical throughout', 'Full lockout at top', 'EZ bar reduces wrist strain'],
+            yt: 'skull crusher exercise proper form tutorial' },
+          { name: 'Overhead Tricep Extension', sets: '3 sets × 10–12 reps',
+            desc: 'Stretches the long head of the tricep at the bottom, maximizing its growth stimulus.',
+            tips: ['Keep elbows pointed forward', 'Lower weight behind your head', 'Full extension overhead', 'Use one or two dumbbells'],
+            yt: 'overhead tricep extension tutorial' },
+          { name: 'Close Grip Bench Press', sets: '3–4 sets × 6–10 reps',
+            desc: 'A compound tricep exercise that allows heavy loading with strong carry-over to overall pressing.',
+            tips: ['Hands shoulder-width (not too narrow)', 'Keep elbows close to your body', 'Full range of motion each rep', 'Full lockout at the top'],
+            yt: 'close grip bench press tricep tutorial' }
+        ]
+      },
+      legs: {
+        name: 'Legs', icon: '🦵',
+        exercises: [
+          { name: 'Barbell Back Squat', sets: '3–4 sets × 5–8 reps',
+            desc: 'The king of leg exercises. Builds quads, glutes, and hamstrings while developing core and full-body strength.',
+            tips: ['Squat to parallel or below', 'Knees track over toes', 'Chest up, stay upright', 'Drive through the entire foot'],
+            yt: 'barbell back squat proper form tutorial' },
+          { name: 'Romanian Deadlift', sets: '3 sets × 8–12 reps',
+            desc: 'The best hamstring exercise. A hip hinge with slight knee bend that stretches and loads the hamstrings.',
+            tips: ['Slight bend in knees throughout', 'Push hips back — not down', 'Bar stays close to your legs', 'Feel the hamstring stretch at the bottom'],
+            yt: 'romanian deadlift RDL proper form tutorial' },
+          { name: 'Leg Press', sets: '3–4 sets × 10–15 reps',
+            desc: 'A machine-based quad exercise allowing heavy loading without the balance demands of the squat.',
+            tips: ['Feet shoulder-width on the platform', 'Do not lock knees at the top', 'Full depth without tailbone lifting', 'Push through the heels'],
+            yt: 'leg press machine proper form tutorial' },
+          { name: 'Walking Lunges', sets: '3 sets × 10–12 reps per leg',
+            desc: 'A unilateral exercise that builds quads and glutes while improving balance and coordination.',
+            tips: ['Take a long step forward', 'Back knee drops to just above the floor', 'Keep torso upright', 'Alternate legs continuously'],
+            yt: 'walking lunges proper form tutorial' },
+          { name: 'Leg Curl', sets: '3 sets × 12–15 reps',
+            desc: 'Isolation exercise for the hamstrings. Lying or seated variation — both are effective.',
+            tips: ['Full range of motion each rep', 'Squeeze hard at peak contraction', 'Slow 3-second negative', 'Do not use momentum'],
+            yt: 'leg curl hamstring curl exercise tutorial' },
+          { name: 'Calf Raise', sets: '4 sets × 15–20 reps',
+            desc: 'Targets the gastrocnemius and soleus. Standing hits the gastroc more, seated hits the soleus more.',
+            tips: ['Full stretch at the bottom — do not bounce', 'Pause and squeeze at the top', 'Slow and controlled throughout', 'Toe angle varies emphasis'],
+            yt: 'calf raise exercise proper form tutorial' }
+        ]
+      },
+      core: {
+        name: 'Core', icon: '🔥',
+        exercises: [
+          { name: 'Plank', sets: '3 sets × 30–60 seconds',
+            desc: 'The foundational core stability exercise. Trains anti-extension — resisting the spine from sagging.',
+            tips: ['Forearms or straight arms', 'Body in a perfectly straight line', 'Squeeze glutes and abs hard', 'Breathe — do not hold your breath'],
+            yt: 'plank exercise proper form tutorial' },
+          { name: 'Dead Bug', sets: '3 sets × 8–10 reps per side',
+            desc: 'One of the safest and most effective core exercises. Trains stability while your limbs move.',
+            tips: ['Press lower back into the floor', 'Move opposite arm and leg simultaneously', 'Exhale as limbs extend out', 'Never rush the movement'],
+            yt: 'dead bug exercise tutorial' },
+          { name: 'Hanging Leg Raise', sets: '3 sets × 10–15 reps',
+            desc: 'An advanced core exercise targeting the lower abs and hip flexors with significant load.',
+            tips: ['Full hang from the bar', 'Posterior pelvic tilt before raising', 'Raise legs to 90 degrees or beyond', 'Lower with full control'],
+            yt: 'hanging leg raise abs tutorial' },
+          { name: 'Cable Crunch', sets: '3 sets × 12–15 reps',
+            desc: 'The best weighted ab exercise. Allows progressive overload unlike bodyweight crunches.',
+            tips: ['Kneel facing the cable stack', 'Rope behind your head', 'Crunch elbows toward knees', 'The abs do the work — not your arms'],
+            yt: 'cable crunch ab exercise tutorial' },
+          { name: 'Ab Wheel Rollout', sets: '3 sets × 8–12 reps',
+            desc: 'One of the hardest and most effective core exercises. Trains anti-extension strength aggressively.',
+            tips: ['Start from knees if you are a beginner', 'Keep lower back from arching', 'Go as far as you can control', 'Pull back using your abs'],
+            yt: 'ab wheel rollout tutorial' }
+        ]
+      }
+    };
+
+    // ── Build Home ──
+    function buildHome() {
+      const grid = document.getElementById('muscleGrid');
+      const entries = Object.entries(data);
+      grid.innerHTML = '';
+      entries.forEach(([key, group], i) => {
+        const isLastOdd = i === entries.length - 1 && entries.length % 2 !== 0;
+        const card = document.createElement('div');
+        card.className = 'muscle-card' + (isLastOdd ? ' wide' : '');
+        card.innerHTML = `
+          <div class="icon">${group.icon}</div>
+          <div class="name">${group.name}</div>
+          <div class="count">${group.exercises.length} exercises</div>
+        `;
+        card.onclick = () => showExercises(key);
+        grid.appendChild(card);
+      });
     }
+
+    // ── Show Exercise List ──
+    function showExercises(key) {
+      const group = data[key];
+      const list = document.getElementById('exerciseList');
+      list.innerHTML = '';
+      group.exercises.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'exercise-item';
+        item.innerHTML = `
+          <div>
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-sets">${ex.sets}</div>
+          </div>
+          <span class="arrow">›</span>
+        `;
+        item.onclick = () => openModal(ex, group.name);
+        list.appendChild(item);
+      });
+      document.getElementById('homeView').classList.remove('active');
+      document.getElementById('exerciseView').classList.add('active');
+      document.getElementById('headerTitle').textContent = group.name;
+      document.getElementById('backBtn').classList.add('visible');
+    }
+
+    // ── Go Back Home ──
+    function goHome() {
+      document.getElementById('exerciseView').classList.remove('active');
+      document.getElementById('homeView').classList.add('active');
+      document.getElementById('headerTitle').textContent = 'My Trainer 💪';
+      document.getElementById('backBtn').classList.remove('visible');
+    }
+
+    // ── Open Exercise Modal ──
+    function openModal(ex, muscleName) {
+      document.getElementById('modalTitle').textContent = ex.name;
+      document.getElementById('modalTag').textContent = muscleName;
+      document.getElementById('modalDesc').textContent = ex.desc;
+      document.getElementById('modalSets').textContent = ex.sets;
+      document.getElementById('modalTips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
+      document.getElementById('ytBtn').onclick = () => {
+        window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.yt), '_blank');
+      };
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    buildHome();
   </script>
 </body>
 </html>
