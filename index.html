@@ -34,58 +34,59 @@
 
     /* ── Header ── */
     .header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      position: sticky; top: 0; z-index: 10;
       background: var(--bg);
       padding: calc(var(--safe-top) + 16px) 20px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .back-btn {
-      background: var(--card);
-      border: none;
-      color: var(--accent);
-      width: 38px; height: 38px;
-      border-radius: 10px;
-      font-size: 22px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      background: var(--card); border: none; color: var(--accent);
+      width: 38px; height: 38px; border-radius: 10px; font-size: 22px;
+      cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .back-btn.visible { display: flex; }
-    .header-title { font-size: 1.4rem; font-weight: 700; }
+    .header-title { font-size: 1.4rem; font-weight: 700; flex: 1; }
+    .header-action {
+      background: none; border: none; color: var(--accent);
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; padding: 6px; display: none;
+    }
+    .header-action.visible { display: block; }
 
     /* ── Views ── */
-    .view { display: none; padding: 20px; padding-bottom: calc(var(--safe-bottom) + 24px); }
+    .view { display: none; padding: 20px; padding-bottom: calc(var(--safe-bottom) + 90px); }
     .view.active { display: block; }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      background: var(--card);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      padding-bottom: var(--safe-bottom);
+    }
+    .tab-btn {
+      flex: 1; background: none; border: none; color: var(--muted);
+      padding: 12px 0 10px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 0.7rem; font-family: inherit; letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+    .tab-btn .tab-icon { font-size: 1.35rem; }
+    .tab-btn.active { color: var(--accent); }
 
     /* ── Muscle Group Grid ── */
     .muscle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
     .muscle-card {
-      background: var(--card);
-      border-radius: 18px;
-      padding: 24px 16px;
-      text-align: center;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: transform 0.15s;
-      position: relative;
-      overflow: hidden;
+      background: var(--card); border-radius: 18px; padding: 24px 16px;
+      text-align: center; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05); transition: transform 0.15s;
+      position: relative; overflow: hidden;
     }
     .muscle-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--accent);
-      opacity: 0;
-      transition: opacity 0.15s;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent); opacity: 0; transition: opacity 0.15s;
     }
     .muscle-card:active { transform: scale(0.96); }
     .muscle-card:active::after { opacity: 1; }
@@ -96,17 +97,10 @@
 
     /* ── Exercise List ── */
     .exercise-list { display: flex; flex-direction: column; gap: 10px; }
-
     .exercise-item {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: transform 0.12s;
+      background: var(--card); border-radius: 14px; padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.12s;
     }
     .exercise-item:active { transform: scale(0.98); background: var(--card2); }
     .exercise-item .ex-name { font-size: 1rem; font-weight: 500; }
@@ -114,208 +108,277 @@
     .exercise-item .ex-sub.logged { color: var(--green); }
     .exercise-item .arrow { color: var(--accent); font-size: 1.3rem; flex-shrink: 0; }
 
-    /* ── Modal ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      z-index: 100;
+    /* ── Plans View ── */
+    .plans-list { display: flex; flex-direction: column; gap: 12px; }
+    .plan-card {
+      background: var(--card); border-radius: 16px; padding: 20px;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: space-between;
+      transition: transform 0.12s;
+    }
+    .plan-card:active { transform: scale(0.98); }
+    .plan-card-name { font-size: 1.15rem; font-weight: 700; }
+    .plan-card-meta { font-size: 0.8rem; color: var(--muted); margin-top: 5px; }
+    .plan-card-arrow { color: var(--accent); font-size: 1.4rem; }
+
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 80px 20px; text-align: center;
+    }
+    .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+    .empty-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+    .empty-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 32px; line-height: 1.5; }
+    .empty-cta {
+      background: var(--accent); color: white; border: none;
+      border-radius: 14px; padding: 14px 32px;
+      font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed; right: 20px;
+      bottom: calc(var(--safe-bottom) + 74px);
+      width: 56px; height: 56px;
+      background: var(--accent); border: none; border-radius: 50%;
+      color: white; font-size: 2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(233,69,96,0.45); z-index: 15;
+      transition: transform 0.15s;
+    }
+    .fab:active { transform: scale(0.9); }
+    .fab.hidden { display: none; }
+
+    /* ── Plan Detail View ── */
+    .plan-detail-list { display: flex; flex-direction: column; gap: 10px; }
+    .plan-ex-item {
+      background: var(--card); border-radius: 14px; padding: 15px 16px;
+      display: flex; align-items: center; gap: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .plan-ex-info { flex: 1; cursor: pointer; }
+    .plan-ex-name { font-size: 1rem; font-weight: 500; }
+    .plan-ex-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .plan-ex-sub.logged { color: var(--green); }
+    .plan-ex-remove {
+      background: rgba(255,255,255,0.06); border: none; color: var(--muted);
+      width: 30px; height: 30px; border-radius: 50%;
+      font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .plan-ex-remove:active { background: rgba(233,69,96,0.2); color: var(--accent); }
+
+    .add-ex-btn {
+      width: 100%; background: none;
+      border: 1.5px dashed rgba(233,69,96,0.4);
+      color: var(--accent); border-radius: 14px;
+      padding: 15px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; margin-top: 4px; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .add-ex-btn:active { background: rgba(233,69,96,0.08); }
+
+    .plan-empty-ex {
+      text-align: center; padding: 40px 20px; color: var(--muted);
+    }
+    .plan-empty-ex .big { font-size: 3rem; margin-bottom: 10px; }
+    .plan-empty-ex p { font-size: 0.95rem; line-height: 1.5; }
+
+    /* ── Exercise Picker ── */
+    .picker-list { display: flex; flex-direction: column; gap: 8px; }
+    .picker-group { }
+    .picker-group-hdr {
+      background: var(--card); border-radius: 14px; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+      transition: border-radius 0.2s;
+    }
+    .picker-group-hdr.open { border-radius: 14px 14px 0 0; }
+    .picker-group-left { display: flex; align-items: center; gap: 10px; }
+    .picker-group-icon { font-size: 1.2rem; }
+    .picker-group-name { font-weight: 600; font-size: 0.95rem; }
+    .picker-group-badge {
+      background: rgba(233,69,96,0.2); color: var(--accent);
+      border-radius: 10px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700;
       display: none;
-      align-items: flex-end;
+    }
+    .picker-group-badge.visible { display: inline; }
+    .picker-chevron { color: var(--muted); font-size: 0.9rem; transition: transform 0.2s; }
+    .picker-group-hdr.open .picker-chevron { transform: rotate(180deg); }
+
+    .picker-exercises { display: none; flex-direction: column; }
+    .picker-exercises.open { display: flex; }
+    .picker-ex-item {
+      background: var(--card2); border: 1px solid rgba(255,255,255,0.05);
+      border-top: none; padding: 13px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+    }
+    .picker-ex-item:last-child { border-radius: 0 0 14px 14px; }
+    .picker-ex-item:active { opacity: 0.75; }
+    .picker-ex-name { font-size: 0.92rem; }
+    .picker-toggle {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.18);
+      background: none; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; flex-shrink: 0;
+      transition: all 0.15s; pointer-events: none;
+    }
+    .picker-toggle.added { background: var(--green); border-color: var(--green); color: #fff; }
+
+    /* ── Create Plan Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 100; display: none; align-items: flex-end;
       backdrop-filter: blur(4px);
     }
     .modal-overlay.open { display: flex; }
-
     .modal {
-      background: var(--card);
-      border-radius: 24px 24px 0 0;
-      width: 100%;
-      max-height: 92vh;
-      overflow-y: auto;
+      background: var(--card); border-radius: 24px 24px 0 0; width: 100%;
+      max-height: 92vh; overflow-y: auto;
       padding: 16px 20px calc(var(--safe-bottom) + 20px);
       animation: slideUp 0.28s ease;
     }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to   { transform: translateY(0); }
-    }
-
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-handle {
-      width: 40px; height: 4px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 2px;
-      margin: 0 auto 20px;
+      width: 40px; height: 4px; background: rgba(255,255,255,0.15);
+      border-radius: 2px; margin: 0 auto 20px;
     }
     .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 20px;
     }
     .modal-title { font-size: 1.45rem; font-weight: 700; flex: 1; padding-right: 12px; }
     .modal-close {
-      background: rgba(255,255,255,0.1);
-      border: none; color: #fff;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      background: rgba(255,255,255,0.1); border: none; color: #fff;
+      width: 32px; height: 32px; border-radius: 50%; font-size: 15px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .modal-tag {
-      display: inline-block;
-      background: rgba(233,69,96,0.18);
-      color: var(--accent);
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 16px;
+      display: inline-block; background: rgba(233,69,96,0.18); color: var(--accent);
+      border-radius: 20px; padding: 4px 12px; font-size: 0.8rem;
+      font-weight: 600; margin-bottom: 16px;
     }
-    .modal-desc {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.65;
-      margin-bottom: 20px;
-    }
+    .modal-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.65; margin-bottom: 20px; }
     .section-label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 10px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted); margin-bottom: 10px;
     }
     .tips-list { list-style: none; margin-bottom: 20px; }
     .tips-list li {
-      padding: 9px 0 9px 22px;
-      position: relative;
-      font-size: 0.95rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 9px 0 9px 22px; position: relative;
+      font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .tips-list li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
-
     .sets-box {
-      background: var(--bg);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      background: var(--bg); border-radius: 12px; padding: 14px;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
     }
     .sets-box .sets-icon { font-size: 1.4rem; }
     .sets-box .sets-label { font-size: 0.78rem; color: var(--muted); }
     .sets-box .sets-value { font-size: 1rem; font-weight: 600; }
-
-    /* ── Last Session ── */
     .last-session-box {
-      background: var(--bg);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      background: var(--bg); border-radius: 12px; padding: 14px;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
     }
     .last-session-box .ls-icon { font-size: 1.4rem; }
-    .last-session-box .ls-label { font-size: 0.78rem; color: var(--muted); }
     .last-session-box .ls-value { font-size: 1rem; font-weight: 600; }
     .last-session-box .ls-value.none { color: var(--muted); font-weight: 400; font-style: italic; }
     .last-session-box .ls-date { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
-
-    /* ── Log Today ── */
-    .log-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .log-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
     .log-field label {
-      display: block;
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 6px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: block; font-size: 0.78rem; color: var(--muted);
+      margin-bottom: 6px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
     .log-input-wrap {
-      display: flex;
-      align-items: center;
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 12px;
-      gap: 6px;
+      display: flex; align-items: center; background: var(--bg);
+      border-radius: 10px; padding: 12px; gap: 6px;
       border: 1px solid rgba(255,255,255,0.08);
     }
     .log-input-wrap input {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 600;
-      width: 100%;
-      outline: none;
-      font-family: inherit;
+      background: none; border: none; color: #fff;
+      font-size: 1.1rem; font-weight: 600; width: 100%;
+      outline: none; font-family: inherit;
     }
     .log-input-wrap input::placeholder { color: rgba(255,255,255,0.25); }
     .log-input-wrap span { color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
-
     .save-btn {
-      width: 100%;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 12px;
-      transition: background 0.3s, opacity 0.15s;
+      width: 100%; background: var(--green); color: #fff; border: none;
+      border-radius: 14px; padding: 15px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; margin-bottom: 12px; transition: background 0.3s;
     }
     .save-btn:active { opacity: 0.85; }
-
     .yt-btn {
-      width: 100%;
-      background: rgba(233,69,96,0.15);
-      color: var(--accent);
-      border: 1px solid rgba(233,69,96,0.3);
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      width: 100%; background: rgba(233,69,96,0.15); color: var(--accent);
+      border: 1px solid rgba(233,69,96,0.3); border-radius: 14px;
+      padding: 15px; font-size: 1rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .yt-btn:active { opacity: 0.85; }
+
+    /* Create Plan Modal inputs */
+    .plan-name-input {
+      width: 100%; background: var(--bg);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+      padding: 15px 16px; color: white; font-size: 1.1rem;
+      font-family: inherit; outline: none; margin-bottom: 16px;
+    }
+    .plan-name-input:focus { border-color: var(--accent); }
+    .plan-name-input::placeholder { color: var(--muted); }
+    .create-btn {
+      width: 100%; background: var(--accent); color: white; border: none;
+      border-radius: 14px; padding: 16px; font-size: 1rem;
+      font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .create-btn:active { opacity: 0.85; }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <div class="header">
-    <button class="back-btn" id="backBtn" onclick="goHome()">‹</button>
+    <button class="back-btn" id="backBtn" onclick="handleBack()">‹</button>
     <span class="header-title" id="headerTitle">My Trainer 💪</span>
+    <button class="header-action" id="headerAction"></button>
   </div>
 
-  <!-- Home: Muscle Groups -->
+  <!-- ── Exercises Tab ── -->
   <div class="view active" id="homeView">
     <div class="muscle-grid" id="muscleGrid"></div>
   </div>
-
-  <!-- Exercise List -->
   <div class="view" id="exerciseView">
     <div class="exercise-list" id="exerciseList"></div>
   </div>
 
+  <!-- ── Plans Tab ── -->
+  <div class="view" id="plansView">
+    <div id="plansContent"></div>
+  </div>
+  <div class="view" id="planDetailView">
+    <div class="plan-detail-list" id="planDetailList"></div>
+    <button class="add-ex-btn" id="addExBtn" onclick="showExercisePicker()">+ Add Exercises</button>
+  </div>
+  <div class="view" id="exercisePickerView">
+    <div class="picker-list" id="pickerList"></div>
+  </div>
+
+  <!-- FAB (create plan) -->
+  <button class="fab hidden" id="fab" onclick="openCreatePlan()">+</button>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabEx" onclick="switchTab('exercises')">
+      <span class="tab-icon">💪</span><span>Exercises</span>
+    </button>
+    <button class="tab-btn" id="tabPlans" onclick="switchTab('plans')">
+      <span class="tab-icon">📋</span><span>My Plans</span>
+    </button>
+  </div>
+
   <!-- Exercise Detail Modal -->
   <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-    <div class="modal" id="modal">
+    <div class="modal">
       <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title" id="modalTitle"></div>
@@ -323,10 +386,8 @@
       </div>
       <div class="modal-tag" id="modalTag"></div>
       <div class="modal-desc" id="modalDesc"></div>
-
       <div class="section-label">Key Tips</div>
       <ul class="tips-list" id="modalTips"></ul>
-
       <div class="sets-box">
         <span class="sets-icon">📊</span>
         <div>
@@ -334,7 +395,6 @@
           <div class="sets-value" id="modalSets"></div>
         </div>
       </div>
-
       <div class="section-label">Last Session</div>
       <div class="last-session-box">
         <span class="ls-icon">🕐</span>
@@ -343,7 +403,6 @@
           <div class="ls-date" id="lastSessionDate"></div>
         </div>
       </div>
-
       <div class="section-label">Log Today</div>
       <div class="log-row">
         <div class="log-field">
@@ -362,17 +421,36 @@
         </div>
       </div>
       <button class="save-btn" id="saveBtn" onclick="saveLog()">Save</button>
-
       <button class="yt-btn" id="ytBtn">▶&nbsp; Watch Tutorial on YouTube</button>
+    </div>
+  </div>
+
+  <!-- Create Plan Modal -->
+  <div class="modal-overlay" id="createPlanOverlay" onclick="handleCreateOverlayClick(event)">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">New Plan</div>
+        <button class="modal-close" onclick="closeCreatePlan()">✕</button>
+      </div>
+      <input class="plan-name-input" id="planNameInput"
+        type="text" placeholder="e.g. Push Day, Chest & Triceps..."
+        maxlength="40" onkeydown="if(event.key==='Enter')createPlan()" />
+      <button class="create-btn" onclick="createPlan()">Create Plan</button>
     </div>
   </div>
 
   <script>
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-    let currentExerciseName = null;
+    // ── State ──
+    let currentTab      = 'exercises';
     let currentMuscleKey = null;
+    let currentPlanId    = null;
+    let currentExerciseName = null;
+    let navContext       = 'home'; // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'
 
+    // ── Exercise Data ──
     const data = {
       chest: {
         name: 'Chest', icon: '🏋️',
@@ -423,15 +501,15 @@
             tips: ['Sit tall with chest up', 'Pull handle to lower abs', 'Squeeze shoulder blades together', 'Full forward stretch between reps'],
             yt: 'seated cable row proper form tutorial' },
           { name: 'Rope Lat Pulldown', sets: '3 sets × 10–12 reps',
-            desc: 'A lat pulldown variation using a rope attachment. The rope allows a more natural wrist rotation and a deeper peak contraction at the bottom.',
+            desc: 'A lat pulldown variation using a rope. Allows a more natural wrist rotation and deeper peak contraction.',
             tips: ['Split the rope apart at the bottom', 'Pull to upper chest level', 'Lean back slightly', 'Initiate with lats — not biceps'],
             yt: 'rope lat pulldown tutorial' },
           { name: 'Straight Arm Pulldown', sets: '3 sets × 12–15 reps',
-            desc: 'An isolation exercise that targets the lats with minimal bicep involvement. Great for learning to feel the lat muscle working.',
-            tips: ['Arms stay straight throughout — no elbow bend', 'Hinge slightly at the hips', 'Pull bar down to your thighs', 'Squeeze lats hard at the bottom'],
+            desc: 'Isolates the lats with minimal bicep involvement. Great for learning to feel the lat muscle.',
+            tips: ['Arms stay straight — no elbow bend', 'Hinge slightly at the hips', 'Pull bar down to your thighs', 'Squeeze lats hard at the bottom'],
             yt: 'straight arm pulldown lat isolation tutorial' },
           { name: 'Seated Row Machine', sets: '3–4 sets × 10–12 reps',
-            desc: 'A machine-based rowing exercise that builds mid-back thickness. The fixed path makes it beginner-friendly and easy to overload progressively.',
+            desc: 'A machine row that builds mid-back thickness. The fixed path makes it beginner-friendly.',
             tips: ['Chest against the pad throughout', 'Pull handles to your sides', 'Squeeze shoulder blades at the end', 'Full stretch forward between reps'],
             yt: 'seated row machine back exercise tutorial' }
         ]
@@ -444,7 +522,7 @@
             tips: ['Bar at upper chest to start', 'Press bar in a straight vertical line', 'Squeeze glutes for stability', 'Full lockout overhead'],
             yt: 'barbell overhead press proper form tutorial' },
           { name: 'Dumbbell Lateral Raise', sets: '3–4 sets × 12–15 reps',
-            desc: 'Isolates the medial (side) deltoid — the muscle that gives shoulders their width and roundness.',
+            desc: 'Isolates the medial deltoid — the muscle that gives shoulders their width and roundness.',
             tips: ['Slight forward lean', 'Lead with elbows, not wrists', 'Raise to just above shoulder height', 'Lower slowly — 3 seconds down'],
             yt: 'dumbbell lateral raise proper form tutorial' },
           { name: 'Rear Delt Fly', sets: '3 sets × 12–15 reps',
@@ -482,8 +560,8 @@
         name: 'Triceps', icon: '⚡',
         exercises: [
           { name: 'Tricep Pushdown', sets: '3–4 sets × 10–15 reps',
-            desc: 'The most common tricep exercise. Isolates the lateral head especially and allows easy load progression.',
-            tips: ['Elbows pinned tight at sides', 'Full extension at the bottom', 'Controlled return — do not let it snap back', 'Try rope or straight bar'],
+            desc: 'The most common tricep exercise. Isolates the lateral head and allows easy load progression.',
+            tips: ['Elbows pinned tight at sides', 'Full extension at the bottom', 'Controlled return — do not snap back', 'Try rope or straight bar'],
             yt: 'tricep pushdown proper form tutorial' },
           { name: 'Skull Crusher', sets: '3 sets × 8–12 reps',
             desc: 'A lying extension that heavily loads the long head of the tricep for size and strength.',
@@ -511,11 +589,11 @@
             tips: ['Feet shoulder-width on the platform', 'Do not lock knees at the top', 'Full depth without tailbone lifting', 'Push through the heels'],
             yt: 'leg press machine proper form tutorial' },
           { name: 'Hack Squat', sets: '3–4 sets × 8–12 reps',
-            desc: 'A machine squat that places the torso upright, putting maximum load on the quads with less lower back demand.',
+            desc: 'A machine squat with the torso upright, putting maximum load on the quads with less lower back demand.',
             tips: ['Feet shoulder-width or slightly narrower', 'Squat to full depth', 'Do not let knees cave inward', 'Drive through the heels'],
             yt: 'hack squat machine proper form tutorial' },
           { name: 'Bulgarian Split Squat', sets: '3 sets × 8–10 reps per leg',
-            desc: 'One of the best unilateral leg exercises. Isolates each quad and glute independently, fixing imbalances.',
+            desc: 'One of the best unilateral leg exercises. Isolates each quad and glute independently.',
             tips: ['Rear foot elevated on a bench', 'Front foot far enough forward', 'Lower back knee toward the floor', 'Keep torso upright'],
             yt: 'bulgarian split squat proper form tutorial' },
           { name: 'Leg Extension', sets: '3–4 sets × 12–15 reps',
@@ -536,27 +614,27 @@
         name: 'Hamstrings', icon: '🔙',
         exercises: [
           { name: 'Romanian Deadlift', sets: '3 sets × 8–12 reps',
-            desc: 'The best hamstring exercise. A hip hinge with slight knee bend that stretches and loads the hamstrings fully.',
+            desc: 'The best hamstring exercise. A hip hinge that stretches and loads the hamstrings fully.',
             tips: ['Slight bend in knees throughout', 'Push hips back — not down', 'Bar stays close to your legs', 'Feel the hamstring stretch at the bottom'],
             yt: 'romanian deadlift RDL proper form tutorial' },
           { name: 'Lying Leg Curl', sets: '3–4 sets × 10–12 reps',
-            desc: 'The classic hamstring isolation exercise. Lying flat removes hip flexor involvement and puts full focus on the hamstrings.',
+            desc: 'The classic hamstring isolation exercise. Lying flat puts full focus on the hamstrings.',
             tips: ['Full range of motion each rep', 'Squeeze hard at peak contraction', 'Slow 3-second negative', 'Do not use momentum — no bouncing'],
             yt: 'lying leg curl hamstring exercise tutorial' },
           { name: 'Seated Leg Curl', sets: '3 sets × 10–12 reps',
-            desc: 'The seated position keeps the hamstrings in a stretched position, increasing activation compared to lying curls.',
+            desc: 'The seated position keeps the hamstrings stretched, increasing activation compared to lying curls.',
             tips: ['Adjust pad to just above the ankle', 'Keep hips pressed into the seat', 'Full extension before each rep', 'Squeeze at peak contraction'],
             yt: 'seated leg curl hamstring tutorial' },
           { name: 'Nordic Hamstring Curl', sets: '3 sets × 5–8 reps',
-            desc: 'One of the most effective hamstring exercises for injury prevention and strength. Extremely demanding.',
+            desc: 'One of the most effective hamstring exercises for injury prevention and strength.',
             tips: ['Anchor feet under a pad or partner', 'Lower your body slowly — resist gravity', 'Use hands to push up from the floor', 'Progress gradually — very challenging'],
             yt: 'nordic hamstring curl tutorial' },
           { name: 'Stiff Leg Deadlift', sets: '3 sets × 8–12 reps',
-            desc: 'Similar to the RDL but with straighter legs. Increases the hamstring stretch at the bottom of the movement.',
+            desc: 'Similar to the RDL but with straighter legs. Increases the hamstring stretch at the bottom.',
             tips: ['Legs nearly straight — soft knee bend only', 'Hinge at the hips', 'Feel the stretch deep in the hamstrings', 'Keep the bar close to your legs'],
             yt: 'stiff leg deadlift hamstring tutorial' },
           { name: 'Good Morning', sets: '3 sets × 10–12 reps',
-            desc: 'A barbell exercise that strengthens the hamstrings and lower back through a hip hinge movement pattern.',
+            desc: 'A barbell exercise that strengthens the hamstrings and lower back through a hip hinge pattern.',
             tips: ['Bar on upper traps like a squat', 'Slight bend in knees', 'Hinge forward until torso is nearly parallel', 'Drive hips forward to return'],
             yt: 'good morning exercise hamstring tutorial' }
         ]
@@ -565,27 +643,27 @@
         name: 'Glutes', icon: '🍑',
         exercises: [
           { name: 'Barbell Hip Thrust', sets: '3–4 sets × 8–12 reps',
-            desc: 'The most effective glute exercise. Places the glutes under maximum load at full extension where they are strongest.',
+            desc: 'The most effective glute exercise. Places the glutes under maximum load at full extension.',
             tips: ['Upper back rests on a bench', 'Bar padded and across the hips', 'Drive hips fully up — full lockout', 'Squeeze glutes hard at the top'],
             yt: 'barbell hip thrust glutes proper form tutorial' },
           { name: 'Glute Bridge', sets: '3 sets × 15–20 reps',
-            desc: 'The floor version of the hip thrust. Great for beginners or as a warm-up to activate the glutes before heavier work.',
+            desc: 'The floor version of the hip thrust. Great for beginners or as a warm-up to activate the glutes.',
             tips: ['Lie flat on the floor', 'Drive hips up through the heels', 'Squeeze glutes at the top', 'Can be loaded with a plate or dumbbell'],
             yt: 'glute bridge exercise tutorial' },
           { name: 'Cable Glute Kickback', sets: '3 sets × 12–15 reps per leg',
-            desc: 'An isolation exercise for the glutes. The cable provides constant tension throughout the full range of motion.',
+            desc: 'An isolation exercise for the glutes with constant cable tension throughout the range of motion.',
             tips: ['Attach ankle strap to cable', 'Slight forward lean on the machine', 'Drive leg back and slightly upward', 'Squeeze glute at peak extension'],
             yt: 'cable glute kickback exercise tutorial' },
           { name: 'Sumo Squat', sets: '3–4 sets × 10–12 reps',
-            desc: 'A wide-stance squat that shifts emphasis toward the glutes and inner thighs compared to a standard squat.',
+            desc: 'A wide-stance squat that shifts emphasis toward the glutes and inner thighs.',
             tips: ['Feet wider than shoulder-width', 'Toes pointed outward 30–45 degrees', 'Knees track over toes throughout', 'Squat to full depth'],
             yt: 'sumo squat glutes tutorial' },
           { name: 'Step Up', sets: '3 sets × 10–12 reps per leg',
-            desc: 'A unilateral glute and quad exercise using a bench or box. Excellent for building single-leg strength and balance.',
+            desc: 'A unilateral glute and quad exercise. Excellent for building single-leg strength and balance.',
             tips: ['Use a bench at knee height', 'Drive through the heel of the top foot', 'Do not push off the back foot', 'Lower slowly and controlled'],
             yt: 'step up exercise glutes tutorial' },
           { name: 'Single Leg Hip Thrust', sets: '3 sets × 10–12 reps per leg',
-            desc: 'A unilateral hip thrust that fixes left-right imbalances and increases the challenge on each glute individually.',
+            desc: 'A unilateral hip thrust that fixes left-right imbalances and increases the challenge per glute.',
             tips: ['One leg extended forward throughout', 'Drive through the heel of the grounded foot', 'Full hip extension at the top', 'Keep hips level — do not rotate'],
             yt: 'single leg hip thrust glute tutorial' }
         ]
@@ -594,23 +672,23 @@
         name: 'Calves', icon: '🦶',
         exercises: [
           { name: 'Standing Calf Raise', sets: '4 sets × 15–20 reps',
-            desc: 'The primary calf exercise targeting the gastrocnemius. Standing with a straight knee maximizes gastroc activation.',
+            desc: 'The primary calf exercise targeting the gastrocnemius. Straight knee maximizes gastroc activation.',
             tips: ['Full stretch at the bottom — do not bounce', 'Pause and squeeze hard at the top', 'Slow and controlled throughout', 'Use a step for full range of motion'],
             yt: 'standing calf raise exercise tutorial' },
           { name: 'Seated Calf Raise', sets: '4 sets × 15–20 reps',
-            desc: 'Targets the soleus — the deeper calf muscle beneath the gastrocnemius. The bent-knee position isolates it.',
+            desc: 'Targets the soleus — the deeper calf muscle. The bent-knee position isolates it completely.',
             tips: ['Knees bent at 90 degrees', 'Full stretch at the bottom', 'Slow controlled reps — no bouncing', 'Squeeze hard at the top'],
             yt: 'seated calf raise soleus exercise tutorial' },
           { name: 'Leg Press Calf Raise', sets: '3–4 sets × 15–20 reps',
-            desc: 'A calf raise performed on the leg press machine. Allows very heavy loading on the calves safely.',
+            desc: 'A calf raise on the leg press machine. Allows very heavy loading safely.',
             tips: ['Place just the balls of your feet on the platform', 'Full range of motion each rep', 'Do not lock knees — keep a slight bend', 'Slow and controlled'],
             yt: 'leg press calf raise tutorial' },
           { name: 'Single Leg Calf Raise', sets: '3 sets × 12–15 reps per leg',
-            desc: 'A bodyweight unilateral calf exercise that doubles the load per leg and fixes strength imbalances.',
-            tips: ['Hold a wall or rack for balance only', 'Full range of motion', 'Do not use the other leg to assist', 'Adds a dumbbell for extra load'],
+            desc: 'A bodyweight unilateral calf exercise that doubles the load per leg and fixes imbalances.',
+            tips: ['Hold a wall or rack for balance only', 'Full range of motion', 'Do not use the other leg to assist', 'Add a dumbbell for extra load'],
             yt: 'single leg calf raise exercise tutorial' },
           { name: 'Donkey Calf Raise', sets: '3–4 sets × 15–20 reps',
-            desc: 'A calf raise performed bent forward at the hips. This position stretches the gastrocnemius more than standing raises.',
+            desc: 'Performed bent forward at the hips. This position stretches the gastrocnemius more than standing.',
             tips: ['Hinge at the hips to roughly 90 degrees', 'Full stretch at the bottom', 'Squeeze hard at the top', 'Can be done on a machine or with a partner'],
             yt: 'donkey calf raise exercise tutorial' }
         ]
@@ -619,27 +697,27 @@
         name: 'Adductors', icon: '🔺',
         exercises: [
           { name: 'Machine Hip Adduction', sets: '3–4 sets × 12–15 reps',
-            desc: 'The most direct adductor isolation exercise. The inner thigh machine allows focused loading with easy progression.',
+            desc: 'The most direct adductor isolation exercise. The inner thigh machine allows easy progression.',
             tips: ['Sit tall with back against the pad', 'Squeeze legs together in a controlled motion', 'Do not use momentum', 'Full range of motion each rep'],
             yt: 'hip adduction machine inner thigh tutorial' },
           { name: 'Cable Hip Adduction', sets: '3 sets × 12–15 reps per leg',
-            desc: 'A cable-based adductor exercise that provides constant tension throughout the range of motion.',
+            desc: 'A cable-based adductor exercise providing constant tension throughout the range of motion.',
             tips: ['Attach ankle strap to low cable', 'Stand sideways to the machine', 'Pull leg across and in front of your body', 'Squeeze inner thigh at peak contraction'],
             yt: 'cable hip adduction inner thigh exercise tutorial' },
           { name: 'Lateral Lunge', sets: '3 sets × 10–12 reps per leg',
-            desc: 'A dynamic adductor exercise that also works the quads and glutes. Stretches the inner thigh through a large range of motion.',
+            desc: 'A dynamic adductor exercise that also works the quads and glutes through a large range of motion.',
             tips: ['Step wide to the side', 'Sit into the hip of the working leg', 'Keep the opposite leg straight', 'Push through the heel to return'],
             yt: 'lateral lunge adductor exercise tutorial' },
           { name: 'Copenhagen Plank', sets: '3 sets × 20–30 seconds per side',
-            desc: 'An advanced adductor exercise using bodyweight. Also trains core stability and hip strength simultaneously.',
+            desc: 'An advanced adductor exercise using bodyweight. Also trains core stability simultaneously.',
             tips: ['Top leg rests on a bench', 'Body in a straight line like a side plank', 'Squeeze inner thighs together', 'Can regress by using lower leg for support'],
             yt: 'copenhagen plank adductor exercise tutorial' },
           { name: 'Sumo Deadlift', sets: '3–4 sets × 5–8 reps',
-            desc: 'A wide-stance deadlift that heavily recruits the adductors and glutes alongside the hamstrings and lower back.',
+            desc: 'A wide-stance deadlift that recruits the adductors and glutes alongside hamstrings and lower back.',
             tips: ['Wide stance with toes pointed out', 'Grip inside the legs', 'Push knees out as you drive up', 'Keep torso more upright than conventional'],
             yt: 'sumo deadlift proper form tutorial' },
           { name: 'Seated Adductor Squeeze', sets: '3 sets × 15–20 reps',
-            desc: 'A simple isolation exercise using a medicine ball or pillow between the knees. Great for activating adductors anywhere.',
+            desc: 'A simple isolation exercise using a medicine ball or pillow. Great for activating adductors anywhere.',
             tips: ['Sit with back straight', 'Place ball or pillow between knees', 'Squeeze and hold for 2 seconds', 'Release slowly — do not let it drop'],
             yt: 'seated adductor squeeze inner thigh exercise' }
         ]
@@ -671,19 +749,94 @@
       }
     };
 
-    // ── localStorage helpers ──
-    function storageKey(name) { return 'trainer_ex_' + name; }
+    // ── Helpers: find exercise by name ──
+    function findExercise(name) {
+      for (const group of Object.values(data)) {
+        const ex = group.exercises.find(e => e.name === name);
+        if (ex) return { ex, groupName: group.name };
+      }
+      return null;
+    }
 
+    // ── localStorage: exercise logs ──
+    function storageKey(name) { return 'trainer_ex_' + name; }
     function getLog(name) {
       try { return JSON.parse(localStorage.getItem(storageKey(name))); } catch { return null; }
     }
-
     function saveLogData(name, weight, reps) {
       const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
       localStorage.setItem(storageKey(name), JSON.stringify({ weight, reps, date }));
     }
 
-    // ── Build Home ──
+    // ── localStorage: plans ──
+    function getPlans() {
+      try { return JSON.parse(localStorage.getItem('trainer_plans') || '[]'); } catch { return []; }
+    }
+    function savePlans(plans) {
+      localStorage.setItem('trainer_plans', JSON.stringify(plans));
+    }
+    function getPlan(id) { return getPlans().find(p => p.id === id); }
+
+    // ── Tab switching ──
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabEx').classList.toggle('active', tab === 'exercises');
+      document.getElementById('tabPlans').classList.toggle('active', tab === 'plans');
+
+      if (tab === 'exercises') {
+        showView('homeView');
+        setHeader('My Trainer 💪', false);
+        document.getElementById('fab').classList.add('hidden');
+        navContext = 'home';
+        buildHome();
+      } else {
+        showView('plansView');
+        setHeader('My Plans', false);
+        document.getElementById('fab').classList.remove('hidden');
+        navContext = 'plans';
+        renderPlans();
+      }
+    }
+
+    // ── Navigation ──
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function setHeader(title, showBack, actionLabel, actionFn) {
+      document.getElementById('headerTitle').textContent = title;
+      document.getElementById('backBtn').classList.toggle('visible', showBack);
+      const btn = document.getElementById('headerAction');
+      if (actionLabel) {
+        btn.textContent = actionLabel;
+        btn.onclick = actionFn;
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    }
+
+    function handleBack() {
+      if (navContext === 'exercise-list') {
+        showView('homeView');
+        setHeader('My Trainer 💪', false);
+        document.getElementById('fab').classList.add('hidden');
+        navContext = 'home';
+        currentMuscleKey = null;
+      } else if (navContext === 'plan-detail') {
+        showView('plansView');
+        setHeader('My Plans', false);
+        document.getElementById('fab').classList.remove('hidden');
+        navContext = 'plans';
+        currentPlanId = null;
+        renderPlans();
+      } else if (navContext === 'picker') {
+        showPlanDetail(currentPlanId);
+      }
+    }
+
+    // ── Build Exercises Home ──
     function buildHome() {
       const grid = document.getElementById('muscleGrid');
       const entries = Object.entries(data);
@@ -695,64 +848,245 @@
         card.innerHTML = `
           <div class="icon">${group.icon}</div>
           <div class="name">${group.name}</div>
-          <div class="count">${group.exercises.length} exercises</div>
-        `;
+          <div class="count">${group.exercises.length} exercises</div>`;
         card.onclick = () => showExercises(key);
         grid.appendChild(card);
       });
     }
 
-    // ── Show Exercise List ──
     function showExercises(key) {
       currentMuscleKey = key;
       const group = data[key];
       const list = document.getElementById('exerciseList');
       list.innerHTML = '';
-
       group.exercises.forEach(ex => {
         const log = getLog(ex.name);
         const item = document.createElement('div');
         item.className = 'exercise-item';
-        const subText = log
-          ? `Last: ${log.weight} kg × ${log.reps} reps`
-          : ex.sets;
+        const subText = log ? `Last: ${log.weight} kg × ${log.reps} reps` : ex.sets;
         item.innerHTML = `
           <div>
             <div class="ex-name">${ex.name}</div>
             <div class="ex-sub ${log ? 'logged' : ''}">${subText}</div>
           </div>
-          <span class="arrow">›</span>
-        `;
+          <span class="arrow">›</span>`;
         item.onclick = () => openModal(ex, group.name);
         list.appendChild(item);
       });
-
-      document.getElementById('homeView').classList.remove('active');
-      document.getElementById('exerciseView').classList.add('active');
-      document.getElementById('headerTitle').textContent = group.name;
-      document.getElementById('backBtn').classList.add('visible');
+      showView('exerciseView');
+      setHeader(group.name, true);
+      document.getElementById('fab').classList.add('hidden');
+      navContext = 'exercise-list';
     }
 
-    // ── Go Back ──
-    function goHome() {
-      document.getElementById('exerciseView').classList.remove('active');
-      document.getElementById('homeView').classList.add('active');
-      document.getElementById('headerTitle').textContent = 'My Trainer 💪';
-      document.getElementById('backBtn').classList.remove('visible');
-      currentMuscleKey = null;
+    // ── Plans ──
+    function renderPlans() {
+      const plans = getPlans();
+      const container = document.getElementById('plansContent');
+      if (plans.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No Plans Yet</div>
+            <div class="empty-sub">Create your first workout plan and add exercises from any muscle group.</div>
+            <button class="empty-cta" onclick="openCreatePlan()">+ Create Plan</button>
+          </div>`;
+      } else {
+        container.innerHTML = '<div class="plans-list" id="plansList"></div>';
+        const list = document.getElementById('plansList');
+        plans.forEach(plan => {
+          const card = document.createElement('div');
+          card.className = 'plan-card';
+          const exCount = plan.exercises.length;
+          card.innerHTML = `
+            <div>
+              <div class="plan-card-name">${plan.name}</div>
+              <div class="plan-card-meta">${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
+            </div>
+            <span class="plan-card-arrow">›</span>`;
+          card.onclick = () => showPlanDetail(plan.id);
+          list.appendChild(card);
+        });
+      }
     }
 
-    // ── Open Modal ──
+    function openCreatePlan() {
+      document.getElementById('planNameInput').value = '';
+      document.getElementById('createPlanOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('planNameInput').focus(), 300);
+    }
+
+    function closeCreatePlan() {
+      document.getElementById('createPlanOverlay').classList.remove('open');
+    }
+
+    function handleCreateOverlayClick(e) {
+      if (e.target === document.getElementById('createPlanOverlay')) closeCreatePlan();
+    }
+
+    function createPlan() {
+      const name = document.getElementById('planNameInput').value.trim();
+      if (!name) return;
+      const plans = getPlans();
+      const newPlan = { id: 'plan_' + Date.now(), name, exercises: [] };
+      plans.push(newPlan);
+      savePlans(plans);
+      closeCreatePlan();
+      showPlanDetail(newPlan.id);
+    }
+
+    function deletePlan() {
+      if (!currentPlanId) return;
+      const plan = getPlan(currentPlanId);
+      if (!plan) return;
+      if (!confirm(`Delete "${plan.name}"?`)) return;
+      const plans = getPlans().filter(p => p.id !== currentPlanId);
+      savePlans(plans);
+      switchTab('plans');
+    }
+
+    // ── Plan Detail ──
+    function showPlanDetail(planId) {
+      currentPlanId = planId;
+      const plan = getPlan(planId);
+      if (!plan) return;
+
+      const list = document.getElementById('planDetailList');
+      list.innerHTML = '';
+
+      if (plan.exercises.length === 0) {
+        list.innerHTML = `
+          <div class="plan-empty-ex">
+            <div class="big">🏋️</div>
+            <p>No exercises yet.<br>Tap below to add some.</p>
+          </div>`;
+      } else {
+        plan.exercises.forEach(exName => {
+          const found = findExercise(exName);
+          if (!found) return;
+          const log = getLog(exName);
+          const item = document.createElement('div');
+          item.className = 'plan-ex-item';
+          const subText = log ? `Last: ${log.weight} kg × ${log.reps} reps` : found.ex.sets;
+          item.innerHTML = `
+            <div class="plan-ex-info">
+              <div class="plan-ex-name">${exName}</div>
+              <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
+            </div>
+            <button class="plan-ex-remove" title="Remove">−</button>`;
+          item.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName);
+          item.querySelector('.plan-ex-remove').onclick = (e) => {
+            e.stopPropagation();
+            removeExerciseFromPlan(planId, exName);
+          };
+          list.appendChild(item);
+        });
+      }
+
+      showView('planDetailView');
+      setHeader(plan.name, true, 'Delete', deletePlan);
+      document.getElementById('fab').classList.add('hidden');
+      navContext = 'plan-detail';
+    }
+
+    function removeExerciseFromPlan(planId, exName) {
+      const plans = getPlans();
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+      plan.exercises = plan.exercises.filter(e => e !== exName);
+      savePlans(plans);
+      showPlanDetail(planId);
+    }
+
+    // ── Exercise Picker ──
+    function showExercisePicker() {
+      const plan = getPlan(currentPlanId);
+      if (!plan) return;
+
+      const container = document.getElementById('pickerList');
+      container.innerHTML = '';
+
+      Object.entries(data).forEach(([key, group]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'picker-group';
+
+        const addedCount = group.exercises.filter(ex => plan.exercises.includes(ex.name)).length;
+
+        groupEl.innerHTML = `
+          <div class="picker-group-hdr" onclick="togglePickerGroup(this)">
+            <div class="picker-group-left">
+              <span class="picker-group-icon">${group.icon}</span>
+              <span class="picker-group-name">${group.name}</span>
+              <span class="picker-group-badge ${addedCount > 0 ? 'visible' : ''}" id="badge_${key}">${addedCount}</span>
+            </div>
+            <span class="picker-chevron">▼</span>
+          </div>
+          <div class="picker-exercises" id="picker_${key}">
+            ${group.exercises.map(ex => {
+              const added = plan.exercises.includes(ex.name);
+              return `
+                <div class="picker-ex-item" onclick="toggleExerciseInPlan('${ex.name.replace(/'/g, "\\'")}', '${key}')">
+                  <span class="picker-ex-name ${added ? '' : ''}" id="pname_${ex.name.replace(/[^a-z0-9]/gi,'_')}">${ex.name}</span>
+                  <div class="picker-toggle ${added ? 'added' : ''}" id="ptoggle_${ex.name.replace(/[^a-z0-9]/gi,'_')}">✓</div>
+                </div>`;
+            }).join('')}
+          </div>`;
+
+        container.appendChild(groupEl);
+      });
+
+      showView('exercisePickerView');
+      setHeader('Add Exercises', true);
+      document.getElementById('fab').classList.add('hidden');
+      navContext = 'picker';
+    }
+
+    function togglePickerGroup(hdr) {
+      const key = hdr.closest('.picker-group').querySelector('.picker-exercises').id.replace('picker_', '');
+      hdr.classList.toggle('open');
+      document.getElementById('picker_' + key).classList.toggle('open');
+    }
+
+    function toggleExerciseInPlan(exName, groupKey) {
+      const plans = getPlans();
+      const plan = plans.find(p => p.id === currentPlanId);
+      if (!plan) return;
+
+      const idx = plan.exercises.indexOf(exName);
+      if (idx === -1) {
+        plan.exercises.push(exName);
+      } else {
+        plan.exercises.splice(idx, 1);
+      }
+      savePlans(plans);
+
+      // Update UI instantly
+      const safeId = exName.replace(/[^a-z0-9]/gi, '_');
+      const toggle = document.getElementById('ptoggle_' + safeId);
+      if (toggle) toggle.classList.toggle('added', idx === -1);
+
+      // Update badge
+      const updatedPlan = getPlan(currentPlanId);
+      const group = data[groupKey];
+      if (group) {
+        const count = group.exercises.filter(e => updatedPlan.exercises.includes(e.name)).length;
+        const badge = document.getElementById('badge_' + groupKey);
+        if (badge) {
+          badge.textContent = count;
+          badge.classList.toggle('visible', count > 0);
+        }
+      }
+    }
+
+    // ── Exercise Modal ──
     function openModal(ex, muscleName) {
       currentExerciseName = ex.name;
-
       document.getElementById('modalTitle').textContent = ex.name;
       document.getElementById('modalTag').textContent = muscleName;
       document.getElementById('modalDesc').textContent = ex.desc;
       document.getElementById('modalSets').textContent = ex.sets;
       document.getElementById('modalTips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
 
-      // Load last session
       const log = getLog(ex.name);
       const valEl = document.getElementById('lastSessionValue');
       const dateEl = document.getElementById('lastSessionDate');
@@ -770,7 +1104,6 @@
         document.getElementById('logReps').value = '';
       }
 
-      // Reset save button
       const btn = document.getElementById('saveBtn');
       btn.textContent = 'Save';
       btn.style.background = '';
@@ -782,41 +1115,30 @@
       document.getElementById('modalOverlay').classList.add('open');
     }
 
-    // ── Save Log ──
     function saveLog() {
       const weight = document.getElementById('logWeight').value.trim();
-      const reps = document.getElementById('logReps').value.trim();
+      const reps   = document.getElementById('logReps').value.trim();
       if (!weight && !reps) return;
-
       saveLogData(currentExerciseName, weight || '—', reps || '—');
 
-      // Update last session display
       const log = getLog(currentExerciseName);
       document.getElementById('lastSessionValue').textContent = `${log.weight} kg × ${log.reps} reps`;
       document.getElementById('lastSessionValue').className = 'ls-value';
       document.getElementById('lastSessionDate').textContent = log.date;
 
-      // Update exercise list item in background
-      if (currentMuscleKey) showExercises(currentMuscleKey);
+      if (navContext === 'exercise-list' && currentMuscleKey) showExercises(currentMuscleKey);
+      if (navContext === 'plan-detail' && currentPlanId) showPlanDetail(currentPlanId);
 
-      // Show feedback
       const btn = document.getElementById('saveBtn');
       btn.textContent = '✓ Saved!';
       btn.style.background = '#27ae60cc';
-      setTimeout(() => {
-        btn.textContent = 'Save';
-        btn.style.background = '';
-      }, 1800);
+      setTimeout(() => { btn.textContent = 'Save'; btn.style.background = ''; }, 1800);
     }
 
-    function closeModal() {
-      document.getElementById('modalOverlay').classList.remove('open');
-    }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+    function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
 
-    function handleOverlayClick(e) {
-      if (e.target === document.getElementById('modalOverlay')) closeModal();
-    }
-
+    // ── Init ──
     buildHome();
   </script>
 </body>
