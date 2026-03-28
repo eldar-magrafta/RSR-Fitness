@@ -422,6 +422,7 @@
     .bw-cal-day.has-data::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--green); }
     .bw-cal-day.selected { background: var(--accent) !important; color: #fff !important; font-weight: 700; }
     .bw-cal-day.selected::after { display: none; }
+    .bw-cal-day.future { color: rgba(255,255,255,0.15); cursor: default; pointer-events: none; }
 
     /* BW Entry Modal */
     .bw-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.65); display: none; align-items: flex-end; justify-content: center; }
@@ -1639,8 +1640,9 @@
         ? entries.map((_,i)=>i)
         : [0, Math.floor((entries.length-1)/2), entries.length-1];
       const xLbls = [...new Set(xIdxs)].map(i => {
-        const [ds] = entries[i]; const [,m,d] = ds.split('-');
-        return `<text x="${xS(i)}" y="${H-P.b+14}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="9" font-family="-apple-system,sans-serif">${d}/${m}</text>`;
+        const [ds] = entries[i]; const [y,m,d] = ds.split('-');
+        const anchor = i === 0 ? 'start' : i === entries.length-1 ? 'end' : 'middle';
+        return `<text x="${xS(i)}" y="${H-P.b+13}" text-anchor="${anchor}" fill="rgba(255,255,255,0.3)" font-size="9" font-family="-apple-system,sans-serif">${d}/${m}/${y.slice(2)}</text>`;
       }).join('');
 
       const dots = pts.map(p =>
@@ -1701,8 +1703,10 @@
       // This month
       for (let d=1; d<=daysInMon; d++) {
         const ds = `${bwCalYear}-${String(bwCalMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isFuture = ds > today;
         const cls = [
           'bw-cal-day',
+          isFuture         ? 'future'   : '',
           ds===today       ? 'today'    : '',
           data[ds]         ? 'has-data' : '',
           ds===bwSelDate   ? 'selected' : '',
@@ -1714,7 +1718,8 @@
       for (let d=1; d<=remain; d++) {
         const m = bwCalMon===11?1:bwCalMon+2, y = bwCalMon===11?bwCalYear+1:bwCalYear;
         const ds = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        html += `<div class="bw-cal-day other-month${data[ds]?' has-data':''}" onclick="openBWEntry('${ds}')">${d}</div>`;
+        const isFutureOther = ds > today;
+        html += `<div class="bw-cal-day other-month${isFutureOther?' future':''}${data[ds]?' has-data':''}"${isFutureOther?'':` onclick="openBWEntry('${ds}')"`}>${d}</div>`;
       }
       document.getElementById('bwCalGrid').innerHTML = html;
     }
@@ -1730,6 +1735,7 @@
 
     // ── Entry sheet ──
     function openBWEntry(dateStr) {
+      if (dateStr > bwToStr(new Date())) return; // block future dates
       bwSelDate = dateStr;
       renderBWCalendar();
       const existing = getBWData()[dateStr];
