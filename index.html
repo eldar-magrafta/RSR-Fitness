@@ -439,6 +439,21 @@
     .bw-btn-del { width: 100%; background: none; border: 1px solid rgba(233,69,96,0.3); color: var(--accent); padding: 14px; border-radius: 16px; font-size: 0.95rem; font-weight: 600; font-family: inherit; cursor: pointer; display: none; }
     .bw-btn-del.visible { display: block; }
     .bw-btn-del:active { background: rgba(233,69,96,0.1); }
+
+    /* Photo area */
+    .bw-photo-area { margin-bottom: 20px; }
+    .bw-add-photo-btn { width: 100%; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.18); color: var(--muted); padding: 14px; border-radius: 16px; font-size: 0.9rem; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .bw-add-photo-btn:active { background: rgba(255,255,255,0.1); }
+    .bw-thumb-wrap { position: relative; display: inline-block; }
+    .bw-thumb-img { width: 110px; height: 110px; object-fit: cover; border-radius: 14px; display: block; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); }
+    .bw-thumb-img:active { opacity: 0.8; }
+    .bw-thumb-remove { position: absolute; top: -8px; right: -8px; background: var(--accent); border: none; color: #fff; width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+    /* Full-size photo viewer */
+    .bw-viewer { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.94); display: none; align-items: center; justify-content: center; }
+    .bw-viewer.open { display: flex; }
+    .bw-viewer img { max-width: 96vw; max-height: 88vh; border-radius: 12px; object-fit: contain; }
+    .bw-viewer-close { position: absolute; top: calc(var(--safe-top) + 18px); right: 20px; background: rgba(255,255,255,0.12); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
@@ -511,9 +526,22 @@
         <input type="number" id="bwInput" placeholder="0.0" inputmode="decimal" step="0.1" />
         <span class="bw-unit">kg</span>
       </div>
+      <!-- Photo area -->
+      <input type="file" id="bwFileInput" accept="image/*" style="display:none" onchange="bwOnFileSelect(event)">
+      <div class="bw-photo-area" id="bwPhotoArea">
+        <button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">
+          📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span>
+        </button>
+      </div>
       <button class="bw-btn-save" onclick="saveBWEntry()">Save</button>
       <button class="bw-btn-del" id="bwBtnDel" onclick="deleteBWEntry()">Delete Entry</button>
     </div>
+  </div>
+
+  <!-- Full-size photo viewer -->
+  <div class="bw-viewer" id="bwViewer" onclick="closeBWViewer()">
+    <button class="bw-viewer-close" onclick="closeBWViewer()">✕</button>
+    <img id="bwViewerImg" />
   </div>
 
   <!-- FAB (create plan) -->
@@ -1505,6 +1533,10 @@
     }
     function saveBWData(data) { localStorage.setItem('trainer_bw', JSON.stringify(data)); }
 
+    // Backward-compat helpers (old entries are plain numbers, new are {w,p} objects)
+    function bwGetWeight(val) { return typeof val === 'object' && val ? Number(val.w) : Number(val); }
+    function bwGetPhoto(val)  { return typeof val === 'object' && val ? (val.p || null) : null; }
+
     function bwToStr(d) {
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
@@ -1513,10 +1545,11 @@
       return new Date(y, m-1, d).toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
     }
 
-    let bwCalYear = new Date().getFullYear();
-    let bwCalMon  = new Date().getMonth();
-    let bwRange   = 30;
-    let bwSelDate = null;
+    let bwCalYear    = new Date().getFullYear();
+    let bwCalMon     = new Date().getMonth();
+    let bwRange      = 30;
+    let bwSelDate    = null;
+    let bwCurrentPhoto = null; // base64 string or null for currently-open sheet
 
     function buildWeightView() {
       renderBWStats();
@@ -1527,11 +1560,11 @@
     // ── Stats strip ──
     function renderBWStats() {
       const data  = getBWData();
-      const vals  = Object.values(data).map(Number).filter(v => v > 0);
+      const vals  = Object.values(data).map(bwGetWeight).filter(v => v > 0);
       const today = bwToStr(new Date());
       const sorted = Object.entries(data).sort(([a],[b]) => a.localeCompare(b));
-      const lastEntry = sorted.length ? Number(sorted[sorted.length-1][1]) : null;
-      const current = data[today] ? Number(data[today]) : lastEntry;
+      const lastEntry = sorted.length ? bwGetWeight(sorted[sorted.length-1][1]) : null;
+      const current = data[today] ? bwGetWeight(data[today]) : lastEntry;
       const min = vals.length ? Math.min(...vals) : null;
       const max = vals.length ? Math.max(...vals) : null;
       const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
@@ -1557,9 +1590,9 @@
       const data = getBWData();
 
       let entries = Object.entries(data)
-        .filter(([,v]) => Number(v) > 0)
+        .filter(([,v]) => bwGetWeight(v) > 0)
         .sort(([a],[b]) => a.localeCompare(b))
-        .map(([d,v]) => [d, Number(v)]);
+        .map(([d,v]) => [d, bwGetWeight(v)]);
 
       if (bwRange > 0) {
         const cut = new Date(); cut.setDate(cut.getDate() - bwRange);
@@ -1694,14 +1727,20 @@
       bwSelDate = dateStr;
       renderBWCalendar();
       const existing = getBWData()[dateStr];
+      const w = existing ? bwGetWeight(existing) : null;
+      bwCurrentPhoto = existing ? bwGetPhoto(existing) : null;
+
       document.getElementById('bwSheetDate').textContent = bwFmtLabel(dateStr);
-      document.getElementById('bwInput').value = existing || '';
+      document.getElementById('bwInput').value = w || '';
       document.getElementById('bwBtnDel').classList.toggle('visible', !!existing);
+      bwRenderPhotoArea();
+
       document.getElementById('bwOverlay').classList.add('open');
       setTimeout(() => document.getElementById('bwInput').focus(), 380);
     }
     function closeBWEntry() {
       document.getElementById('bwOverlay').classList.remove('open');
+      bwCurrentPhoto = null;
     }
     function handleBWOverlay(e) {
       if (e.target === document.getElementById('bwOverlay')) closeBWEntry();
@@ -1715,7 +1754,8 @@
         return;
       }
       const data = getBWData();
-      data[bwSelDate] = Math.round(val * 10) / 10;
+      const entry = bwCurrentPhoto ? { w: Math.round(val*10)/10, p: bwCurrentPhoto } : Math.round(val*10)/10;
+      data[bwSelDate] = entry;
       saveBWData(data);
       closeBWEntry();
       buildWeightView();
@@ -1728,6 +1768,58 @@
       closeBWEntry();
       buildWeightView();
     }
+
+    // ── Photo functions ──
+    function bwRenderPhotoArea() {
+      const area = document.getElementById('bwPhotoArea');
+      if (bwCurrentPhoto) {
+        area.innerHTML = `
+          <div class="bw-thumb-wrap">
+            <img class="bw-thumb-img" src="${bwCurrentPhoto}" onclick="bwViewPhoto()" />
+            <button class="bw-thumb-remove" onclick="bwRemovePhoto()">✕</button>
+          </div>`;
+      } else {
+        area.innerHTML = `<button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span></button>`;
+      }
+    }
+
+    function bwOnFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      e.target.value = ''; // reset so same file can be re-selected
+      bwResizeImage(file, base64 => {
+        bwCurrentPhoto = base64;
+        bwRenderPhotoArea();
+      });
+    }
+
+    function bwResizeImage(file, cb) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 700;
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+          else       { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          cb(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function bwRemovePhoto() { bwCurrentPhoto = null; bwRenderPhotoArea(); }
+
+    function bwViewPhoto() {
+      if (!bwCurrentPhoto) return;
+      document.getElementById('bwViewerImg').src = bwCurrentPhoto;
+      document.getElementById('bwViewer').classList.add('open');
+    }
+    function closeBWViewer() { document.getElementById('bwViewer').classList.remove('open'); }
 
     // ── Init ──
     buildHome();
