@@ -1552,6 +1552,12 @@
     let bwCurrentPhoto = null; // base64 string or null for currently-open sheet
 
     function buildWeightView() {
+      // Sync range buttons to current bwRange state
+      document.querySelectorAll('.bw-range-btn').forEach(btn => {
+        const m = btn.getAttribute('onclick').match(/setBWRange\((\d+)/);
+        const days = m ? parseInt(m[1]) : -1;
+        btn.classList.toggle('active', days === bwRange);
+      });
       renderBWStats();
       renderBWChart();
       renderBWCalendar();
