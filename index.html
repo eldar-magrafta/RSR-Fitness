@@ -79,7 +79,7 @@
     /* ── Muscle Group Grid ── */
     .muscle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .muscle-card {
-      background: var(--card); border-radius: 18px; padding: 24px 16px;
+      background: var(--card); border-radius: 18px; padding: 12px 12px 14px;
       text-align: center; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.05); transition: transform 0.15s;
       position: relative; overflow: hidden;
@@ -90,9 +90,21 @@
     }
     .muscle-card:active { transform: scale(0.96); }
     .muscle-card:active::after { opacity: 1; }
-    .muscle-card .icon { font-size: 2.2rem; margin-bottom: 10px; }
+    /* ── Muscle image overlay ── */
+    .muscle-icon-wrap {
+      position: relative; width: 100%; aspect-ratio: 1;
+      margin-bottom: 8px; border-radius: 10px; overflow: hidden;
+      background: #000;
+    }
+    .muscle-icon-wrap img {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; object-fit: contain; display: block;
+    }
+    .muscle-icon-wrap .m-overlay {
+      filter: hue-rotate(130deg) saturate(2.4) brightness(1.15);
+    }
     .muscle-card .name { font-size: 0.95rem; font-weight: 600; }
-    .muscle-card .count { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .muscle-card .count { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
     .muscle-card.wide { grid-column: 1 / -1; }
 
     /* ── Exercise List ── */
@@ -494,7 +506,7 @@
     // ── Exercise Data ──
     const data = {
       chest: {
-        name: 'Chest', icon: '🏋️',
+        name: 'Chest', icon: '🏋️', img: 'chest',
         exercises: [
           { name: 'Barbell Bench Press', sets: '3–4 sets × 6–10 reps',
             desc: 'The foundational chest exercise. Builds overall chest mass, tricep strength, and anterior deltoid size.',
@@ -519,7 +531,7 @@
         ]
       },
       back: {
-        name: 'Back', icon: '🎯',
+        name: 'Back', icon: '🎯', img: 'back',
         exercises: [
           { name: 'Pull Up', sets: '3–4 sets × 5–10 reps',
             desc: 'The ultimate upper back exercise. Builds lat width and overall pulling strength.',
@@ -556,7 +568,7 @@
         ]
       },
       shoulders: {
-        name: 'Shoulders', icon: '⬆️',
+        name: 'Shoulders', icon: '⬆️', img: 'shoulders',
         exercises: [
           { name: 'Overhead Press', sets: '3–4 sets × 6–10 reps',
             desc: 'The primary compound shoulder movement. Builds all three deltoid heads and overall pressing strength.',
@@ -577,7 +589,7 @@
         ]
       },
       biceps: {
-        name: 'Biceps', icon: '💪',
+        name: 'Biceps', icon: '💪', img: 'biceps',
         exercises: [
           { name: 'Barbell Curl', sets: '3–4 sets × 8–10 reps',
             desc: 'The best mass-builder for biceps. Allows the most weight to be used in a curl movement.',
@@ -598,7 +610,7 @@
         ]
       },
       triceps: {
-        name: 'Triceps', icon: '⚡',
+        name: 'Triceps', icon: '⚡', img: 'triceps',
         exercises: [
           { name: 'Tricep Pushdown', sets: '3–4 sets × 10–15 reps',
             desc: 'The most common tricep exercise. Isolates the lateral head and allows easy load progression.',
@@ -619,7 +631,7 @@
         ]
       },
       quads: {
-        name: 'Quads', icon: '🦵',
+        name: 'Quads', icon: '🦵', img: 'quadriceps',
         exercises: [
           { name: 'Barbell Back Squat', sets: '3–4 sets × 5–8 reps',
             desc: 'The king of leg exercises. Builds quads, glutes, and hamstrings while developing core and full-body strength.',
@@ -652,7 +664,7 @@
         ]
       },
       hamstrings: {
-        name: 'Hamstrings', icon: '🔙',
+        name: 'Hamstrings', icon: '🔙', img: 'hamstring',
         exercises: [
           { name: 'Romanian Deadlift', sets: '3 sets × 8–12 reps',
             desc: 'The best hamstring exercise. A hip hinge that stretches and loads the hamstrings fully.',
@@ -681,7 +693,7 @@
         ]
       },
       glutes: {
-        name: 'Glutes', icon: '🍑',
+        name: 'Glutes', icon: '🍑', img: 'gluteus',
         exercises: [
           { name: 'Barbell Hip Thrust', sets: '3–4 sets × 8–12 reps',
             desc: 'The most effective glute exercise. Places the glutes under maximum load at full extension.',
@@ -710,7 +722,7 @@
         ]
       },
       calves: {
-        name: 'Calves', icon: '🦶',
+        name: 'Calves', icon: '🦶', img: 'calfs',
         exercises: [
           { name: 'Standing Calf Raise', sets: '4 sets × 15–20 reps',
             desc: 'The primary calf exercise targeting the gastrocnemius. Straight knee maximizes gastroc activation.',
@@ -735,7 +747,7 @@
         ]
       },
       adductors: {
-        name: 'Adductors', icon: '🔺',
+        name: 'Adductors', icon: '🔺', img: 'adductors',
         exercises: [
           { name: 'Machine Hip Adduction', sets: '3–4 sets × 12–15 reps',
             desc: 'The most direct adductor isolation exercise. The inner thigh machine allows easy progression.',
@@ -764,7 +776,7 @@
         ]
       },
       core: {
-        name: 'Core', icon: '🔥',
+        name: 'Core', icon: '🔥', img: 'abs',
         exercises: [
           { name: 'Plank', sets: '3 sets × 30–60 seconds',
             desc: 'The foundational core stability exercise. Trains anti-extension — resisting the spine from sagging.',
@@ -887,7 +899,10 @@
         const card = document.createElement('div');
         card.className = 'muscle-card' + (isLastOdd ? ' wide' : '');
         card.innerHTML = `
-          <div class="icon">${group.icon}</div>
+          <div class="muscle-icon-wrap">
+            <img src="images/baseImage_transparent.png" alt="" loading="lazy">
+            <img class="m-overlay" src="images/${group.img}.png" alt="${group.name}" loading="lazy">
+          </div>
           <div class="name">${group.name}</div>
           <div class="count">${group.exercises.length} exercises</div>`;
         card.onclick = () => showExercises(key);
