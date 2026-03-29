@@ -1,5 +1,5 @@
 const CACHE = 'trainer-v1';
-const FILES = ['/', '/index.html', '/manifest.json'];
+const FILES = ['./', './index.html', './manifest.json', './sw.js'];
 
 // Pre-cache on install
 self.addEventListener('install', e => {
