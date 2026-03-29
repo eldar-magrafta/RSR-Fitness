@@ -600,32 +600,38 @@
       <div class="section-label">Key Tips</div>
       <ul class="tips-list" id="modalTips"></ul>
       <button class="yt-btn" id="ytBtn" style="margin-bottom:20px;">▶&nbsp; Watch Tutorial on YouTube</button>
-      <div class="section-label">Last Session</div>
-      <div class="last-session-box">
-        <span class="ls-icon">🕐</span>
-        <div>
-          <div class="ls-value" id="lastSessionValue">No data yet</div>
-          <div class="ls-date" id="lastSessionDate"></div>
-        </div>
-      </div>
-      <div class="section-label">Log Today</div>
-      <div class="log-row">
-        <div class="log-field">
-          <label>Weight</label>
-          <div class="log-input-wrap">
-            <input type="number" id="logWeight" placeholder="0" inputmode="decimal" />
-            <span>kg</span>
+      <div id="modalPlanSection">
+        <div class="section-label">Last Session</div>
+        <div class="last-session-box">
+          <span class="ls-icon">🕐</span>
+          <div>
+            <div class="ls-value" id="lastSessionValue">No data yet</div>
+            <div class="ls-date" id="lastSessionDate"></div>
           </div>
         </div>
-        <div class="log-field">
-          <label>Reps</label>
-          <div class="log-input-wrap">
-            <input type="number" id="logReps" placeholder="0" inputmode="numeric" />
-            <span>reps</span>
+        <div class="section-label">Log Today</div>
+        <div class="log-row">
+          <div class="log-field">
+            <label>Weight</label>
+            <div class="log-input-wrap">
+              <input type="number" id="logWeight" placeholder="0" inputmode="decimal" />
+              <span>kg</span>
+            </div>
+          </div>
+          <div class="log-field">
+            <label>Reps</label>
+            <div class="log-input-wrap">
+              <input type="number" id="logReps" placeholder="0" inputmode="numeric" />
+              <span>reps</span>
+            </div>
           </div>
         </div>
+        <div class="section-label">Notes</div>
+        <textarea id="modalNotes" maxlength="250" placeholder="Personal notes about this exercise…"
+          style="width:100%;box-sizing:border-box;background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;font-size:0.95rem;font-family:inherit;resize:none;height:90px;outline:none;"></textarea>
+        <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--sub);margin-top:4px;margin-bottom:8px;">0 / 250</div>
+        <button class="save-btn" id="saveBtn" onclick="saveLog()">Save</button>
       </div>
-      <button class="save-btn" id="saveBtn" onclick="saveLog()">Save</button>
     </div>
   </div>
 
@@ -1222,7 +1228,7 @@
               <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
             </div>
             <button class="plan-ex-remove" title="Remove">−</button>`;
-          el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName);
+          el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, true);
           el.querySelector('.plan-ex-remove').onclick = (e) => {
             e.stopPropagation();
             removeExerciseFromPlan(planId, exName);
@@ -1368,33 +1374,51 @@
     }
 
     // ── Exercise Modal ──
-    function openModal(ex, muscleName) {
+    function getNotes(name) {
+      try { return localStorage.getItem('trainer_notes_' + name) || ''; } catch { return ''; }
+    }
+    function saveNotesData(name, text) {
+      localStorage.setItem('trainer_notes_' + name, text.slice(0, 250));
+    }
+
+    function openModal(ex, muscleName, fromPlan = false) {
       currentExerciseName = ex.name;
       document.getElementById('modalTitle').textContent = ex.name;
       document.getElementById('modalTag').textContent = muscleName;
       document.getElementById('modalDesc').textContent = ex.desc;
       document.getElementById('modalTips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
 
-      const log = getLog(ex.name);
-      const valEl = document.getElementById('lastSessionValue');
-      const dateEl = document.getElementById('lastSessionDate');
-      if (log) {
-        valEl.textContent = `${log.weight} kg × ${log.reps} reps`;
-        valEl.className = 'ls-value';
-        dateEl.textContent = log.date;
-        document.getElementById('logWeight').value = log.weight;
-        document.getElementById('logReps').value = log.reps;
-      } else {
-        valEl.textContent = 'No data yet — log below';
-        valEl.className = 'ls-value none';
-        dateEl.textContent = '';
-        document.getElementById('logWeight').value = '';
-        document.getElementById('logReps').value = '';
-      }
+      const planSection = document.getElementById('modalPlanSection');
+      planSection.style.display = fromPlan ? '' : 'none';
 
-      const btn = document.getElementById('saveBtn');
-      btn.textContent = 'Save';
-      btn.style.background = '';
+      if (fromPlan) {
+        const log = getLog(ex.name);
+        const valEl = document.getElementById('lastSessionValue');
+        const dateEl = document.getElementById('lastSessionDate');
+        if (log) {
+          valEl.textContent = `${log.weight} kg × ${log.reps} reps`;
+          valEl.className = 'ls-value';
+          dateEl.textContent = log.date;
+          document.getElementById('logWeight').value = log.weight;
+          document.getElementById('logReps').value = log.reps;
+        } else {
+          valEl.textContent = 'No data yet — log below';
+          valEl.className = 'ls-value none';
+          dateEl.textContent = '';
+          document.getElementById('logWeight').value = '';
+          document.getElementById('logReps').value = '';
+        }
+
+        const notesEl = document.getElementById('modalNotes');
+        const notesCount = document.getElementById('modalNotesCount');
+        notesEl.value = getNotes(ex.name);
+        notesCount.textContent = `${notesEl.value.length} / 250`;
+        notesEl.oninput = () => { notesCount.textContent = `${notesEl.value.length} / 250`; };
+
+        const btn = document.getElementById('saveBtn');
+        btn.textContent = 'Save';
+        btn.style.background = '';
+      }
 
       document.getElementById('ytBtn').onclick = () => {
         const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.yt);
@@ -1413,8 +1437,10 @@
     function saveLog() {
       const weight = document.getElementById('logWeight').value.trim();
       const reps   = document.getElementById('logReps').value.trim();
+      const notes  = document.getElementById('modalNotes').value;
       if (!weight && !reps) return;
       saveLogData(currentExerciseName, weight || '—', reps || '—');
+      saveNotesData(currentExerciseName, notes);
 
       const log = getLog(currentExerciseName);
       document.getElementById('lastSessionValue').textContent = `${log.weight} kg × ${log.reps} reps`;
