@@ -609,6 +609,8 @@
       <div class="modal-desc" id="modalDesc"></div>
       <div class="section-label">Key Tips</div>
       <ul class="tips-list" id="modalTips"></ul>
+      <video id="modalGif" autoplay loop muted playsinline
+        style="display:none;width:100%;border-radius:14px;margin-bottom:14px;max-height:220px;object-fit:cover;"></video>
       <button class="yt-btn" id="ytBtn" style="margin-bottom:20px;">▶&nbsp; Watch Tutorial on YouTube</button>
       <div id="modalPlanSection">
         <div class="section-label">Last Session</div>
@@ -693,7 +695,8 @@
           { name: 'Barbell Bench Press', sets: '3–4 sets × 6–10 reps',
             desc: 'The foundational chest exercise. Builds overall chest mass, tricep strength, and anterior deltoid size.',
             tips: ['Retract and depress shoulder blades', 'Keep feet flat on the floor', 'Lower bar to lower chest', 'Drive bar up and slightly back'],
-            yt: 'barbell bench press proper form tutorial' },
+            yt: 'barbell bench press proper form tutorial',
+            gif: 'gifs/bench-press.webm' },
           { name: 'Incline Dumbbell Press', sets: '3 sets × 8–12 reps',
             desc: 'Targets the upper chest. The dumbbell variation allows a greater range of motion than a barbell.',
             tips: ['Set bench to 30–45 degrees', 'Press in a slight arc', 'Touch dumbbells at the top', 'Control the descent slowly'],
@@ -1417,6 +1420,16 @@
       document.getElementById('modalTag').textContent = muscleName;
       document.getElementById('modalDesc').textContent = ex.desc;
       document.getElementById('modalTips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
+
+      const gifEl = document.getElementById('modalGif');
+      if (ex.gif) {
+        gifEl.src = ex.gif;
+        gifEl.style.display = '';
+        gifEl.play();
+      } else {
+        gifEl.style.display = 'none';
+        gifEl.src = '';
+      }
 
       const planSection = document.getElementById('modalPlanSection');
       planSection.style.display = fromPlan ? '' : 'none';
