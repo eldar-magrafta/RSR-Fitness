@@ -691,6 +691,68 @@
     <div id="nlPickerList"></div>
   </div>
 
+  <!-- ── Exercise History View ── -->
+  <div class="view" id="exHistoryView">
+    <div class="bw-chart-wrap">
+      <div class="bw-chart-header">
+        <span class="bw-chart-title">Weight Progression</span>
+        <div class="bw-range-row">
+          <button class="bw-range-btn active" onclick="setExHistRange(30,this)">1M</button>
+          <button class="bw-range-btn" onclick="setExHistRange(90,this)">3M</button>
+          <button class="bw-range-btn" onclick="setExHistRange(0,this)">All</button>
+        </div>
+      </div>
+      <div style="position:relative;">
+        <svg class="bw-chart-svg" id="exHistChartSvg" viewBox="0 0 340 140" height="140"></svg>
+        <div class="bw-tooltip" id="exHistTooltip">
+          <div class="bw-tooltip-val" id="exHistTooltipVal"></div>
+          <div class="bw-tooltip-date" id="exHistTooltipDate"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bw-cal-wrap">
+      <div class="bw-cal-header">
+        <button class="bw-cal-nav" onclick="exHistPrevMonth()">‹</button>
+        <span class="bw-cal-title" id="exHistCalTitle"></span>
+        <button class="bw-cal-nav" onclick="exHistNextMonth()">›</button>
+      </div>
+      <div class="bw-cal-labels">
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+      <div class="bw-cal-grid" id="exHistCalGrid"></div>
+    </div>
+  </div>
+
+  <!-- Exercise History Entry Sheet -->
+  <div class="bw-overlay" id="exHistEntryOverlay" onclick="if(event.target===this)closeExHistEntry()">
+    <div class="bw-sheet" id="exHistEntrySheet">
+      <div class="bw-sheet-handle"></div>
+      <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
+      <div class="bw-sheet-title">Log Exercise</div>
+      <div class="log-row" style="margin-bottom:16px;">
+        <div class="log-field">
+          <label>Weight</label>
+          <div class="log-input-wrap">
+            <input type="number" id="exHistWeight" placeholder="0" inputmode="decimal" />
+            <span>kg</span>
+          </div>
+        </div>
+        <div class="log-field">
+          <label>Reps</label>
+          <div class="log-input-wrap">
+            <input type="number" id="exHistReps" placeholder="0" inputmode="numeric" />
+            <span>reps</span>
+          </div>
+        </div>
+      </div>
+      <div class="section-label">Notes</div>
+      <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…"
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;font-size:0.92rem;font-family:inherit;resize:none;height:70px;outline:none;margin-bottom:16px;"></textarea>
+      <button class="bw-btn-save" onclick="saveExHistEntry()">Save</button>
+      <button class="bw-btn-del" id="exHistBtnDel" onclick="deleteExHistEntry()">Delete Entry</button>
+    </div>
+  </div>
+
   <!-- FAB (create plan / create meal) -->
   <button class="fab hidden" id="fab" onclick="handleFab()">+</button>
 
@@ -734,28 +796,12 @@
             <div class="ls-date" id="lastSessionDate"></div>
           </div>
         </div>
-        <div class="section-label">Log Today</div>
-        <div class="log-row">
-          <div class="log-field">
-            <label>Weight</label>
-            <div class="log-input-wrap">
-              <input type="number" id="logWeight" placeholder="0" inputmode="decimal" />
-              <span>kg</span>
-            </div>
-          </div>
-          <div class="log-field">
-            <label>Reps</label>
-            <div class="log-input-wrap">
-              <input type="number" id="logReps" placeholder="0" inputmode="numeric" />
-              <span>reps</span>
-            </div>
-          </div>
-        </div>
         <div class="section-label">Notes</div>
         <textarea id="modalNotes" maxlength="250" placeholder="Personal notes about this exercise…"
-          style="width:100%;box-sizing:border-box;background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;font-size:0.95rem;font-family:inherit;resize:none;height:90px;outline:none;"></textarea>
-        <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--sub);margin-top:4px;margin-bottom:8px;">0 / 250</div>
-        <button class="save-btn" id="saveBtn" onclick="saveLog()">Save</button>
+          oninput="autoSaveExNotes()"
+          style="width:100%;box-sizing:border-box;background:var(--card);color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;font-size:0.95rem;font-family:inherit;resize:none;height:90px;outline:none;"></textarea>
+        <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">0 / 250</div>
+        <button class="yt-btn" style="background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.3);color:#4ecdc4;" onclick="openExHistory()">📊&nbsp; Exercise History</button>
       </div>
     </div>
   </div>
@@ -1182,14 +1228,47 @@
       return null;
     }
 
-    // ── localStorage: exercise logs ──
-    function storageKey(name) { return 'trainer_ex_' + name; }
+    // ── localStorage: exercise logs (date-keyed history) ──
+    function getExHist(name) { try { return JSON.parse(localStorage.getItem('trainer_exhist_'+name))||{}; } catch { return {}; } }
+    function saveExHist(name,data) { localStorage.setItem('trainer_exhist_'+name, JSON.stringify(data)); }
+
     function getLog(name) {
-      try { return JSON.parse(localStorage.getItem(storageKey(name))); } catch { return null; }
+      const hist=getExHist(name);
+      const entries=Object.entries(hist).sort(([a],[b])=>b.localeCompare(a));
+      if(entries.length===0) return null;
+      const [ds,e]=entries[0];
+      const d=new Date(ds+'T00:00:00');
+      const date=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+      return { weight:e.w, reps:e.r, date };
     }
+
     function saveLogData(name, weight, reps) {
-      const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      localStorage.setItem(storageKey(name), JSON.stringify({ weight, reps, date }));
+      const today=new Date().toISOString().slice(0,10);
+      const hist=getExHist(name);
+      hist[today]={w:weight,r:reps};
+      saveExHist(name,hist);
+    }
+
+    function migrateOldExLogs() {
+      const keys=[];
+      for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k)keys.push(k);}
+      keys.forEach(key=>{
+        if(key.startsWith('trainer_ex_')&&!key.startsWith('trainer_exhist_')){
+          try{
+            const name=key.replace('trainer_ex_','');
+            const old=JSON.parse(localStorage.getItem(key));
+            if(old&&old.weight){
+              const histKey='trainer_exhist_'+name;
+              const existing=JSON.parse(localStorage.getItem(histKey)||'{}');
+              const parsed=new Date(old.date);
+              if(!isNaN(parsed)){
+                const ds=parsed.toISOString().slice(0,10);
+                if(!existing[ds]){existing[ds]={w:old.weight,r:old.reps};localStorage.setItem(histKey,JSON.stringify(existing));}
+              }
+            }
+          }catch(e){}
+        }
+      });
     }
 
     // ── localStorage: plans ──
@@ -1289,6 +1368,9 @@
         setHeader(meal ? meal.name : 'Meal', true, 'Delete', nlDeleteMeal);
         document.getElementById('fab').classList.add('hidden');
         navContext = 'nl-meal';
+      } else if (navContext === 'ex-history') {
+        if (currentPlanId) showPlanDetail(currentPlanId);
+        else switchTab('exercises');
       } else if (navContext === 'nl-browse') {
         showView('nutritionView');
         setHeader('Nutrition Lab', false);
@@ -1659,25 +1741,16 @@
           valEl.textContent = `${log.weight} kg × ${log.reps} reps`;
           valEl.className = 'ls-value';
           dateEl.textContent = log.date;
-          document.getElementById('logWeight').value = log.weight;
-          document.getElementById('logReps').value = log.reps;
         } else {
-          valEl.textContent = 'No data yet — log below';
+          valEl.textContent = 'No data yet';
           valEl.className = 'ls-value none';
           dateEl.textContent = '';
-          document.getElementById('logWeight').value = '';
-          document.getElementById('logReps').value = '';
         }
 
         const notesEl = document.getElementById('modalNotes');
         const notesCount = document.getElementById('modalNotesCount');
         notesEl.value = getNotes(ex.name);
         notesCount.textContent = `${notesEl.value.length} / 250`;
-        notesEl.oninput = () => { notesCount.textContent = `${notesEl.value.length} / 250`; };
-
-        const btn = document.getElementById('saveBtn');
-        btn.textContent = 'Save';
-        btn.style.background = '';
       }
 
       document.getElementById('ytBtn').onclick = () => {
@@ -1694,26 +1767,10 @@
       document.getElementById('modalOverlay').classList.add('open');
     }
 
-    function saveLog() {
-      const weight = document.getElementById('logWeight').value.trim();
-      const reps   = document.getElementById('logReps').value.trim();
-      const notes  = document.getElementById('modalNotes').value;
-      if (!weight && !reps) return;
-      saveLogData(currentExerciseName, weight || '—', reps || '—');
-      saveNotesData(currentExerciseName, notes);
-
-      const log = getLog(currentExerciseName);
-      document.getElementById('lastSessionValue').textContent = `${log.weight} kg × ${log.reps} reps`;
-      document.getElementById('lastSessionValue').className = 'ls-value';
-      document.getElementById('lastSessionDate').textContent = log.date;
-
-      if (navContext === 'exercise-list' && currentMuscleKey) showExercises(currentMuscleKey);
-      if (navContext === 'plan-detail' && currentPlanId) showPlanDetail(currentPlanId);
-
-      const btn = document.getElementById('saveBtn');
-      btn.textContent = '✓ Saved!';
-      btn.style.background = '#27ae60cc';
-      setTimeout(() => { btn.textContent = 'Save'; btn.style.background = ''; }, 1800);
+    function autoSaveExNotes() {
+      if (!currentExerciseName) return;
+      saveNotesData(currentExerciseName, document.getElementById('modalNotes').value);
+      document.getElementById('modalNotesCount').textContent = `${document.getElementById('modalNotes').value.length} / 250`;
     }
 
     function closeModal() {
@@ -2540,7 +2597,184 @@
       saveCustomIngs(customs); nlCloseCustom(); renderNLPicker();
     }
 
+    // ── Exercise History ──
+    let exHistRange = 0;
+    let exHistCalYear = new Date().getFullYear();
+    let exHistCalMon = new Date().getMonth();
+    let exHistSelectedDate = null;
+
+    function exHistToStr(d) { return d.toISOString().slice(0,10); }
+
+    function openExHistory() {
+      closeModal();
+      showView('exHistoryView');
+      setHeader(currentExerciseName, true);
+      document.getElementById('fab').classList.add('hidden');
+      navContext = 'ex-history';
+      exHistRange = 0;
+      const now=new Date(); exHistCalYear=now.getFullYear(); exHistCalMon=now.getMonth();
+      document.querySelectorAll('#exHistoryView .bw-range-btn').forEach((b,i)=>b.classList.toggle('active',i===2));
+      renderExHistChart();
+      renderExHistCal();
+    }
+
+    function setExHistRange(days,btn) {
+      exHistRange=days;
+      document.querySelectorAll('#exHistoryView .bw-range-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderExHistChart();
+    }
+
+    function renderExHistChart() {
+      const svg=document.getElementById('exHistChartSvg');
+      const tooltip=document.getElementById('exHistTooltip');
+      const hist=getExHist(currentExerciseName);
+      let entries=Object.entries(hist).filter(([,v])=>v.w&&!isNaN(parseFloat(v.w))).sort(([a],[b])=>a.localeCompare(b)).map(([d,v])=>[d,parseFloat(v.w),v.r||'']);
+
+      const today=exHistToStr(new Date());
+      if(exHistRange>0){
+        const cut=new Date();cut.setDate(cut.getDate()-exHistRange);
+        const cutStr=exHistToStr(cut);
+        entries=entries.filter(([d])=>d>=cutStr&&d<=today);
+      }
+
+      if(entries.length<2){
+        svg.innerHTML=`<text x="170" y="75" text-anchor="middle" fill="#8892a4" font-size="12">Log on multiple days to see progression</text>`;
+        return;
+      }
+
+      const W=340,H=140,pad=30,pT=15,pB=22;
+      const vals=entries.map(e=>e[1]);
+      let mn=Math.min(...vals),mx=Math.max(...vals);
+      if(mn===mx){mn-=5;mx+=5;}
+      const rng=mx-mn||1;
+      const xStep=(W-pad*2)/(entries.length-1);
+
+      const pts=entries.map(([d,v],i)=>{
+        const x=pad+i*xStep;
+        const y=pT+(1-(v-mn)/rng)*(H-pT-pB);
+        return {x,y,d,v,r:entries[i][2]};
+      });
+
+      const line=pts.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+      const area=line+` L${pts[pts.length-1].x.toFixed(1)},${H-pB} L${pts[0].x.toFixed(1)},${H-pB} Z`;
+      const dots=pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="var(--accent)"/>`).join('');
+
+      const gridLines=[0,0.25,0.5,0.75,1].map(f=>{
+        const v=mn+f*rng;
+        const y=pT+(1-f)*(H-pT-pB);
+        return `<line x1="${pad}" x2="${W-pad}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.04)"/>
+          <text x="${pad-4}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#8892a4" font-size="8">${Math.round(v)}</text>`;
+      }).join('');
+
+      const step=Math.max(1,Math.floor(entries.length/3));
+      const xLabels=pts.filter((_,i)=>i===0||i===pts.length-1||i%step===0).map(p=>{
+        const [y,m,d]=p.d.split('-');
+        return `<text x="${p.x.toFixed(1)}" y="${H-4}" text-anchor="middle" fill="#8892a4" font-size="8">${d}/${m}/${y.slice(2)}</text>`;
+      }).join('');
+
+      svg.innerHTML=`${gridLines}<path d="${area}" fill="url(#exGrad)" opacity="0.25"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>${dots}${xLabels}<defs><linearGradient id="exGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>`;
+
+      function showTip(clientX){
+        const rect=svg.getBoundingClientRect();
+        const ratio=(clientX-rect.left)/rect.width;
+        const svgX=ratio*W;
+        let closest=pts[0],minD=9999;
+        pts.forEach(p=>{const d=Math.abs(p.x-svgX);if(d<minD){minD=d;closest=p;}});
+        const [y,m,d]=closest.d.split('-');
+        document.getElementById('exHistTooltipVal').textContent=closest.v+'kg × '+closest.r+' reps';
+        document.getElementById('exHistTooltipDate').textContent=d+'/'+m+'/'+y;
+        tooltip.classList.add('visible');
+        const px=closest.x/W*rect.width;
+        tooltip.style.left=Math.max(20,Math.min(rect.width-80,px))+'px';
+      }
+      svg.ontouchstart=e=>{e.preventDefault();showTip(e.touches[0].clientX);};
+      svg.ontouchmove=e=>{e.preventDefault();showTip(e.touches[0].clientX);};
+      svg.ontouchend=()=>setTimeout(()=>tooltip.classList.remove('visible'),1400);
+    }
+
+    function renderExHistCal() {
+      const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+      document.getElementById('exHistCalTitle').textContent=months[exHistCalMon]+' '+exHistCalYear;
+      const grid=document.getElementById('exHistCalGrid');
+      grid.innerHTML='';
+      const hist=getExHist(currentExerciseName);
+      const today=exHistToStr(new Date());
+      const first=new Date(exHistCalYear,exHistCalMon,1);
+      const startDay=first.getDay();
+      const daysInMonth=new Date(exHistCalYear,exHistCalMon+1,0).getDate();
+
+      for(let i=0;i<startDay;i++){const sp=document.createElement('span');sp.className='bw-cal-day empty';grid.appendChild(sp);}
+
+      for(let d=1;d<=daysInMonth;d++){
+        const ds=`${exHistCalYear}-${String(exHistCalMon+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const hasData=!!hist[ds];
+        const isFuture=ds>today;
+        const isToday=ds===today;
+        const el=document.createElement('span');
+        el.className='bw-cal-day'+(hasData?' has-data':'')+(isToday?' today':'')+(isFuture?' future':'');
+        el.textContent=d;
+        if(!isFuture) el.onclick=()=>openExHistEntry(ds);
+        grid.appendChild(el);
+      }
+    }
+
+    function exHistPrevMonth(){
+      if(exHistCalYear===2020&&exHistCalMon===0)return;
+      if(exHistCalMon===0){exHistCalMon=11;exHistCalYear--;}else exHistCalMon--;
+      renderExHistCal();
+    }
+    function exHistNextMonth(){
+      if(exHistCalYear===2035&&exHistCalMon===11)return;
+      if(exHistCalMon===11){exHistCalMon=0;exHistCalYear++;}else exHistCalMon++;
+      renderExHistCal();
+    }
+
+    function openExHistEntry(dateStr) {
+      exHistSelectedDate=dateStr;
+      const d=new Date(dateStr+'T00:00:00');
+      document.getElementById('exHistEntryDate').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      const hist=getExHist(currentExerciseName);
+      const entry=hist[dateStr];
+      document.getElementById('exHistWeight').value=entry?entry.w:'';
+      document.getElementById('exHistReps').value=entry?entry.r:'';
+      document.getElementById('exHistNotes').value=entry&&entry.n?entry.n:'';
+      document.getElementById('exHistBtnDel').style.display=entry?'':'none';
+      document.getElementById('exHistEntryOverlay').classList.add('open');
+      setTimeout(()=>document.getElementById('exHistEntrySheet').style.transform='translateY(0)',10);
+    }
+
+    function closeExHistEntry(){
+      document.getElementById('exHistEntryOverlay').classList.remove('open');
+    }
+
+    function saveExHistEntry(){
+      if(!currentExerciseName||!exHistSelectedDate)return;
+      const w=document.getElementById('exHistWeight').value.trim();
+      const r=document.getElementById('exHistReps').value.trim();
+      const n=document.getElementById('exHistNotes').value.trim();
+      if(!w&&!r)return;
+      const hist=getExHist(currentExerciseName);
+      hist[exHistSelectedDate]={w:w||'0',r:r||'0'};
+      if(n) hist[exHistSelectedDate].n=n;
+      saveExHist(currentExerciseName,hist);
+      closeExHistEntry();
+      renderExHistChart();
+      renderExHistCal();
+    }
+
+    function deleteExHistEntry(){
+      if(!currentExerciseName||!exHistSelectedDate)return;
+      const hist=getExHist(currentExerciseName);
+      delete hist[exHistSelectedDate];
+      saveExHist(currentExerciseName,hist);
+      closeExHistEntry();
+      renderExHistChart();
+      renderExHistCal();
+    }
+
     // ── Init ──
+    migrateOldExLogs();
     buildHome();
     initModalSwipe();
   </script>
