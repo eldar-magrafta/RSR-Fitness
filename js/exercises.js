@@ -33,15 +33,10 @@ export function showExercises(key) {
   const list = document.getElementById('exerciseList');
   list.innerHTML = '';
   group.exercises.forEach(ex => {
-    const log = getLog(ex.name);
     const item = document.createElement('div');
     item.className = 'exercise-item';
-    const subText = log ? `Last: ${log.weight}kg \u00d7 ${log.reps}r` + (log.sets > 1 ? ` \u00b7 ${log.sets} sets` : '') : group.name;
     item.innerHTML = `
-      <div>
-        <div class="ex-name">${ex.name}</div>
-        <div class="ex-sub ${log ? 'logged' : ''}">${subText}</div>
-      </div>
+      <span class="ex-name">${ex.name}</span>
       <span class="arrow">\u203a</span>`;
     item.onclick = () => openModal(ex, group.name);
     list.appendChild(item);
