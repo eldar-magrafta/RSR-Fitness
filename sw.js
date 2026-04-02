@@ -1,5 +1,28 @@
-const CACHE = 'trainer-v1';
-const FILES = ['./', './index.html', './manifest.json', './sw.js'];
+const CACHE = 'trainer-v2';
+const FILES = [
+  './',
+  './index.html',
+  './manifest.json',
+  './sw.js',
+  './css/base.css',
+  './css/exercises.css',
+  './css/plans.css',
+  './css/modals.css',
+  './css/bodyweight.css',
+  './css/nutrition.css',
+  './js/app.js',
+  './js/state.js',
+  './js/store.js',
+  './js/utils.js',
+  './js/navigation.js',
+  './js/exercises.js',
+  './js/plans.js',
+  './js/bodyweight.js',
+  './js/nutrition.js',
+  './js/history.js',
+  './data/exercises.js',
+  './data/ingredients.js',
+];
 
 // Pre-cache on install
 self.addEventListener('install', e => {
@@ -7,9 +30,13 @@ self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
 });
 
-// Take control immediately
+// Take control immediately & clean old caches
 self.addEventListener('activate', e => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => clients.claim())
+  );
 });
 
 // Network first — always get fresh code, fall back to cache if offline

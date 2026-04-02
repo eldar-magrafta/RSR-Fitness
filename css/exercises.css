@@ -1,0 +1,42 @@
+/* ── Muscle Group Grid ── */
+.muscle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.muscle-card {
+  background: var(--card); border-radius: 18px; padding: 12px 12px 14px;
+  text-align: center; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.05); transition: transform 0.15s;
+  position: relative; overflow: hidden;
+}
+.muscle-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent); opacity: 0; transition: opacity 0.15s;
+}
+.muscle-card:active { transform: scale(0.96); }
+.muscle-card:active::after { opacity: 1; }
+.muscle-icon-wrap {
+  position: relative; width: 100%; aspect-ratio: 1;
+  margin-bottom: 8px; border-radius: 10px; overflow: hidden;
+  background: #000;
+}
+.muscle-icon-wrap img {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; object-fit: contain; display: block;
+}
+.muscle-icon-wrap .m-overlay {
+  filter: hue-rotate(130deg) saturate(2.4) brightness(1.15);
+}
+.muscle-card .name { font-size: 0.95rem; font-weight: 600; }
+.muscle-card .count { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.muscle-card.wide { grid-column: 1 / -1; }
+
+/* ── Exercise List ── */
+.exercise-list { display: flex; flex-direction: column; gap: 10px; }
+.exercise-item {
+  background: var(--card); border-radius: 14px; padding: 16px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.12s;
+}
+.exercise-item:active { transform: scale(0.98); background: var(--card2); }
+.exercise-item .ex-name { font-size: 1rem; font-weight: 500; }
+.exercise-item .ex-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+.exercise-item .ex-sub.logged { color: var(--green); }
+.exercise-item .arrow { color: var(--accent); font-size: 1.3rem; flex-shrink: 0; }
