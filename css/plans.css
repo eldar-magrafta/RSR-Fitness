@@ -112,14 +112,18 @@
   cursor: pointer;
 }
 .picker-ex-item:last-child { border-radius: 0 0 14px 14px; }
-.picker-ex-item:active { opacity: 0.75; }
-.picker-ex-name { font-size: 0.92rem; }
+.picker-ex-name {
+  font-size: 0.92rem; cursor: pointer; flex: 1;
+  padding: 4px 0;
+}
+.picker-ex-name:active { opacity: 0.6; }
 .picker-toggle {
-  width: 28px; height: 28px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.18);
   background: none; color: var(--muted);
   display: flex; align-items: center; justify-content: center;
   font-size: 1rem; cursor: pointer; flex-shrink: 0;
-  transition: all 0.15s; pointer-events: none;
+  transition: all 0.15s;
 }
+.picker-toggle:active { transform: scale(0.85); }
 .picker-toggle.added { background: var(--green); border-color: var(--green); color: #fff; }

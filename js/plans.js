@@ -241,9 +241,9 @@ export function showExercisePicker() {
         ${group.exercises.map(ex => {
           const added = plan.exercises.some(i => i === ex.name);
           return `
-            <div class="picker-ex-item" onclick="toggleExerciseInPlan('${ex.name.replace(/'/g, "\\'")}', '${key}')">
-              <span class="picker-ex-name">${ex.name}</span>
-              <div class="picker-toggle ${added ? 'added' : ''}" data-ex-toggle="${ex.name}">\u2713</div>
+            <div class="picker-ex-item">
+              <span class="picker-ex-name" onclick="previewExercise('${ex.name.replace(/'/g, "\\'")}')">${ex.name}</span>
+              <div class="picker-toggle ${added ? 'added' : ''}" data-ex-toggle="${ex.name}" onclick="toggleExerciseInPlan('${ex.name.replace(/'/g, "\\'")}', '${key}')">\u2713</div>
             </div>`;
         }).join('')}
       </div>`;
@@ -255,6 +255,13 @@ export function showExercisePicker() {
   setHeader('Add Exercises', false, '\u2713  Done', () => showPlanDetail(state.currentPlanId));
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'picker';
+}
+
+/** Preview an exercise from the picker — opens the detail modal (read-only) */
+export function previewExercise(exName) {
+  const found = findExercise(exName);
+  if (!found) return;
+  openModal(found.ex, found.groupName, false);
 }
 
 export function togglePickerGroup(hdr) {
