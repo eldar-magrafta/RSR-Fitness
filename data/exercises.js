@@ -31,10 +31,6 @@ export const exerciseData = {
   back_upper: {
     name: 'Upper Back', icon: '🎯', img: 'back_upper',
     exercises: [
-      { name: 'Pull Up', sets: '3–4 sets × 5–10 reps',
-        desc: 'The ultimate upper back exercise. Builds lat width and overall pulling strength.',
-        tips: ['Start from a full dead hang', 'Pull elbows down and back', 'Chin clears the bar', 'Avoid swinging or kipping'],
-        yt: 'pull up proper form tutorial' },
       { name: 'Bent Over Row', sets: '3–4 sets × 6–10 reps',
         desc: 'Builds thickness across the entire back, especially the mid and lower traps and rhomboids.',
         tips: ['Hinge to about 45 degrees', 'Pull bar to lower chest or navel', 'Squeeze shoulder blades at top', 'Keep lower back neutral'],
@@ -54,12 +50,20 @@ export const exerciseData = {
       { name: 'T-Bar Row', sets: '3–4 sets × 8–10 reps',
         desc: 'A heavy rowing movement that builds upper back thickness. The close grip emphasizes the mid traps and rhomboids.',
         tips: ['Hinge forward at the hips', 'Pull the bar into your chest', 'Squeeze shoulder blades hard at the top', 'Keep lower back neutral throughout'],
-        yt: 't-bar row upper back tutorial' }
+        yt: 't-bar row upper back tutorial' },
+      { name: 'Dumbbell Row', sets: '3–4 sets × 8–12 reps per arm',
+        desc: 'A unilateral rowing movement that builds mid-back thickness. Allows heavy loading with one arm at a time.',
+        tips: ['One hand and knee on a bench for support', 'Pull the dumbbell to your hip', 'Squeeze the shoulder blade at the top', 'Keep your back flat and core tight'],
+        yt: 'dumbbell row one arm row tutorial' }
     ]
   },
   lateral_back: {
     name: 'Lateral Back', icon: '🦅', img: 'latissimus',
     exercises: [
+      { name: 'Pull Up', sets: '3–4 sets × 5–10 reps',
+        desc: 'The ultimate lat exercise. Builds lat width, back thickness, and overall pulling strength.',
+        tips: ['Start from a full dead hang', 'Pull elbows down and back', 'Chin clears the bar', 'Avoid swinging or kipping'],
+        yt: 'pull up proper form tutorial' },
       { name: 'Lat Pulldown', sets: '3 sets × 10–12 reps',
         desc: 'Develops lat width. A great starting point before you can do full pull-ups.',
         tips: ['Lean back slightly', 'Pull bar to upper chest', 'Initiate with lats, not biceps', 'Full stretch at the top'],
@@ -233,11 +237,7 @@ export const exerciseData = {
       { name: 'Stiff Leg Deadlift', sets: '3 sets × 8–12 reps',
         desc: 'Similar to the RDL but with straighter legs. Increases the hamstring stretch at the bottom.',
         tips: ['Legs nearly straight — soft knee bend only', 'Hinge at the hips', 'Feel the stretch deep in the hamstrings', 'Keep the bar close to your legs'],
-        yt: 'stiff leg deadlift hamstring tutorial' },
-      { name: 'Good Morning', sets: '3 sets × 10–12 reps',
-        desc: 'A barbell exercise that strengthens the hamstrings and lower back through a hip hinge pattern.',
-        tips: ['Bar on upper traps like a squat', 'Slight bend in knees', 'Hinge forward until torso is nearly parallel', 'Drive hips forward to return'],
-        yt: 'good morning exercise hamstring tutorial' }
+        yt: 'stiff leg deadlift hamstring tutorial' }
     ]
   },
   glutes: {
