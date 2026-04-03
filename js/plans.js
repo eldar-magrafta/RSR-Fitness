@@ -32,12 +32,8 @@ export function renderPlans() {
           <div class="plan-card-name">${plan.name}</div>
           <div class="plan-card-meta">${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
         </div>
-        <div class="plan-card-actions">
-          <span class="plan-card-arrow">\u203a</span>
-          <button class="plan-card-delete" title="Delete plan">\u2715</button>
-        </div>`;
+        <button class="plan-card-delete" title="Delete plan">\u2715</button>`;
       card.querySelector('.plan-card-info').onclick = () => showPlanDetail(plan.id);
-      card.querySelector('.plan-card-arrow').onclick = () => showPlanDetail(plan.id);
       card.querySelector('.plan-card-delete').onclick = (e) => {
         e.stopPropagation();
         openDeletePlanConfirm(plan.id, plan.name);
