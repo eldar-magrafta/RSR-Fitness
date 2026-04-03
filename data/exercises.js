@@ -1,6 +1,7 @@
 // ── Exercise Data ──
-// Each muscle group contains exercises with name, sets, description, tips, YouTube search, and optional gif.
+// Each muscle group contains exercises with name, sets, description, tips, YouTube search, and gif.
 // Multi-muscle exercises share the same name across groups so they are treated as one instance.
+// Only exercises with GIF animations are included.
 
 export const exerciseData = {
   chest: {
@@ -16,19 +17,11 @@ export const exerciseData = {
         tips: ['Set bench to 30–45 degrees', 'Grip slightly wider than shoulder-width', 'Lower bar to upper chest', 'Press in a straight line upward'],
         yt: 'incline barbell bench press proper form tutorial',
         gif: 'gifs/chest/Incline-Barbell-Bench-Press.gif' },
-      { name: 'Incline Dumbbell Press', sets: '3 sets × 8–12 reps',
-        desc: 'Targets the upper chest. The dumbbell variation allows a greater range of motion than a barbell.',
-        tips: ['Set bench to 30–45 degrees', 'Press in a slight arc', 'Touch dumbbells at the top', 'Control the descent slowly'],
-        yt: 'incline dumbbell press proper form tutorial' },
       { name: 'Dumbbell Bench Press', sets: '3–4 sets × 8–12 reps',
         desc: 'A flat press with dumbbells allowing a deeper stretch and more natural wrist rotation than a barbell.',
         tips: ['Keep feet flat on the floor', 'Lower dumbbells to the sides of your chest', 'Press up and slightly inward', 'Full stretch at the bottom each rep'],
         yt: 'dumbbell bench press proper form tutorial',
         gif: 'gifs/chest/Dumbbell-Press-1.gif' },
-      { name: 'Push Up', sets: '3 sets × 10–20 reps',
-        desc: 'A bodyweight staple for chest, triceps, and core. Can be done anywhere with zero equipment.',
-        tips: ['Keep body in a straight line', 'Hands slightly wider than shoulders', 'Lower chest to just above floor', 'Squeeze chest at the top'],
-        yt: 'perfect push up form tutorial' },
       { name: 'Cable Fly', sets: '3 sets × 12–15 reps',
         desc: 'Keeps constant tension on the chest through the full range of motion. Great for the chest stretch.',
         tips: ['Slight forward lean', 'Slight bend in elbows throughout', 'Squeeze hard at center', 'Slow controlled negative'],
@@ -158,15 +151,7 @@ export const exerciseData = {
         desc: 'A barbell pullover variation with bent arms. Loads the lats and chest through a deep overhead stretch.',
         tips: ['Lie flat on a bench', 'Hold barbell with a shoulder-width grip', 'Lower behind your head with elbows bent', 'Pull back over your chest using lats'],
         yt: 'barbell bent arm pullover tutorial',
-        gif: 'gifs/lateral_back/Barbell-Bent-Arm-Pullover.gif' },
-      { name: 'Rope Lat Pulldown', sets: '3 sets × 10–12 reps',
-        desc: 'A lat pulldown variation using a rope. Allows a more natural wrist rotation and deeper peak contraction.',
-        tips: ['Split the rope apart at the bottom', 'Pull to upper chest level', 'Lean back slightly', 'Initiate with lats — not biceps'],
-        yt: 'rope lat pulldown tutorial' },
-      { name: 'Single Arm Lat Pulldown', sets: '3 sets × 10–12 reps per arm',
-        desc: 'A unilateral pulldown that fixes imbalances and allows a greater range of motion per side.',
-        tips: ['Use a single handle attachment', 'Pull elbow down to your side', 'Squeeze the lat hard at the bottom', 'Full stretch at the top each rep'],
-        yt: 'single arm lat pulldown tutorial' }
+        gif: 'gifs/lateral_back/Barbell-Bent-Arm-Pullover.gif' }
     ]
   },
   back_lower: {
@@ -226,27 +211,7 @@ export const exerciseData = {
         desc: 'A unilateral cable row that fixes imbalances and allows a full stretch and contraction on each side.',
         tips: ['Use a single handle on a low cable', 'Pull the handle to your hip', 'Squeeze the shoulder blade at the top', 'Full forward stretch between reps'],
         yt: 'one arm cable row tutorial',
-        gif: 'gifs/back_lower/One-arm-Cable-Row.gif' },
-      { name: 'Back Extension', sets: '3 sets × 12–15 reps',
-        desc: 'Isolates the spinal erectors. Strengthens the lower back for injury prevention and heavier compound lifts.',
-        tips: ['Use a 45-degree hyperextension bench', 'Cross arms over chest or hold a plate', 'Hinge at the hips — not the spine', 'Rise until your body is in a straight line'],
-        yt: 'back extension hyperextension lower back tutorial' },
-      { name: 'Good Morning', sets: '3 sets × 10–12 reps',
-        desc: 'A barbell hip hinge that strengthens the lower back and hamstrings under load.',
-        tips: ['Bar on upper traps like a squat', 'Slight bend in knees', 'Hinge forward until torso is nearly parallel', 'Drive hips forward to return'],
-        yt: 'good morning exercise lower back tutorial' },
-      { name: 'Superman Hold', sets: '3 sets × 20–30 seconds',
-        desc: 'A bodyweight lower back exercise. Strengthens the erectors and glutes with zero equipment.',
-        tips: ['Lie face down on the floor', 'Raise arms and legs simultaneously', 'Hold at the top — squeeze lower back', 'Keep neck neutral — look at the floor'],
-        yt: 'superman hold lower back exercise tutorial' },
-      { name: 'Reverse Hyperextension', sets: '3 sets × 12–15 reps',
-        desc: 'Targets the lower back and glutes while decompressing the spine. Great for recovery days.',
-        tips: ['Lie face down on a bench with hips at the edge', 'Legs hang off the end', 'Raise legs until in line with your body', 'Squeeze glutes and lower back at the top'],
-        yt: 'reverse hyperextension lower back tutorial' },
-      { name: 'Rack Pull', sets: '3–4 sets × 5–8 reps',
-        desc: 'A partial deadlift starting from knee height. Allows heavier loading on the lower back and traps.',
-        tips: ['Set safety pins at knee height', 'Same form as the top half of a deadlift', 'Drive hips forward to lockout', 'Keep the bar close to your body'],
-        yt: 'rack pull lower back exercise tutorial' }
+        gif: 'gifs/back_lower/One-arm-Cable-Row.gif' }
     ]
   },
   shoulders: {
@@ -361,11 +326,7 @@ export const exerciseData = {
         desc: 'A cable hammer curl targeting the brachialis and forearms with constant tension throughout.',
         tips: ['Use a single handle with neutral grip', 'Keep elbow pinned at your side', 'Full range of motion', 'Squeeze at the top'],
         yt: 'cable single arm hammer curl tutorial',
-        gif: 'gifs/biceps/cable-single-arm-hammer-curl.gif' },
-      { name: 'Cable Curl', sets: '3 sets × 12–15 reps',
-        desc: 'Provides constant tension through the full range of motion, unlike free weights.',
-        tips: ['Use straight bar or EZ bar', 'Keep elbows at your sides', 'Full extension at the bottom', 'Peak contraction at the top'],
-        yt: 'cable curl bicep exercise tutorial' }
+        gif: 'gifs/biceps/cable-single-arm-hammer-curl.gif' }
     ]
   },
   triceps: {
@@ -410,15 +371,7 @@ export const exerciseData = {
         desc: 'A bodyweight tricep exercise using a bench. Accessible for all fitness levels.',
         tips: ['Hands on bench edge behind you', 'Feet on the floor or elevated on another bench', 'Lower until elbows reach 90 degrees', 'Press up to full lockout'],
         yt: 'bench dips tricep exercise tutorial',
-        gif: 'gifs/triceps/Triceps-Dips-on-Floor.gif' },
-      { name: 'Skull Crusher', sets: '3 sets × 8–12 reps',
-        desc: 'A lying extension that heavily loads the long head of the tricep for size and strength.',
-        tips: ['Lower bar to forehead or just behind the head', 'Keep upper arms vertical throughout', 'Full lockout at top', 'EZ bar reduces wrist strain'],
-        yt: 'skull crusher exercise proper form tutorial' },
-      { name: 'Close Grip Bench Press', sets: '3–4 sets × 6–10 reps',
-        desc: 'A compound tricep exercise that allows heavy loading with strong carry-over to overall pressing.',
-        tips: ['Hands shoulder-width (not too narrow)', 'Keep elbows close to your body', 'Full range of motion each rep', 'Full lockout at the top'],
-        yt: 'close grip bench press tricep tutorial' }
+        gif: 'gifs/triceps/Triceps-Dips-on-Floor.gif' }
     ]
   },
   quads: {
@@ -463,11 +416,7 @@ export const exerciseData = {
         desc: 'A lunge stepping backward instead of forward. Easier on the knees and places more load on the quads and glutes.',
         tips: ['Step backward into the lunge', 'Back knee drops toward the floor', 'Keep torso upright', 'Drive through the front heel to return'],
         yt: 'reverse lunge proper form tutorial',
-        gif: 'gifs/quads/Reverse-Lunge-Knee (1).gif' },
-      { name: 'Front Squat', sets: '3 sets × 5–8 reps',
-        desc: 'A barbell squat with the bar held in front. The upright torso shifts most of the load to the quads.',
-        tips: ['Bar rests on front deltoids', 'Elbows high throughout', 'Upright torso — do not lean forward', 'Squat to full depth'],
-        yt: 'front squat proper form tutorial' }
+        gif: 'gifs/quads/Reverse-Lunge-Knee (1).gif' }
     ]
   },
   hamstrings: {
@@ -497,15 +446,7 @@ export const exerciseData = {
         desc: 'An explosive hip hinge that builds hamstrings, glutes, and posterior chain power. Great for conditioning.',
         tips: ['Hinge at the hips — not a squat', 'Snap hips forward explosively', 'Arms are just along for the ride', 'Squeeze glutes hard at the top'],
         yt: 'kettlebell swing proper form tutorial',
-        gif: 'gifs/hamstrings/Kettlebell-Swings (1).gif' },
-      { name: 'Nordic Hamstring Curl', sets: '3 sets × 5–8 reps',
-        desc: 'One of the most effective hamstring exercises for injury prevention and strength.',
-        tips: ['Anchor feet under a pad or partner', 'Lower your body slowly — resist gravity', 'Use hands to push up from the floor', 'Progress gradually — very challenging'],
-        yt: 'nordic hamstring curl tutorial' },
-      { name: 'Stiff Leg Deadlift', sets: '3 sets × 8–12 reps',
-        desc: 'Similar to the RDL but with straighter legs. Increases the hamstring stretch at the bottom.',
-        tips: ['Legs nearly straight — soft knee bend only', 'Hinge at the hips', 'Feel the stretch deep in the hamstrings', 'Keep the bar close to your legs'],
-        yt: 'stiff leg deadlift hamstring tutorial' }
+        gif: 'gifs/hamstrings/Kettlebell-Swings (1).gif' }
     ]
   },
   glutes: {
@@ -550,19 +491,7 @@ export const exerciseData = {
         desc: 'A cable-based adductor exercise providing constant tension throughout the range of motion.',
         tips: ['Attach ankle strap to low cable', 'Stand sideways to the machine', 'Pull leg across and in front of your body', 'Squeeze inner thigh at peak contraction'],
         yt: 'cable hip adduction inner thigh exercise tutorial',
-        gif: 'gifs/glutes/Cable-Hips-Adduction.gif' },
-      { name: 'Barbell Hip Thrust', sets: '3–4 sets × 8–12 reps',
-        desc: 'The most effective glute exercise. Places the glutes under maximum load at full extension.',
-        tips: ['Upper back rests on a bench', 'Bar padded and across the hips', 'Drive hips fully up — full lockout', 'Squeeze glutes hard at the top'],
-        yt: 'barbell hip thrust glutes proper form tutorial' },
-      { name: 'Glute Bridge', sets: '3 sets × 15–20 reps',
-        desc: 'The floor version of the hip thrust. Great for beginners or as a warm-up to activate the glutes.',
-        tips: ['Lie flat on the floor', 'Drive hips up through the heels', 'Squeeze glutes at the top', 'Can be loaded with a plate or dumbbell'],
-        yt: 'glute bridge exercise tutorial' },
-      { name: 'Cable Glute Kickback', sets: '3 sets × 12–15 reps per leg',
-        desc: 'An isolation exercise for the glutes with constant cable tension throughout the range of motion.',
-        tips: ['Attach ankle strap to cable', 'Slight forward lean on the machine', 'Drive leg back and slightly upward', 'Squeeze glute at peak extension'],
-        yt: 'cable glute kickback exercise tutorial' }
+        gif: 'gifs/glutes/Cable-Hips-Adduction.gif' }
     ]
   },
   calves: {
@@ -587,15 +516,7 @@ export const exerciseData = {
         desc: 'A simple standing calf raise holding dumbbells. Can be done anywhere with minimal equipment.',
         tips: ['Hold dumbbells at your sides', 'Rise onto the balls of your feet', 'Squeeze hard at the top', 'Use a step for extra range of motion'],
         yt: 'dumbbell calf raise exercise tutorial',
-        gif: 'gifs/calves/Dumbbell-Calf-Raise.gif' },
-      { name: 'Single Leg Calf Raise', sets: '3 sets × 12–15 reps per leg',
-        desc: 'A bodyweight unilateral calf exercise that doubles the load per leg and fixes imbalances.',
-        tips: ['Hold a wall or rack for balance only', 'Full range of motion', 'Do not use the other leg to assist', 'Add a dumbbell for extra load'],
-        yt: 'single leg calf raise exercise tutorial' },
-      { name: 'Donkey Calf Raise', sets: '3–4 sets × 15–20 reps',
-        desc: 'Performed bent forward at the hips. This position stretches the gastrocnemius more than standing.',
-        tips: ['Hinge at the hips to roughly 90 degrees', 'Full stretch at the bottom', 'Squeeze hard at the top', 'Can be done on a machine or with a partner'],
-        yt: 'donkey calf raise exercise tutorial' }
+        gif: 'gifs/calves/Dumbbell-Calf-Raise.gif' }
     ]
   },
   adductors: {
@@ -615,19 +536,7 @@ export const exerciseData = {
         desc: 'A wide-stance deadlift that recruits the adductors and glutes alongside hamstrings and lower back.',
         tips: ['Wide stance with toes pointed out', 'Grip inside the legs', 'Push knees out as you drive up', 'Keep torso more upright than conventional'],
         yt: 'sumo deadlift proper form tutorial',
-        gif: 'gifs/glutes/Barbell-Sumo-Deadlift.gif' },
-      { name: 'Lateral Lunge', sets: '3 sets × 10–12 reps per leg',
-        desc: 'A dynamic adductor exercise that also works the quads and glutes through a large range of motion.',
-        tips: ['Step wide to the side', 'Sit into the hip of the working leg', 'Keep the opposite leg straight', 'Push through the heel to return'],
-        yt: 'lateral lunge adductor exercise tutorial' },
-      { name: 'Copenhagen Plank', sets: '3 sets × 20–30 seconds per side',
-        desc: 'An advanced adductor exercise using bodyweight. Also trains core stability simultaneously.',
-        tips: ['Top leg rests on a bench', 'Body in a straight line like a side plank', 'Squeeze inner thighs together', 'Can regress by using lower leg for support'],
-        yt: 'copenhagen plank adductor exercise tutorial' },
-      { name: 'Seated Adductor Squeeze', sets: '3 sets × 15–20 reps',
-        desc: 'A simple isolation exercise using a medicine ball or pillow. Great for activating adductors anywhere.',
-        tips: ['Sit with back straight', 'Place ball or pillow between knees', 'Squeeze and hold for 2 seconds', 'Release slowly — do not let it drop'],
-        yt: 'seated adductor squeeze inner thigh exercise' }
+        gif: 'gifs/glutes/Barbell-Sumo-Deadlift.gif' }
     ]
   },
   forearms: {
@@ -657,37 +566,12 @@ export const exerciseData = {
         desc: 'A forearm endurance exercise using a wrist roller device. Builds both flexors and extensors under sustained tension.',
         tips: ['Hold the roller with arms extended in front', 'Roll the weight up by rotating your wrists', 'Reverse the motion to lower it back down', 'Keep arms parallel to the floor throughout'],
         yt: 'wrist roller forearm exercise tutorial',
-        gif: 'gifs/forearms/wrist-roller.gif' },
-      { name: 'Farmer\'s Walk', sets: '3 sets × 30–40 meters',
-        desc: 'A loaded carry that builds crushing grip strength, forearms, traps, and full-body stability.',
-        tips: ['Pick up heavy dumbbells or farmer handles', 'Stand tall — chest up, shoulders back', 'Walk in a straight line with short steps', 'Squeeze the handles as hard as possible'],
-        yt: 'farmers walk exercise grip forearm tutorial' }
+        gif: 'gifs/forearms/wrist-roller.gif' }
     ]
   },
   core: {
     name: 'Core', icon: '🔥', img: 'abs',
-    exercises: [
-      { name: 'Plank', sets: '3 sets × 30–60 seconds',
-        desc: 'The foundational core stability exercise. Trains anti-extension — resisting the spine from sagging.',
-        tips: ['Forearms or straight arms', 'Body in a perfectly straight line', 'Squeeze glutes and abs hard', 'Breathe — do not hold your breath'],
-        yt: 'plank exercise proper form tutorial' },
-      { name: 'Dead Bug', sets: '3 sets × 8–10 reps per side',
-        desc: 'One of the safest and most effective core exercises. Trains stability while your limbs move.',
-        tips: ['Press lower back into the floor', 'Move opposite arm and leg simultaneously', 'Exhale as limbs extend out', 'Never rush the movement'],
-        yt: 'dead bug exercise tutorial' },
-      { name: 'Hanging Leg Raise', sets: '3 sets × 10–15 reps',
-        desc: 'An advanced core exercise targeting the lower abs and hip flexors with significant load.',
-        tips: ['Full hang from the bar', 'Posterior pelvic tilt before raising', 'Raise legs to 90 degrees or beyond', 'Lower with full control'],
-        yt: 'hanging leg raise abs tutorial' },
-      { name: 'Cable Crunch', sets: '3 sets × 12–15 reps',
-        desc: 'The best weighted ab exercise. Allows progressive overload unlike bodyweight crunches.',
-        tips: ['Kneel facing the cable stack', 'Rope behind your head', 'Crunch elbows toward knees', 'The abs do the work — not your arms'],
-        yt: 'cable crunch ab exercise tutorial' },
-      { name: 'Ab Wheel Rollout', sets: '3 sets × 8–12 reps',
-        desc: 'One of the hardest and most effective core exercises. Trains anti-extension strength aggressively.',
-        tips: ['Start from knees if you are a beginner', 'Keep lower back from arching', 'Go as far as you can control', 'Pull back using your abs'],
-        yt: 'ab wheel rollout tutorial' }
-    ]
+    exercises: []
   }
 };
 
