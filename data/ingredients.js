@@ -25,7 +25,6 @@ export const NL_INGREDIENTS = [
   {name:'Parmesan',cat:'dairy',p:35.8,c:3.2,f:25.8,cal:392, img:'food/parmesan.jpg'},
   {name:'Cream Cheese',cat:'dairy',p:6.2,c:4.1,f:34,cal:342, img:'food/cream-cheese.jpg'},
   {name:'Feta Cheese',cat:'dairy',p:14,c:4.1,f:21,cal:264, img:'food/feta-cheese.jpg'},
-  {name:'Yogurt (plain)',cat:'dairy',p:3.5,c:4.7,f:3.3,cal:61, img:'food/yogurt.jpg'},
   {name:'Ricotta Cheese',cat:'dairy',p:11,c:3.0,f:13,cal:174, img:'food/ricotta.jpg'},
   {name:'White Rice (cooked)',cat:'carbs',p:2.7,c:28,f:0.3,cal:130, img:'food/white-rice.jpg'},
   {name:'Brown Rice (cooked)',cat:'carbs',p:2.6,c:23,f:0.9,cal:112, img:'food/brown-rice.jpg'},
