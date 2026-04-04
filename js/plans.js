@@ -91,11 +91,14 @@ export function setPlanEditMode(editing) {
   detail.classList.toggle('editing', editing);
   const btn = document.getElementById('headerAction');
   const titleEl = document.getElementById('headerTitle');
+  const isPlanDetail = state.navContext === 'plan-detail';
   if (editing) {
     btn.textContent = '\u2713  Done';
     btn.onclick = donePlanDetail;
-    titleEl.contentEditable = 'true';
-    titleEl.classList.add('editable');
+    if (isPlanDetail) {
+      titleEl.contentEditable = 'true';
+      titleEl.classList.add('editable');
+    }
   } else {
     btn.innerHTML = '&#9998;';
     btn.onclick = () => setPlanEditMode(true);
