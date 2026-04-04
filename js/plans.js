@@ -180,6 +180,7 @@ export function showPlanDetail(planId) {
     setHeader(plan.name, true, '&#9998;', () => setPlanEditMode(true));
     setPlanEditMode(false);
   } else {
+    setHeader(plan.name, true, null);
     setPlanEditMode(true);
   }
 }
