@@ -36,9 +36,10 @@ body {
 .back-btn.visible { display: flex; }
 .header-title { font-size: 1.4rem; font-weight: 700; flex: 1; }
 .header-action {
-  background: none; border: none; color: var(--accent);
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
-  font-family: inherit; padding: 6px; display: none;
+  background: rgba(233,69,96,0.15); border: none; color: var(--accent);
+  font-size: 1.15rem; font-weight: 600; cursor: pointer;
+  font-family: inherit; padding: 7px 14px; display: none;
+  border-radius: 10px;
 }
 .header-action.visible { display: block; }
 
