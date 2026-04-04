@@ -3,7 +3,7 @@
     "allow": [
       "Bash(mv Barbell-Bench-Press.gif bench-press.webm Chest-Dips.gif Dumbbell-Fly.gif Dumbbell-Press-1.gif High-Cable-Crossover.gif Incline-Barbell-Bench-Press.gif Incline-Chest-Fly-Machine.gif Pec-Deck-Fly.gif \"10301301-Lever-Pec-Deck-Fly_Chest_720.gif\" chest/)",
       "Bash(mv Seated-Cable-Row.gif T-Bar-Row.gif back_upper/)",
-      "Bash(mv pull-ups.gif Dumbbell-Pullover.gif lateral_back/)",
+      "Bash(mv pull-ups.gif Dumbbell-Pullover.gif back_lateral/)",
       "Bash(mv Dumbbell-Bulgarian-Split-Squat.gif dumbbell-lunges.gif quads/)",
       "Bash(mv Standing-Calf-Raise.gif calves/)",
       "Bash(git add:*)",

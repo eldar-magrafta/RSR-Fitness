@@ -98,14 +98,14 @@ export const exerciseData = {
         gif: 'gifs/back_upper/Dumbbell-Shrug.gif' }
     ]
   },
-  lateral_back: {
+  back_lateral: {
     name: 'Lateral Back', icon: '🦅', img: 'latissimus',
     exercises: [
       { name: 'Pull Up', sets: '3–4 sets × 5–10 reps',
         desc: 'The ultimate lat exercise. Builds lat width, back thickness, and overall pulling strength.',
         tips: ['Start from a full dead hang', 'Pull elbows down and back', 'Chin clears the bar', 'Avoid swinging or kipping'],
         yt: 'pull up proper form tutorial',
-        gif: 'gifs/lateral_back/pull-ups.gif' },
+        gif: 'gifs/back_lateral/pull-ups.gif' },
       { name: 'Lat Pulldown', sets: '3 sets × 10–12 reps',
         desc: 'Develops lat width. A great starting point before you can do full pull-ups.',
         tips: ['Lean back slightly', 'Pull bar to upper chest', 'Initiate with lats, not biceps', 'Full stretch at the top'],
@@ -115,7 +115,7 @@ export const exerciseData = {
         desc: 'A close-grip pulldown that emphasizes the lower lats and allows a stronger peak contraction.',
         tips: ['Use a V-bar or close-grip handle', 'Pull the handle to your upper chest', 'Squeeze lats hard at the bottom', 'Full stretch at the top — let lats extend'],
         yt: 'close grip lat pulldown tutorial',
-        gif: 'gifs/lateral_back/Close-Grip-Lat-Pulldown.gif' },
+        gif: 'gifs/back_lateral/Close-Grip-Lat-Pulldown.gif' },
       { name: 'Wide Grip Lat Pulldown', sets: '3 sets × 10–12 reps',
         desc: 'A wider grip variation that emphasizes the outer lats for maximum back width.',
         tips: ['Grip wider than shoulder-width', 'Pull bar to upper chest', 'Drive elbows down and outward', 'Full stretch at the top'],
@@ -130,12 +130,12 @@ export const exerciseData = {
         desc: 'A classic lat exercise that stretches and loads the lats through a long range of motion.',
         tips: ['Lie across a bench with upper back supported', 'Hold one dumbbell with both hands overhead', 'Lower it behind your head in an arc', 'Pull back up using the lats — not the chest'],
         yt: 'dumbbell pullover lat exercise tutorial',
-        gif: 'gifs/lateral_back/Dumbbell-Pullover.gif' },
+        gif: 'gifs/back_lateral/Dumbbell-Pullover.gif' },
       { name: 'Barbell Bent Arm Pullover', sets: '3 sets × 10–12 reps',
         desc: 'A barbell pullover variation with bent arms. Loads the lats and chest through a deep overhead stretch.',
         tips: ['Lie flat on a bench', 'Hold barbell with a shoulder-width grip', 'Lower behind your head with elbows bent', 'Pull back over your chest using lats'],
         yt: 'barbell bent arm pullover tutorial',
-        gif: 'gifs/lateral_back/Barbell-Bent-Arm-Pullover.gif' }
+        gif: 'gifs/back_lateral/Barbell-Bent-Arm-Pullover.gif' }
     ]
   },
   back_lower: {
