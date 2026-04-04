@@ -174,14 +174,13 @@ export function showPlanDetail(planId) {
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'plan-detail';
 
-  const hasExercises = plan.exercises.length > 0;
   const wasEditing = state._planEditing;
-  if (hasExercises && !wasEditing) {
-    setHeader(plan.name, true, '&#9998;', () => setPlanEditMode(true));
-    setPlanEditMode(false);
-  } else {
+  if (wasEditing) {
     setHeader(plan.name, true, null);
     setPlanEditMode(true);
+  } else {
+    setHeader(plan.name, true, '&#9998;', () => setPlanEditMode(true));
+    setPlanEditMode(false);
   }
 }
 
