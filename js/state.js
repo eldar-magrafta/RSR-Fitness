@@ -43,4 +43,7 @@ export const state = {
   // Remove exercise confirmation
   _pendingRemovePlanId: null,
   _pendingRemoveExName: null,
+
+  // Delete meal confirmation
+  _pendingDeleteMealId: null,
 };

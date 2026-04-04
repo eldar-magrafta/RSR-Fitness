@@ -414,6 +414,16 @@
     </div>
   </div>
 
+  <!-- Delete Meal Confirmation -->
+  <div class="confirm-overlay" id="deleteMealConfirmOverlay" onclick="if(event.target===this)closeDeleteMealConfirm()">
+    <div class="confirm-sheet">
+      <div class="confirm-title">Delete Meal?</div>
+      <div class="confirm-msg" id="deleteMealConfirmMsg"></div>
+      <button class="confirm-btn-del" onclick="confirmDeleteMeal()">Delete</button>
+      <button class="confirm-btn-cancel" onclick="closeDeleteMealConfirm()">Cancel</button>
+    </div>
+  </div>
+
   <!-- Macro Goals Modal -->
   <div class="modal-overlay" id="macroGoalsOverlay" onclick="if(event.target===this)closeMacroGoalsModal()">
     <div class="modal">

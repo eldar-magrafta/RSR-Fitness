@@ -71,7 +71,10 @@ export function renderNLMeals() {
   list.innerHTML = meals.map(m => {
     const t = nlCalcTotals(m);
     return `<div class="nl-meal-card" onclick="nlShowMeal('${m.id}')">
-      <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div><button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button></div>
+      <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div>
+        <button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>
+        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
+      </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
       <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div></div>`;
   }).join('');
@@ -82,7 +85,7 @@ export function nlShowMeal(id) {
   renderNLMealDetail();
   showView('nlMealView');
   const meal = getNLMeals().find(m => m.id === id);
-  setHeader(meal ? meal.name : 'Meal', true, 'Delete', nlDeleteMeal);
+  setHeader(meal ? meal.name : 'Meal', true);
   document.getElementById('fab').classList.add('hidden');
   // Show "Eat Today" button only for saved meals
   const eatBtn = document.getElementById('nlEatTodayBtn');
@@ -242,7 +245,7 @@ export function nlConfirmAddIng() {
   renderMacroGoals();
   showView('nlMealView');
   const updated = getNLMeals().find(m => m.id === state.nlCurrentMealId);
-  setHeader(updated ? updated.name : 'Meal', true, 'Delete', nlDeleteMeal);
+  setHeader(updated ? updated.name : 'Meal', true);
   state.navContext = 'nl-meal';
 }
 
@@ -264,12 +267,26 @@ export function nlCreateMeal() {
   nlCloseCreate(); nlShowMeal(meal.id);
 }
 
-export function nlDeleteMeal() {
-  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
-  if (!meal || !confirm('Delete "' + meal.name + '"?')) return;
-  saveNLMeals(meals.filter(m => m.id !== state.nlCurrentMealId));
-  state.nlCurrentMealId = null;
-  window.switchTab('nutrition');
+export function openDeleteMealConfirm(mealId) {
+  const meal = getNLMeals().find(m => m.id === mealId);
+  if (!meal) return;
+  state._pendingDeleteMealId = mealId;
+  document.getElementById('deleteMealConfirmMsg').textContent =
+    `Delete "${meal.name}"? This cannot be undone.`;
+  document.getElementById('deleteMealConfirmOverlay').classList.add('open');
+}
+
+export function closeDeleteMealConfirm() {
+  document.getElementById('deleteMealConfirmOverlay').classList.remove('open');
+  state._pendingDeleteMealId = null;
+}
+
+export function confirmDeleteMeal() {
+  if (!state._pendingDeleteMealId) return;
+  saveNLMeals(getNLMeals().filter(m => m.id !== state._pendingDeleteMealId));
+  closeDeleteMealConfirm();
+  renderNLMeals();
+  renderMacroGoals();
 }
 
 export function nlToggleFav(id) {
