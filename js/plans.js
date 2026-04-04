@@ -175,7 +175,8 @@ export function showPlanDetail(planId) {
   state.navContext = 'plan-detail';
 
   const hasExercises = plan.exercises.length > 0;
-  if (hasExercises) {
+  const wasEditing = state._planEditing;
+  if (hasExercises && !wasEditing) {
     setHeader(plan.name, true, '&#9998;', () => setPlanEditMode(true));
     setPlanEditMode(false);
   } else {
