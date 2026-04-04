@@ -3,7 +3,7 @@
 
 import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
-import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs } from './store.js';
+import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getMacroGoals, saveMacroGoals } from './store.js';
 import { showView, setHeader } from './navigation.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
@@ -102,14 +102,14 @@ export function nlAdjustIng(idx, delta) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal || !meal.ingredients[idx]) return;
   meal.ingredients[idx].grams = Math.max(10, meal.ingredients[idx].grams + delta);
-  saveNLMeals(meals); renderNLMealDetail();
+  saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
 }
 
 export function nlRemoveIng(idx) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
   meal.ingredients.splice(idx, 1);
-  saveNLMeals(meals); renderNLMealDetail();
+  saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
 }
 
 export function nlAutoSaveNotes() {
@@ -212,6 +212,7 @@ export function nlConfirmAddIng() {
   nlCloseAmount();
   state.nlPickerIng = null;
   renderNLMealDetail();
+  renderMacroGoals();
   showView('nlMealView');
   const updated = getNLMeals().find(m => m.id === state.nlCurrentMealId);
   setHeader(updated ? updated.name : 'Meal', true, 'Delete', nlDeleteMeal);
@@ -328,4 +329,73 @@ export function nlSaveCustom() {
   if (state.nlCustomPhotoBase64) ingData.img = state.nlCustomPhotoBase64;
   const customs = getCustomIngs(); customs.push(ingData);
   saveCustomIngs(customs); nlCloseCustom(); renderNLPicker();
+}
+
+// ── Macro Goals ──
+
+function nlCalcDailyTotals() {
+  const today = new Date().toISOString().slice(0, 10);
+  const meals = getNLMeals().filter(m => m.createdAt === today);
+  let p = 0, c = 0, f = 0, cal = 0;
+  meals.forEach(m => { const t = nlCalcTotals(m); p += t.p; c += t.c; f += t.f; cal += t.cal; });
+  return { p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal: Math.round(cal) };
+}
+
+export function renderMacroGoals() {
+  const section = document.getElementById('macroGoalsSection');
+  if (!section) return;
+  const goals = getMacroGoals();
+  if (!goals) {
+    section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
+    return;
+  }
+  const daily = nlCalcDailyTotals();
+  const rows = [
+    { name: 'Calories', cur: daily.cal, goal: goals.calories, color: 'var(--accent)', unit: '' },
+    { name: 'Protein', cur: daily.p, goal: goals.protein, color: '#4ecdc4', unit: 'g' },
+    { name: 'Carbs', cur: daily.c, goal: goals.carbs, color: '#ff6b6b', unit: 'g' },
+    { name: 'Fat', cur: daily.f, goal: goals.fat, color: '#ffd93d', unit: 'g' },
+  ];
+  section.innerHTML = `<div class="macro-goals-wrap">
+    <div class="macro-goals-header">
+      <span class="macro-goals-title">Today's Goals</span>
+      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>
+    </div>
+    ${rows.map(r => {
+      const pct = r.goal > 0 ? Math.min(100, Math.round(r.cur / r.goal * 100)) : 0;
+      return `<div class="macro-goal-row">
+        <div class="macro-goal-label">
+          <span class="macro-goal-name" style="color:${r.color}">${r.name}</span>
+          <span class="macro-goal-nums">${r.cur}${r.unit} / ${r.goal}${r.unit}</span>
+        </div>
+        <div class="macro-goal-bar">
+          <div class="macro-goal-fill" style="width:${pct}%;background:${r.color};"></div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+export function openMacroGoalsModal() {
+  const goals = getMacroGoals();
+  document.getElementById('goalCalInput').value = goals ? goals.calories : '';
+  document.getElementById('goalProteinInput').value = goals ? goals.protein : '';
+  document.getElementById('goalCarbsInput').value = goals ? goals.carbs : '';
+  document.getElementById('goalFatInput').value = goals ? goals.fat : '';
+  document.getElementById('macroGoalsOverlay').classList.add('open');
+}
+
+export function closeMacroGoalsModal() {
+  document.getElementById('macroGoalsOverlay').classList.remove('open');
+}
+
+export function saveMacroGoalsFromModal() {
+  const calories = parseInt(document.getElementById('goalCalInput').value) || 0;
+  const protein = parseInt(document.getElementById('goalProteinInput').value) || 0;
+  const carbs = parseInt(document.getElementById('goalCarbsInput').value) || 0;
+  const fat = parseInt(document.getElementById('goalFatInput').value) || 0;
+  if (!calories && !protein && !carbs && !fat) return;
+  saveMacroGoals({ calories, protein, carbs, fat });
+  closeMacroGoalsModal();
+  renderMacroGoals();
 }

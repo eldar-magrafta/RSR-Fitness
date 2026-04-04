@@ -6,6 +6,7 @@ import { getExHist, saveExHist } from './store.js';
 import { MONTHS, exHistMaxWeight } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
+import { checkForNewPR, showNewPRToast } from './prs.js';
 
 function exHistToStr(d) { return d.toISOString().slice(0, 10); }
 
@@ -214,6 +215,15 @@ export function saveExHistEntry() {
   hist[state.exHistSelectedDate] = { sets };
   if (n) hist[state.exHistSelectedDate].n = n;
   saveExHist(state.currentExerciseName, hist);
+
+  // Check for new PR
+  const maxW = Math.max(...sets.map(s => parseFloat(s.w) || 0));
+  if (maxW > 0) {
+    const topSet = sets.reduce((a, b) => (parseFloat(b.w) || 0) > (parseFloat(a.w) || 0) ? b : a);
+    const result = checkForNewPR(state.currentExerciseName, maxW, parseInt(topSet.r) || 0, state.exHistSelectedDate);
+    if (result.isNew) showNewPRToast(state.currentExerciseName, maxW);
+  }
+
   closeExHistEntry();
   renderExHistChart();
   renderExHistCal();

@@ -9,7 +9,7 @@ export function saveExHist(name, data) {
   localStorage.setItem('trainer_exhist_' + name, JSON.stringify(data));
 }
 
-/** Get latest log for an exercise (newest date). Returns {weight, reps, sets, date} or null. */
+/** Get latest log for an exercise (newest date). Returns {setList, date} or null. */
 export function getLog(name) {
   const hist = getExHist(name);
   const entries = Object.entries(hist).sort(([a], [b]) => b.localeCompare(a));
@@ -18,13 +18,10 @@ export function getLog(name) {
   const d = new Date(ds + 'T00:00:00');
   const date = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   if (e.sets && e.sets.length) {
-    const maxW = Math.max(...e.sets.map(s => parseFloat(s.w) || 0));
-    const setsCount = e.sets.length;
-    const repsArr = e.sets.map(s => parseInt(s.r) || 0);
-    const topReps = repsArr[0] || 0;
-    return { weight: maxW, reps: topReps, sets: setsCount, date };
+    const setList = e.sets.map(s => ({ w: parseFloat(s.w) || 0, r: parseInt(s.r) || 0 }));
+    return { setList, date };
   }
-  return { weight: e.w, reps: e.r, sets: 1, date };
+  return { setList: [{ w: parseFloat(e.w) || 0, r: parseInt(e.r) || 0 }], date };
 }
 
 export function saveLogData(name, weight, reps) {
@@ -100,6 +97,22 @@ export function getNLMeals() {
 }
 export function saveNLMeals(m) {
   localStorage.setItem('trainer_meals', JSON.stringify(m));
+}
+
+// ── Personal Records ──
+export function getPRs() {
+  try { return JSON.parse(localStorage.getItem('trainer_prs')) || {}; } catch { return {}; }
+}
+export function savePRs(prs) {
+  localStorage.setItem('trainer_prs', JSON.stringify(prs));
+}
+
+// ── Macro Goals ──
+export function getMacroGoals() {
+  try { return JSON.parse(localStorage.getItem('trainer_macro_goals')) || null; } catch { return null; }
+}
+export function saveMacroGoals(goals) {
+  localStorage.setItem('trainer_macro_goals', JSON.stringify(goals));
 }
 
 // ── Custom Ingredients ──

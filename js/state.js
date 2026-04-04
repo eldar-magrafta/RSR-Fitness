@@ -32,6 +32,9 @@ export const state = {
   exHistCalMon: new Date().getMonth(),
   exHistSelectedDate: null,
 
+  // Summary
+  summaryRange: 'week',
+
   // Drag state (plans)
   _drag: null,
   _dragOrigItems: null,

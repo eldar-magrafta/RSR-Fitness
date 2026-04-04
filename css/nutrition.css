@@ -78,3 +78,37 @@
 .nl-custom-photo-btn { width:100%; background:var(--subtle-bg); border:1px dashed var(--border-med); color:var(--muted); padding:12px; border-radius:12px; font-size:0.85rem; font-family:inherit; cursor:pointer; text-align:center; }
 .nl-custom-photo-btn:active { background:var(--subtle-bg-hover); }
 .nl-custom-thumb { width:60px; height:60px; border-radius:12px; object-fit:cover; }
+
+/* ── Macro Goals ── */
+.macro-goals-wrap {
+  background:var(--card); border-radius:16px; padding:16px;
+  margin-bottom:16px; border:1px solid var(--border);
+}
+.macro-goals-header {
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+}
+.macro-goals-title {
+  font-size:0.85rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.8px; color:var(--muted);
+}
+.macro-goals-edit {
+  background:none; border:none; color:var(--accent);
+  font-size:0.85rem; font-weight:600; cursor:pointer; font-family:inherit;
+}
+.macro-goal-row { margin-bottom:10px; }
+.macro-goal-row:last-child { margin-bottom:0; }
+.macro-goal-label { display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px; }
+.macro-goal-name { font-weight:600; }
+.macro-goal-nums { color:var(--muted); }
+.macro-goal-bar {
+  height:8px; border-radius:4px; background:var(--subtle-bg); overflow:hidden;
+}
+.macro-goal-fill { height:100%; border-radius:4px; transition:width 0.3s ease; }
+.macro-set-btn {
+  background:var(--subtle-bg); border:1px solid var(--border-med);
+  color:var(--text-secondary); border-radius:12px;
+  padding:14px; width:100%; text-align:center;
+  font-size:0.9rem; font-weight:600; cursor:pointer; font-family:inherit;
+  margin-bottom:16px;
+}
+.macro-set-btn:active { background:var(--subtle-bg-hover); }

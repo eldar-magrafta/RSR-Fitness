@@ -5,6 +5,7 @@ import { exerciseData, findExercise } from '../data/exercises.js';
 import { state } from './state.js';
 import { getLog, getNotes, saveNotesData } from './store.js';
 import { showView, setHeader } from './navigation.js';
+import { getPR, renderPRBadge } from './prs.js';
 
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
@@ -36,7 +37,7 @@ export function showExercises(key) {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     item.innerHTML = `
-      <span class="ex-name">${ex.name}</span>
+      <span class="ex-name">${ex.name}${renderPRBadge(ex.name)}</span>
       <span class="arrow">\u203a</span>`;
     item.onclick = () => openModal(ex, group.name);
     list.appendChild(item);
@@ -88,13 +89,25 @@ export function openModal(ex, muscleName, fromPlan = false) {
     const valEl = document.getElementById('lastSessionValue');
     const dateEl = document.getElementById('lastSessionDate');
     if (log) {
-      valEl.textContent = `${log.weight}kg \u00d7 ${log.reps} reps` + (log.sets > 1 ? ` \u00b7 ${log.sets} sets` : '');
+      valEl.textContent = log.setList.map(s => `${s.w}kg \u00d7 ${s.r} reps`).join(' / ');
       valEl.className = 'ls-value';
       dateEl.textContent = log.date;
     } else {
       valEl.textContent = 'No data yet';
       valEl.className = 'ls-value none';
       dateEl.textContent = '';
+    }
+
+    // PR display
+    const prSection = document.getElementById('modalPRSection');
+    const pr = getPR(ex.name);
+    if (pr) {
+      const prDate = new Date(pr.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      document.getElementById('modalPRValue').textContent = `${pr.weight}kg \u00d7 ${pr.reps} reps`;
+      document.getElementById('modalPRDate').textContent = prDate;
+      prSection.style.display = '';
+    } else {
+      prSection.style.display = 'none';
     }
 
     const notesEl = document.getElementById('modalNotes');

@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="css/modals.css" />
   <link rel="stylesheet" href="css/bodyweight.css" />
   <link rel="stylesheet" href="css/nutrition.css" />
+  <link rel="stylesheet" href="css/summary.css" />
 </head>
 <body>
 
@@ -37,6 +38,10 @@
       <span class="theme-emoji">🌙</span>
       <div class="theme-toggle" id="themeToggle"><div class="theme-toggle-knob"></div></div>
       <span class="theme-emoji">☀️</span>
+    </div>
+    <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
+      <span class="burger-item-icon">📊</span>
+      <span class="burger-item-label">Weekly Summary</span>
     </div>
   </div>
 
@@ -152,6 +157,7 @@
 
   <!-- ── Nutrition Lab Tab ── -->
   <div class="view" id="nutritionView">
+    <div id="macroGoalsSection"></div>
     <div class="nl-sort-row">
       <button class="nl-sort-btn active" onclick="nlSetSort('date',this)">Date</button>
       <button class="nl-sort-btn" onclick="nlSetSort('cals',this)">Calories</button>
@@ -206,6 +212,11 @@
       </div>
       <div class="bw-cal-grid" id="exHistCalGrid"></div>
     </div>
+  </div>
+
+  <!-- ── Summary View ── -->
+  <div class="view" id="summaryView">
+    <div id="summaryContent"></div>
   </div>
 
   <!-- Exercise History Entry Sheet -->
@@ -268,6 +279,16 @@
       <img id="modalImg" style="display:none;width:100%;border-radius:14px;margin-bottom:14px;object-fit:contain;" alt="">
       <button class="yt-btn" id="ytBtn" style="margin-bottom:20px;">▶&nbsp; Watch Tutorial on YouTube</button>
       <div id="modalPlanSection">
+        <div class="pr-section" id="modalPRSection" style="display:none;">
+          <div class="section-label">Personal Record</div>
+          <div class="pr-box">
+            <span class="pr-icon">🏆</span>
+            <div>
+              <div class="pr-value" id="modalPRValue"></div>
+              <div class="pr-date" id="modalPRDate"></div>
+            </div>
+          </div>
+        </div>
         <div class="section-label">Last Session</div>
         <div class="last-session-box">
           <span class="ls-icon">🕐</span>
@@ -385,6 +406,39 @@
         </div>
       </div>
       <button class="create-btn" onclick="nlSaveCustom()">Save Ingredient</button>
+    </div>
+  </div>
+
+  <!-- Macro Goals Modal -->
+  <div class="modal-overlay" id="macroGoalsOverlay" onclick="if(event.target===this)closeMacroGoalsModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Daily Goals</div>
+        <button class="modal-close" onclick="closeMacroGoalsModal()">✕</button>
+      </div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Set your daily calorie and macro targets</div>
+      <div class="nl-custom-row">
+        <div class="nl-custom-field">
+          <label>Calories</label>
+          <input type="number" id="goalCalInput" placeholder="2000" inputmode="numeric" />
+        </div>
+        <div class="nl-custom-field">
+          <label>Protein (g)</label>
+          <input type="number" id="goalProteinInput" placeholder="150" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="nl-custom-row">
+        <div class="nl-custom-field">
+          <label>Carbs (g)</label>
+          <input type="number" id="goalCarbsInput" placeholder="200" inputmode="numeric" />
+        </div>
+        <div class="nl-custom-field">
+          <label>Fat (g)</label>
+          <input type="number" id="goalFatInput" placeholder="65" inputmode="numeric" />
+        </div>
+      </div>
+      <button class="create-btn" onclick="saveMacroGoalsFromModal()">Save Goals</button>
     </div>
   </div>
 
