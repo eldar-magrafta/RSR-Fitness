@@ -172,32 +172,70 @@ body {
 .light .tab-btn.active { color: var(--accent); }
 .light .fab { box-shadow: 0 4px 20px rgba(233,69,96,0.3); }
 
-/* Light borders & subtle bg overrides */
+/* Light: borders */
 .light .muscle-card,
 .light .exercise-item,
 .light .plan-card,
 .light .plan-ex-item,
-.light .plan-section-title { border-color: rgba(0,0,0,0.08); }
-
-.light .modal { background: var(--card); }
-.light .modal-handle { background: rgba(0,0,0,0.15); }
-.light .modal-close { background: rgba(0,0,0,0.08); color: #333; }
-.light .tips-list li { border-bottom-color: rgba(0,0,0,0.06); }
-.light .log-input-wrap { border-color: rgba(0,0,0,0.12); }
-.light .log-input-wrap input { color: #1a1a2e; }
-.light .log-input-wrap input::placeholder { color: rgba(0,0,0,0.3); }
-.light .plan-name-input { border-color: rgba(0,0,0,0.12); color: #1a1a2e; }
-.light .confirm-sheet { background: var(--card); }
-.light .confirm-btn-cancel { background: rgba(0,0,0,0.06); color: #333; }
-.light .muscle-icon-wrap { background: #e8e8ef; }
-
-/* Nutrition & bodyweight cards */
+.light .plan-section-title,
 .light .nl-meal-card,
 .light .nl-ing-row,
 .light .nl-summary,
 .light .bw-entry,
 .light .bw-chart-wrap,
-.light .picker-group-header { border-color: rgba(0,0,0,0.08); }
+.light .picker-group-header,
+.light .tips-list li { border-color: rgba(0,0,0,0.08); }
 
-.light .section-label { color: var(--muted); }
-.light .empty-sub { color: var(--muted); }
+/* Light: modals & overlays */
+.light .modal { background: var(--card); }
+.light .modal-handle { background: rgba(0,0,0,0.15); }
+.light .modal-close { background: rgba(0,0,0,0.08); color: #333; }
+.light .confirm-sheet { background: var(--card); }
+.light .confirm-btn-cancel { background: rgba(0,0,0,0.06); color: #333; }
+.light .muscle-icon-wrap { background: #e8e8ef; }
+
+/* Light: inputs */
+.light .log-input-wrap { border-color: rgba(0,0,0,0.12); }
+.light .log-input-wrap input { color: #1a1a2e; }
+.light .log-input-wrap input::placeholder { color: rgba(0,0,0,0.3); }
+.light .plan-name-input { border-color: rgba(0,0,0,0.12); color: #1a1a2e; }
+
+/* Light: dark text for all previously-white text */
+.light .modal-title,
+.light .modal-desc,
+.light .exercise-item .ex-name,
+.light .muscle-card .name,
+.light .plan-card,
+.light .plan-ex-name,
+.light .plan-section-title-text,
+.light .burger-header,
+.light .burger-item-label,
+.light .confirm-title,
+.light .empty-title { color: #1a1a2e; }
+
+/* Light: plans */
+.light .plan-title-remove { color: rgba(0,0,0,0.25); }
+.light .drag-handle { color: rgba(0,0,0,0.25); }
+.light .drag-handle:active { color: rgba(0,0,0,0.5); }
+
+/* Light: bodyweight */
+.light .bw-stat-val { color: #1a1a2e; }
+.light .bw-cal-nav { color: #1a1a2e; }
+.light .bw-cal-day.other-month { color: rgba(0,0,0,0.2); }
+.light .bw-cal-day.future { color: rgba(0,0,0,0.18); }
+.light .bw-input-row input { color: #1a1a2e; }
+.light .bw-input-row input::placeholder { color: rgba(0,0,0,0.3); }
+
+/* Light: nutrition */
+.light .nl-notes,
+.light .nl-search { color: #1a1a2e; }
+.light .nl-notes::placeholder,
+.light .nl-search::placeholder { color: rgba(0,0,0,0.35); }
+.light .nl-custom-field input { color: #1a1a2e; }
+.light .nl-custom-field input::placeholder { color: rgba(0,0,0,0.35); }
+.light .nl-sort-btn.active { color: #fff; }
+
+/* Light: rgba white backgrounds → dark equivalents */
+.light .theme-toggle { background: rgba(0,0,0,0.12); }
+.light .picker-ex-name { color: #1a1a2e; }
+.light .picker-group-header { color: #1a1a2e; }
