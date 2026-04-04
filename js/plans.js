@@ -68,9 +68,24 @@ export function createPlan() {
   showPlanDetail(newPlan.id);
 }
 
-/** "Done" button in plan detail — navigate back to plans list */
+/** "Done" button in plan detail — exit edit mode back to view mode */
 export function donePlanDetail() {
-  window.switchTab('plans');
+  setPlanEditMode(false);
+}
+
+/** Toggle between view mode and edit mode in plan detail */
+export function setPlanEditMode(editing) {
+  state._planEditing = editing;
+  const detail = document.getElementById('planDetailView');
+  detail.classList.toggle('editing', editing);
+  const btn = document.getElementById('headerAction');
+  if (editing) {
+    btn.textContent = '\u2713  Done';
+    btn.onclick = donePlanDetail;
+  } else {
+    btn.innerHTML = '&#9998;';
+    btn.onclick = () => setPlanEditMode(true);
+  }
 }
 
 /** Open delete-plan confirmation from the plans list card */
@@ -156,9 +171,10 @@ export function showPlanDetail(planId) {
   [...list.children].forEach((child, i) => _initItemDrag(child, i));
 
   showView('planDetailView');
-  setHeader(plan.name, true, '\u2713  Done', donePlanDetail);
+  setHeader(plan.name, true, '&#9998;', () => setPlanEditMode(true));
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'plan-detail';
+  setPlanEditMode(false);
 }
 
 // ── Remove Exercise Confirmation ──

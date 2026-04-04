@@ -21,6 +21,17 @@
 }
 .plan-card-delete:active { background: rgba(255,60,60,0.35); }
 
+/* ── Plan Detail: view vs edit mode ── */
+#planDetailView .drag-handle,
+#planDetailView .plan-ex-remove,
+#planDetailView .plan-title-remove,
+#planDetailView .plan-detail-actions { display: none; }
+
+#planDetailView.editing .drag-handle,
+#planDetailView.editing .plan-ex-remove,
+#planDetailView.editing .plan-title-remove,
+#planDetailView.editing .plan-detail-actions { display: flex; }
+
 /* ── Plan Detail ── */
 .plan-detail-list { display: flex; flex-direction: column; gap: 10px; }
 .plan-ex-item {

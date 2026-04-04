@@ -13,7 +13,7 @@ export function setHeader(title, showBack, actionLabel, actionFn) {
   document.getElementById('backBtn').classList.toggle('visible', showBack);
   const btn = document.getElementById('headerAction');
   if (actionLabel) {
-    btn.textContent = actionLabel;
+    btn.innerHTML = actionLabel;
     btn.onclick = actionFn;
     btn.classList.add('visible');
   } else {
