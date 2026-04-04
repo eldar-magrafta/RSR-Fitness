@@ -294,7 +294,7 @@ export function showExercisePicker() {
   });
 
   showView('exercisePickerView');
-  setHeader('Add Exercises', false, '\u2713  Done', () => showPlanDetail(state.currentPlanId));
+  setHeader(plan.name, false, '\u2713  Done', () => showPlanDetail(state.currentPlanId));
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'picker';
 }
