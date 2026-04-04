@@ -164,7 +164,7 @@ export function showPlanDetail(planId) {
         <span class="drag-handle">\u2807</span>
         <div class="plan-ex-info">
           <div class="plan-ex-name">${exName}</div>
-          <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
+          <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div> <!--//this do problems.  also add deelte to workout log-->
         </div>
         <button class="plan-ex-remove" title="Remove">\u2212</button>`;
       el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, true);

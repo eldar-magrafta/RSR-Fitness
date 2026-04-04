@@ -469,7 +469,7 @@ export const exerciseData = {
     ]
   },
   core: {
-    name: 'Core', icon: '🔥', img: 'abs',
+    name: 'Core', icon: '🔥', img: 'core',
     exercises: [
       { name: 'Crunch', sets: '3 sets \u00d7 15\u201320 reps',
         desc: 'The basic abdominal crunch targeting the rectus abdominis. A foundational core exercise suitable for all levels.',
