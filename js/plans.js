@@ -282,8 +282,8 @@ export function showExercisePicker() {
       <div class="picker-group-hdr" onclick="togglePickerGroup(this)">
         <div class="picker-group-left">
           <div class="picker-group-icon">
-            <img src="images/baseImage_transparent.png" alt="">
-            <img class="m-overlay" src="images/${group.img}.png" alt="">
+            <img src="assets/muscles/baseImage_transparent.png" alt="">
+            <img class="m-overlay" src="assets/muscles/${group.img}.png" alt="">
           </div>
           <span class="picker-group-name">${group.name}</span>
           <span class="picker-group-badge ${addedCount > 0 ? 'visible' : ''}" data-badge-group="${key}">${addedCount}</span>

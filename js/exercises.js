@@ -17,8 +17,8 @@ export function buildHome() {
     card.className = 'muscle-card';
     card.innerHTML = `
       <div class="muscle-icon-wrap">
-        <img src="images/baseImage_transparent.png" alt="" loading="lazy">
-        <img class="m-overlay" src="images/${group.img}.png" alt="${group.name}" loading="lazy">
+        <img src="assets/muscles/baseImage_transparent.png" alt="" loading="lazy">
+        <img class="m-overlay" src="assets/muscles/${group.img}.png" alt="${group.name}" loading="lazy">
       </div>
       <div class="name">${group.name}</div>
       <div class="count">${group.exercises.length} exercises</div>`;
