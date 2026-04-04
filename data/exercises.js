@@ -49,7 +49,7 @@ export const exerciseData = {
     ]
   },
   back_upper: {
-    name: 'Upper Back', icon: '🎯', img: 'back_upper',
+    name: 'Traps & Delts', icon: '🎯', img: 'back_upper',
     exercises: [
       { name: 'Bent Over Row', sets: '3–4 sets × 6–10 reps',
         desc: 'Builds thickness across the entire back, especially the mid and lower traps and rhomboids.',
@@ -85,7 +85,17 @@ export const exerciseData = {
         desc: 'Isolates the upper trapezius. Builds the thick yoke look between the neck and shoulders.',
         tips: ['Hold heavy dumbbells at your sides', 'Shrug shoulders straight up toward your ears', 'Squeeze hard at the top for 1–2 seconds', 'Lower slowly — do not roll the shoulders'],
         yt: 'dumbbell shrug upper trap exercise tutorial',
-        gif: 'gifs/back_upper/Dumbbell-Shrug.gif' }
+        gif: 'gifs/back_upper/Dumbbell-Shrug.gif' },
+      { name: 'Rear Delt Machine Fly', sets: '3 sets × 12–15 reps',
+        desc: 'Targets the posterior deltoid and upper back on a machine. Fixed path makes it easy to isolate the rear delts.',
+        tips: ['Set handles at shoulder height', 'Lead with elbows, not hands', 'Squeeze rear delts and shoulder blades at the end', 'Slow controlled return'],
+        yt: 'rear delt machine fly tutorial',
+        gif: 'gifs/back_upper/Rear-Delt-Fly-On-Machine.gif' },
+      { name: 'Cable Rear Delt Fly', sets: '3 sets × 12–15 reps',
+        desc: 'A cable crossover variation targeting the rear delts. Constant tension through the full range of motion.',
+        tips: ['Set cables at shoulder height', 'Cross arms in front, then pull outward', 'Lead with elbows', 'Squeeze rear delts at peak contraction'],
+        yt: 'cable rear delt fly tutorial',
+        gif: 'gifs/back_upper/cable-rear-delt-fly.gif' }
     ]
   },
   back_lateral: {
@@ -201,21 +211,6 @@ export const exerciseData = {
         tips: ['Set cable at face height', 'Pull the rope toward your forehead', 'Externally rotate hands at the end', 'Squeeze shoulder blades together'],
         yt: 'face pull upper back rear delt tutorial',
         gif: 'gifs/shoulders/Face-Pull.gif' },
-      { name: 'Rear Delt Machine Fly', sets: '3 sets × 12–15 reps',
-        desc: 'Targets the posterior deltoid and upper back on a machine. Fixed path makes it easy to isolate the rear delts.',
-        tips: ['Set handles at shoulder height', 'Lead with elbows, not hands', 'Squeeze rear delts and shoulder blades at the end', 'Slow controlled return'],
-        yt: 'rear delt machine fly tutorial',
-        gif: 'gifs/shoulders/Rear-Delt-Fly-On-Machine.gif' },
-      { name: 'Cable Rear Delt Fly', sets: '3 sets × 12–15 reps',
-        desc: 'A cable crossover variation targeting the rear delts. Constant tension through the full range of motion.',
-        tips: ['Set cables at shoulder height', 'Cross arms in front, then pull outward', 'Lead with elbows', 'Squeeze rear delts at peak contraction'],
-        yt: 'cable rear delt fly tutorial',
-        gif: 'gifs/shoulders/cable-rear-delt-fly.gif' },
-      { name: 'Cable Upright Row', sets: '3 sets × 10–12 reps',
-        desc: 'A cable variation of the upright row providing constant tension. Targets upper traps and lateral deltoids.',
-        tips: ['Use a straight bar or EZ bar on a low cable', 'Pull elbows up and outward', 'Raise to chin height', 'Slow controlled negative'],
-        yt: 'cable upright row tutorial',
-        gif: 'gifs/shoulders/Cable-Upright-Row.gif' },
       { name: 'Barbell Upright Row', sets: '3 sets × 10–12 reps',
         desc: 'Targets the upper traps and lateral deltoids. A compound pulling movement for shoulder width.',
         tips: ['Grip the bar slightly narrower than shoulder-width', 'Pull the bar straight up along your body', 'Lead with your elbows — raise them above the bar', 'Lower slowly and controlled'],
