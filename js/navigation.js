@@ -9,7 +9,10 @@ export function showView(id) {
 
 /** Update header title, back button visibility, and optional action button */
 export function setHeader(title, showBack, actionLabel, actionFn) {
-  document.getElementById('headerTitle').textContent = title;
+  const titleEl = document.getElementById('headerTitle');
+  titleEl.textContent = title;
+  titleEl.contentEditable = 'false';
+  titleEl.classList.remove('editable');
   document.getElementById('backBtn').classList.toggle('visible', showBack);
   const btn = document.getElementById('headerAction');
   if (actionLabel) {
