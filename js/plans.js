@@ -89,9 +89,11 @@ export function setPlanEditMode(editing) {
   if (editing) {
     btn.textContent = '\u2713  Done';
     btn.onclick = donePlanDetail;
+    btn.classList.add('visible');
   } else {
     btn.innerHTML = '&#9998;';
     btn.onclick = () => setPlanEditMode(true);
+    btn.classList.add('visible');
   }
 }
 
