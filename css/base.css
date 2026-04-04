@@ -158,6 +158,22 @@ body {
   letter-spacing: 1px; color: var(--muted); margin-bottom: 10px;
 }
 
+/* ── Themed form elements (inline styles → classes) ── */
+.themed-select {
+  width: 100%; background: var(--card); color: var(--text);
+  border: 1px solid var(--border-med); border-radius: 12px;
+  padding: 12px 14px; font-size: 1rem; font-family: inherit;
+  outline: none; appearance: none; -webkit-appearance: none;
+}
+.themed-textarea {
+  width: 100%; box-sizing: border-box; background: var(--subtle-bg);
+  color: var(--text); border: 1px solid var(--border-med);
+  border-radius: 12px; padding: 12px; font-size: 0.92rem;
+  font-family: inherit; resize: none; height: 70px; outline: none;
+  margin-bottom: 16px;
+}
+.themed-textarea::placeholder { color: var(--muted); }
+
 /* ══════════════════════════════════════
    Light Theme — override all variables
    ══════════════════════════════════════ */

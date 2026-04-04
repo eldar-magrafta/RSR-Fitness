@@ -60,6 +60,10 @@
   transition: background 0.15s;
 }
 .add-ex-btn:active { background: rgba(233,69,96,0.08); }
+.add-title-btn {
+  border-color: var(--border-med); color: var(--text-secondary);
+  flex: 0 0 auto; width: auto; padding: 15px 18px;
+}
 
 .plan-detail-actions { display: flex; gap: 10px; margin-top: 4px; }
 .plan-detail-actions .add-ex-btn { margin-top: 0; }

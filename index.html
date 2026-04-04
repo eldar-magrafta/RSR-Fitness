@@ -56,7 +56,7 @@
     <div class="plan-detail-list" id="planDetailList"></div>
     <div class="plan-detail-actions">
       <button class="add-ex-btn" id="addExBtn" onclick="showExercisePicker()">＋ Add Exercises</button>
-      <button class="add-ex-btn" id="addTitleBtn" onclick="openAddTitle()" style="border-color:rgba(255,255,255,0.18);color:rgba(255,255,255,0.55);flex:0 0 auto;width:auto;padding:15px 18px;">＋ Title</button>
+      <button class="add-ex-btn add-title-btn" id="addTitleBtn" onclick="openAddTitle()">＋ Title</button>
     </div>
   </div>
   <div class="view" id="exercisePickerView">
@@ -216,8 +216,7 @@
       <div class="bw-sheet-title">Log Exercise</div>
       <div style="margin-bottom:14px;">
         <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Number of Sets</label>
-        <select id="exHistSetCount" onchange="renderExHistSets()"
-          style="width:100%;background:var(--card);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;font-size:1rem;font-family:inherit;outline:none;appearance:none;-webkit-appearance:none;">
+        <select id="exHistSetCount" onchange="renderExHistSets()" class="themed-select">
           <option value="1">1 set</option>
           <option value="2">2 sets</option>
           <option value="3" selected>3 sets</option>
@@ -227,8 +226,7 @@
       </div>
       <div id="exHistSetsContainer"></div>
       <div class="section-label">Notes</div>
-      <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;font-size:0.92rem;font-family:inherit;resize:none;height:70px;outline:none;margin-bottom:16px;"></textarea>
+      <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…" class="themed-textarea"></textarea>
       <button class="bw-btn-save" onclick="saveExHistEntry()">Save</button>
       <button class="bw-btn-del" id="exHistBtnDel" onclick="deleteExHistEntry()">Delete Entry</button>
     </div>
@@ -280,8 +278,7 @@
         </div>
         <div class="section-label">Notes</div>
         <textarea id="modalNotes" maxlength="250" placeholder="Personal notes about this exercise…"
-          oninput="autoSaveExNotes()"
-          style="width:100%;box-sizing:border-box;background:var(--card);color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;font-size:0.95rem;font-family:inherit;resize:none;height:90px;outline:none;"></textarea>
+          oninput="autoSaveExNotes()" class="themed-textarea" style="height:90px;"></textarea>
         <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">0 / 250</div>
         <button class="yt-btn" style="background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.3);color:#4ecdc4;" onclick="openExHistory()">📊&nbsp; Exercise History</button>
       </div>
