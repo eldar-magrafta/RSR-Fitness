@@ -398,7 +398,10 @@ function startApp() {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    // Force iOS to check for a new SW every time the app opens
+    reg.update();
+  });
   // Auto-reload when a new Service Worker takes over (new code deployed)
   navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
 }
