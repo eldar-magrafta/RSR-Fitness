@@ -1,6 +1,6 @@
 {
-  "name": "My Trainer",
-  "short_name": "Trainer",
+  "name": "RSR Fitness",
+  "short_name": "RSR Fitness",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#1a1a2e",

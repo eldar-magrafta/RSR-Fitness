@@ -1,4 +1,4 @@
-// ── My Trainer – Application Entry Point ──
+// ── RSR Fitness – Application Entry Point ──
 // Imports all modules, registers window globals for inline handlers, runs init.
 
 import { state } from './state.js';
@@ -25,7 +25,7 @@ function switchTab(tab) {
 
   if (tab === 'exercises') {
     showView('homeView');
-    setHeader('My Trainer \ud83d\udcaa', false);
+    setHeader('RSR Fitness 💪', false);
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'home';
     buildHome();
@@ -59,7 +59,7 @@ function handleFab() {
 function handleBack() {
   if (state.navContext === 'exercise-list') {
     showView('homeView');
-    setHeader('My Trainer \ud83d\udcaa', false);
+    setHeader('RSR Fitness 💪', false);
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'home';
     state.currentMuscleKey = null;
