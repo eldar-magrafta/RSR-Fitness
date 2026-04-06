@@ -229,6 +229,17 @@
       </div>
       <div class="bw-cal-grid" id="exHistCalGrid"></div>
     </div>
+    <button class="bw-delete-all-btn" onclick="openDeleteAllExHist()">🗑  Delete All History</button>
+  </div>
+
+  <!-- Delete-all exercise history confirmation -->
+  <div class="confirm-overlay" id="exHistDeleteAllOverlay" onclick="if(event.target===this)closeDeleteAllExHist()">
+    <div class="confirm-sheet">
+      <div class="confirm-title">Delete All History?</div>
+      <div class="confirm-msg">This will permanently remove every logged entry for this exercise. This cannot be undone.</div>
+      <button class="confirm-btn-del" onclick="confirmDeleteAllExHist()">Yes, Delete Everything</button>
+      <button class="confirm-btn-cancel" onclick="closeDeleteAllExHist()">Cancel</button>
+    </div>
   </div>
 
   <!-- ── Summary View ── -->

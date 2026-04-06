@@ -282,3 +282,21 @@ export function deleteExHistEntry() {
   renderExHistChart();
   renderExHistCal();
 }
+
+// ── Delete All History for current exercise ──
+
+export function openDeleteAllExHist() {
+  document.getElementById('exHistDeleteAllOverlay').classList.add('open');
+}
+
+export function closeDeleteAllExHist() {
+  document.getElementById('exHistDeleteAllOverlay').classList.remove('open');
+}
+
+export function confirmDeleteAllExHist() {
+  if (!state.currentExerciseName) return;
+  saveExHist(state.currentExerciseName, {});
+  closeDeleteAllExHist();
+  renderExHistChart();
+  renderExHistCal();
+}
