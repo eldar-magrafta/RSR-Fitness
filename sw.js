@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v15';
+const CACHE = 'trainer-v16';
 const FILES = [
   './',
   './index.html',
@@ -48,6 +48,8 @@ self.addEventListener('activate', e => {
 
 // Network first — always get fresh code, fall back to cache if offline
 self.addEventListener('fetch', e => {
+  // Only cache GET requests on http(s) — skip extensions, POST, etc.
+  if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {
