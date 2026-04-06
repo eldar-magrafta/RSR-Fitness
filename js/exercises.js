@@ -54,7 +54,8 @@ export function globalExSearchHandler() {
         const item = document.createElement('div');
         item.className = 'exercise-item';
         item.innerHTML = `
-          <div><span class="ex-name">${ex.name}</span><span class="ex-search-group">${group.name}</span></div>
+          ${ex.gif ? `<img class="ex-thumb" src="${ex.gif}" loading="lazy" />` : ''}
+          <div class="ex-item-info"><span class="ex-name">${ex.name}</span><span class="ex-search-group">${group.name}</span></div>
           <span class="arrow">\u203a</span>`;
         item.onclick = () => openModal(ex, group.name);
         resultsEl.appendChild(item);
@@ -89,7 +90,8 @@ function _renderGroupList(group, filter) {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     item.innerHTML = `
-      <span class="ex-name">${ex.name}</span>
+      ${ex.gif ? `<img class="ex-thumb" src="${ex.gif}" loading="lazy" />` : ''}
+      <div class="ex-item-info"><span class="ex-name">${ex.name}</span></div>
       <span class="arrow">\u203a</span>`;
     item.onclick = () => openModal(ex, group.name);
     list.appendChild(item);
