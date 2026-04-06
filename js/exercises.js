@@ -5,7 +5,7 @@ import { exerciseData, findExercise } from '../data/exercises.js';
 import { state } from './state.js';
 import { getLog, getNotes, saveNotesData, deleteLastLog } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { getPR, renderPRBadge } from './prs.js';
+import { getPR, renderPRBadge, recalcPR } from './prs.js';
 
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
@@ -216,6 +216,7 @@ export function handleOverlayClick(e) {
 export function deleteExLog() {
   if (!state.currentExerciseName) return;
   deleteLastLog(state.currentExerciseName);
+  recalcPR(state.currentExerciseName);
   const log = getLog(state.currentExerciseName);
   const valEl = document.getElementById('lastSessionValue');
   const dateEl = document.getElementById('lastSessionDate');

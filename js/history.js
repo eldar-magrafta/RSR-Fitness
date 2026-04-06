@@ -6,7 +6,7 @@ import { getExHist, saveExHist } from './store.js';
 import { MONTHS, exHistMaxWeight } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
-import { checkForNewPR, showNewPRToast } from './prs.js';
+import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
 
 function exHistToStr(d) { return d.toISOString().slice(0, 10); }
 
@@ -278,6 +278,7 @@ export function deleteExHistEntry() {
   const hist = getExHist(state.currentExerciseName);
   delete hist[state.exHistSelectedDate];
   saveExHist(state.currentExerciseName, hist);
+  recalcPR(state.currentExerciseName);
   closeExHistEntry();
   renderExHistChart();
   renderExHistCal();
@@ -296,6 +297,7 @@ export function closeDeleteAllExHist() {
 export function confirmDeleteAllExHist() {
   if (!state.currentExerciseName) return;
   saveExHist(state.currentExerciseName, {});
+  recalcPR(state.currentExerciseName);
   closeDeleteAllExHist();
   renderExHistChart();
   renderExHistCal();

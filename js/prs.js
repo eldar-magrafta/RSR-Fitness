@@ -56,6 +56,34 @@ export function checkForNewPR(exerciseName, newWeight, newReps, dateStr) {
   return { isNew: false, previous: current };
 }
 
+/** Recalculate PR for a single exercise from its full history. Efficient for delete operations. */
+export function recalcPR(exerciseName) {
+  const prs = getPRs();
+  const hist = getExHist(exerciseName);
+  let bestWeight = 0, bestDate = null, bestReps = 0, bestSets = 0;
+  Object.entries(hist).forEach(([dateStr, entry]) => {
+    const maxW = exHistMaxWeight(entry);
+    if (maxW > bestWeight) {
+      bestWeight = maxW;
+      bestDate = dateStr;
+      if (entry.sets && entry.sets.length) {
+        const topSet = entry.sets.reduce((a, b) => (parseFloat(b.w) || 0) > (parseFloat(a.w) || 0) ? b : a);
+        bestReps = parseInt(topSet.r) || 0;
+        bestSets = entry.sets.length;
+      } else {
+        bestReps = parseInt(entry.r) || 0;
+        bestSets = 1;
+      }
+    }
+  });
+  if (bestWeight > 0 && bestDate) {
+    prs[exerciseName] = { weight: bestWeight, reps: bestReps, sets: bestSets, date: bestDate };
+  } else {
+    delete prs[exerciseName];
+  }
+  savePRs(prs);
+}
+
 /** Returns a small HTML badge string if a PR exists, else '' */
 export function renderPRBadge(exerciseName) {
   const pr = getPR(exerciseName);
