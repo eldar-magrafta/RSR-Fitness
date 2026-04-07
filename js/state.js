@@ -26,6 +26,9 @@ export const state = {
   nlPickerGrams: 100,
   nlBrowseMode: false,
   nlCustomPhotoBase64: null,
+  nlCalYear: new Date().getFullYear(),
+  nlCalMon: new Date().getMonth(),
+  nlSelectedDate: new Date().toISOString().slice(0, 10),
 
   // Exercise History
   exHistRange: 0,

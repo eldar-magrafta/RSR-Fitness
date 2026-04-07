@@ -106,6 +106,9 @@
 .nl-custom-photo-btn:active { background:var(--subtle-bg-hover); }
 .nl-custom-thumb { width:60px; height:60px; border-radius:12px; object-fit:cover; }
 
+/* ── Nutrition Calendar ── */
+#nlCalSection { margin-bottom: 18px; }
+
 /* ── Macro Goals ── */
 .macro-goals-wrap {
   background:var(--card); border-radius:16px; padding:16px;

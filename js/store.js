@@ -145,6 +145,28 @@ export function saveMacroGoals(goals) {
   _cloudSave('sections', 'macrogoals', v);
 }
 
+// ── Macro Goals History (date-stamped snapshots) ──
+export function getMacroGoalsLog() {
+  try { return JSON.parse(localStorage.getItem('trainer_macro_goals_log')) || []; } catch { return []; }
+}
+export function saveMacroGoalsLog(log) {
+  const v = JSON.stringify(log);
+  localStorage.setItem('trainer_macro_goals_log', v);
+  _cloudSave('sections', 'macrogoalslog', v);
+}
+/** Look up the goals that were active on a given date */
+export function getGoalsForDate(dateStr) {
+  const log = getMacroGoalsLog();
+  if (log.length === 0) return getMacroGoals(); // backward compat
+  let match = null;
+  for (const entry of log) {
+    if (entry.date <= dateStr) match = entry;
+    else break;
+  }
+  if (!match) match = log[0]; // date before first entry — use earliest known goals
+  return { calories: match.calories, protein: match.protein, carbs: match.carbs, fat: match.fat };
+}
+
 // ── Custom Ingredients ──
 export function getCustomIngs() {
   try { return JSON.parse(localStorage.getItem('trainer_custom_ings')) || []; } catch { return []; }

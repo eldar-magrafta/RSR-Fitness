@@ -3,9 +3,9 @@
 
 import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
-import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getMacroGoals, saveMacroGoals } from './store.js';
+import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getMacroGoals, saveMacroGoals, getMacroGoalsLog, saveMacroGoalsLog, getGoalsForDate } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals } from './utils.js';
+import { calcMealTotals, MONTHS } from './utils.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
@@ -30,9 +30,12 @@ export function nlSetViewMode(mode) {
   state.nlViewMode = mode;
   document.getElementById('nlViewToday').classList.toggle('active', mode === 'today');
   document.getElementById('nlViewSaved').classList.toggle('active', mode === 'saved');
-  // Show/hide macro goals and sort row based on mode
+  // Show/hide macro goals, calendar, and sort row based on mode
   const goalsSection = document.getElementById('macroGoalsSection');
   if (goalsSection) goalsSection.style.display = mode === 'today' ? '' : 'none';
+  const calSection = document.getElementById('nlCalSection');
+  if (calSection) calSection.style.display = mode === 'today' ? '' : 'none';
+  if (mode === 'today') renderNLCalendar();
   renderNLMeals();
 }
 
@@ -45,7 +48,8 @@ export function renderNLMeals() {
 
   // Filter by view mode
   if (state.nlViewMode === 'today') {
-    meals = meals.filter(m => (m.type || 'logged') === 'logged' && m.createdAt === today);
+    const viewDate = state.nlSelectedDate || today;
+    meals = meals.filter(m => (m.type || 'logged') === 'logged' && m.createdAt === viewDate);
   } else {
     meals = meals.filter(m => m.type === 'saved');
   }
@@ -59,9 +63,15 @@ export function renderNLMeals() {
     return 0;
   });
   if (meals.length === 0) {
-    const emptyMsg = state.nlViewMode === 'today'
-      ? 'No meals logged today.<br>Tap + to log a meal, or eat a saved meal.'
-      : (state.nlFavOnly ? 'No favorite meals yet.<br>Star a meal to see it here.' : 'No saved meals yet.<br>Tap + to create a reusable meal.');
+    const isToday = (state.nlSelectedDate || today) === today;
+    let emptyMsg;
+    if (state.nlViewMode === 'today') {
+      emptyMsg = isToday
+        ? 'No meals logged today.<br>Tap + to log a meal, or eat a saved meal.'
+        : 'No meals logged on this date.';
+    } else {
+      emptyMsg = state.nlFavOnly ? 'No favorite meals yet.<br>Star a meal to see it here.' : 'No saved meals yet.<br>Tap + to create a reusable meal.';
+    }
     list.innerHTML = `<div class="nl-empty"><div class="nl-empty-icon">${state.nlViewMode === 'today' ? '\ud83c\udf7d\ufe0f' : '\ud83d\udcd6'}</div><div class="nl-empty-text">${emptyMsg}</div></div>`;
     return;
   }
@@ -259,7 +269,8 @@ export function nlCreateMeal() {
   const name = document.getElementById('nlMealNameInput').value.trim();
   if (!name) return;
   const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
-  const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: new Date().toISOString().slice(0, 10) };
+  const date = type === 'logged' ? (state.nlSelectedDate || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
+  const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: date };
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
   nlCloseCreate(); nlShowMeal(meal.id);
 }
@@ -282,6 +293,7 @@ export function confirmDeleteMeal() {
   if (!state._pendingDeleteMealId) return;
   saveNLMeals(getNLMeals().filter(m => m.id !== state._pendingDeleteMealId));
   closeDeleteMealConfirm();
+  renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
 }
@@ -385,7 +397,7 @@ export function nlLogSavedMeal() {
     ingredients: meal.ingredients.map(i => ({ ...i })),
     notes: '',
     favorite: false,
-    createdAt: new Date().toISOString().slice(0, 10)
+    createdAt: state.nlSelectedDate || new Date().toISOString().slice(0, 10)
   };
   meals.push(logged);
   saveNLMeals(meals);
@@ -399,6 +411,8 @@ export function nlLogSavedMeal() {
   document.getElementById('nlViewToday').classList.add('active');
   document.getElementById('nlViewSaved').classList.remove('active');
   document.getElementById('macroGoalsSection').style.display = '';
+  document.getElementById('nlCalSection').style.display = '';
+  renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
   // Brief toast
@@ -413,8 +427,8 @@ export function nlLogSavedMeal() {
 // ── Macro Goals ──
 
 function nlCalcDailyTotals() {
-  const today = new Date().toISOString().slice(0, 10);
-  const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged' && m.createdAt === today);
+  const date = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged' && m.createdAt === date);
   let p = 0, c = 0, f = 0, cal = 0;
   meals.forEach(m => { const t = nlCalcTotals(m); p += t.p; c += t.c; f += t.f; cal += t.cal; });
   return { p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal: Math.round(cal) };
@@ -423,9 +437,16 @@ function nlCalcDailyTotals() {
 export function renderMacroGoals() {
   const section = document.getElementById('macroGoalsSection');
   if (!section) return;
-  const goals = getMacroGoals();
+  const today = new Date().toISOString().slice(0, 10);
+  const viewDate = state.nlSelectedDate || today;
+  const isToday = viewDate === today;
+  const goals = getGoalsForDate(viewDate);
   if (!goals) {
-    section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
+    if (isToday) {
+      section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
+    } else {
+      section.innerHTML = `<div class="macro-goals-wrap" style="text-align:center;color:var(--muted);font-size:0.85rem;padding:18px;">No goals were set for this date.</div>`;
+    }
     return;
   }
   const daily = nlCalcDailyTotals();
@@ -435,10 +456,12 @@ export function renderMacroGoals() {
     { name: 'Carbs', cur: daily.c, goal: goals.carbs, color: '#ff6b6b', unit: 'g' },
     { name: 'Fat', cur: daily.f, goal: goals.fat, color: '#ffd93d', unit: 'g' },
   ];
+  const d = new Date(viewDate + 'T00:00:00');
+  const dateLabel = isToday ? "Today's Goals" : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   section.innerHTML = `<div class="macro-goals-wrap">
     <div class="macro-goals-header">
-      <span class="macro-goals-title">Today's Goals</span>
-      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>
+      <span class="macro-goals-title">${dateLabel}</span>
+      ${isToday ? '<button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>' : ''}
     </div>
     ${rows.map(r => {
       const pct = r.goal > 0 ? Math.min(100, Math.round(r.cur / r.goal * 100)) : 0;
@@ -474,7 +497,89 @@ export function saveMacroGoalsFromModal() {
   const carbs = parseInt(document.getElementById('goalCarbsInput').value) || 0;
   const fat = parseInt(document.getElementById('goalFatInput').value) || 0;
   if (!calories && !protein && !carbs && !fat) return;
-  saveMacroGoals({ calories, protein, carbs, fat });
+  const goals = { calories, protein, carbs, fat };
+
+  // Persist to dated goals history (read old goals BEFORE saving new ones)
+  const today = new Date().toISOString().slice(0, 10);
+  const log = getMacroGoalsLog();
+  if (log.length === 0) {
+    const prev = getMacroGoals();
+    if (prev && (prev.calories || prev.protein || prev.carbs || prev.fat)) {
+      if (prev.calories !== calories || prev.protein !== protein || prev.carbs !== carbs || prev.fat !== fat) {
+        log.push({ date: '2020-01-01', ...prev });
+      }
+    }
+  }
+
+  saveMacroGoals(goals);
+  const idx = log.findIndex(e => e.date === today);
+  if (idx >= 0) { log[idx] = { date: today, ...goals }; }
+  else { log.push({ date: today, ...goals }); log.sort((a, b) => a.date.localeCompare(b.date)); }
+  saveMacroGoalsLog(log);
+
   closeMacroGoalsModal();
+  renderMacroGoals();
+}
+
+// ── Nutrition Calendar ──
+
+export function renderNLCalendar() {
+  const today = new Date().toISOString().slice(0, 10);
+  const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged');
+  const mealDates = new Set(meals.map(m => m.createdAt));
+
+  document.getElementById('nlCalMonthLbl').textContent = `${MONTHS[state.nlCalMon]} ${state.nlCalYear}`;
+
+  const firstDow = new Date(state.nlCalYear, state.nlCalMon, 1).getDay();
+  const daysInMon = new Date(state.nlCalYear, state.nlCalMon + 1, 0).getDate();
+  const daysInPrev = new Date(state.nlCalYear, state.nlCalMon, 0).getDate();
+
+  let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
+
+  for (let i = firstDow - 1; i >= 0; i--) {
+    const d = daysInPrev - i;
+    const m = state.nlCalMon === 0 ? 12 : state.nlCalMon, y = state.nlCalMon === 0 ? state.nlCalYear - 1 : state.nlCalYear;
+    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isFuture = ds > today;
+    html += `<div class="bw-cal-day other-month${mealDates.has(ds) ? ' has-data' : ''}${ds === state.nlSelectedDate ? ' selected' : ''}${isFuture ? ' future' : ''}"${!isFuture ? ` onclick="nlSelectDate('${ds}')"` : ''}>${d}</div>`;
+  }
+  for (let d = 1; d <= daysInMon; d++) {
+    const ds = `${state.nlCalYear}-${String(state.nlCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isFuture = ds > today;
+    const cls = [
+      'bw-cal-day',
+      isFuture ? 'future' : '',
+      ds === today ? 'today' : '',
+      mealDates.has(ds) ? 'has-data' : '',
+      ds === state.nlSelectedDate ? 'selected' : '',
+    ].filter(Boolean).join(' ');
+    html += `<div class="${cls}"${!isFuture ? ` onclick="nlSelectDate('${ds}')"` : ''}>${d}</div>`;
+  }
+  const remain = 42 - (firstDow + daysInMon);
+  for (let d = 1; d <= remain; d++) {
+    const m = state.nlCalMon === 11 ? 1 : state.nlCalMon + 2, y = state.nlCalMon === 11 ? state.nlCalYear + 1 : state.nlCalYear;
+    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isFuture = ds > today;
+    html += `<div class="bw-cal-day other-month${isFuture ? ' future' : ''}${mealDates.has(ds) ? ' has-data' : ''}${ds === state.nlSelectedDate ? ' selected' : ''}"${!isFuture ? ` onclick="nlSelectDate('${ds}')"` : ''}>${d}</div>`;
+  }
+  document.getElementById('nlCalGrid').innerHTML = html;
+}
+
+export function nlPrevMonth() {
+  if (state.nlCalYear === 2020 && state.nlCalMon === 0) return;
+  if (state.nlCalMon === 0) { state.nlCalMon = 11; state.nlCalYear--; } else state.nlCalMon--;
+  renderNLCalendar();
+}
+
+export function nlNextMonth() {
+  if (state.nlCalYear === 2035 && state.nlCalMon === 11) return;
+  if (state.nlCalMon === 11) { state.nlCalMon = 0; state.nlCalYear++; } else state.nlCalMon++;
+  renderNLCalendar();
+}
+
+export function nlSelectDate(dateStr) {
+  state.nlSelectedDate = dateStr;
+  renderNLCalendar();
+  renderNLMeals();
   renderMacroGoals();
 }
