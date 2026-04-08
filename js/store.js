@@ -135,46 +135,75 @@ export function savePRs(prs) {
   _cloudSave('sections', 'prs', v);
 }
 
-// ── Macro Goals ──
-export function getMacroGoals() {
-  try { return JSON.parse(localStorage.getItem('trainer_macro_goals')) || null; } catch { return null; }
+// ── Macro Goals (date-keyed map) ──
+// Each entry is either a goals object { calories, protein, carbs, fat } or null (explicit deletion).
+// Deletion only affects that exact date; subsequent dates skip it and inherit from earlier goals.
+
+export const DEFAULT_MACRO_GOALS = { calories: 2700, protein: 270, carbs: 203, fat: 90 };
+
+export function getMacroGoalsMap() {
+  try { return JSON.parse(localStorage.getItem('trainer_macro_goals_map')) || {}; } catch { return {}; }
 }
-export function saveMacroGoals(goals) {
-  const v = JSON.stringify(goals);
-  localStorage.setItem('trainer_macro_goals', v);
-  _cloudSave('sections', 'macrogoals', v);
+export function saveMacroGoalsMap(map) {
+  const v = JSON.stringify(map);
+  localStorage.setItem('trainer_macro_goals_map', v);
+  _cloudSave('sections', 'macrogoalsmap', v);
 }
 
-// ── Macro Goals History (date-stamped snapshots) ──
-export function getMacroGoalsLog() {
-  try { return JSON.parse(localStorage.getItem('trainer_macro_goals_log')) || []; } catch { return []; }
-}
-export function saveMacroGoalsLog(log) {
-  const v = JSON.stringify(log);
-  localStorage.setItem('trainer_macro_goals_log', v);
-  _cloudSave('sections', 'macrogoalslog', v);
-}
-// ── Macro Goals Skipped Dates ──
-export function getMacroSkippedDates() {
-  try { return JSON.parse(localStorage.getItem('trainer_macro_skip')) || []; } catch { return []; }
-}
-export function saveMacroSkippedDates(dates) {
-  const v = JSON.stringify(dates);
-  localStorage.setItem('trainer_macro_skip', v);
-  _cloudSave('sections', 'macroskip', v);
+/** Set or delete a goal for a specific date. Pass null to delete. */
+export function setGoalForDate(dateStr, goals) {
+  const map = getMacroGoalsMap();
+  map[dateStr] = goals;
+  saveMacroGoalsMap(map);
 }
 
-/** Look up the goals that were active on a given date */
+/** Remove a map entry entirely (date goes back to inheriting). */
+export function removeGoalEntry(dateStr) {
+  const map = getMacroGoalsMap();
+  delete map[dateStr];
+  saveMacroGoalsMap(map);
+}
+
+/**
+ * Look up the goals that apply on a given date.
+ * 1. Exact match → return it (object = goal, null = deleted).
+ * 2. Walk backwards, skip deletions, return first real goal.
+ * 3. No entries → DEFAULT_MACRO_GOALS.
+ */
 export function getGoalsForDate(dateStr) {
-  const log = getMacroGoalsLog();
-  if (log.length === 0) return getMacroGoals(); // backward compat
-  let match = null;
-  for (const entry of log) {
-    if (entry.date <= dateStr) match = entry;
-    else break;
+  const map = getMacroGoalsMap();
+  // Exact-date check
+  if (dateStr in map) return map[dateStr];
+  // Walk backwards for inheritance (skip deletions)
+  const dates = Object.keys(map).sort();
+  for (let i = dates.length - 1; i >= 0; i--) {
+    if (dates[i] < dateStr && map[dates[i]] !== null) return map[dates[i]];
   }
-  if (!match) match = log[0]; // date before first entry — use earliest known goals
-  return { calories: match.calories, protein: match.protein, carbs: match.carbs, fat: match.fat };
+  return DEFAULT_MACRO_GOALS;
+}
+
+/** One-time migration from old format (goals + log + skip) → date-keyed map */
+export function migrateMacroGoalsToMap() {
+  if (localStorage.getItem('trainer_macro_goals_map')) return; // already migrated
+  const map = {};
+  // Old goals log
+  try {
+    const log = JSON.parse(localStorage.getItem('trainer_macro_goals_log')) || [];
+    log.forEach(e => { if (e.date) map[e.date] = { calories: e.calories, protein: e.protein, carbs: e.carbs, fat: e.fat }; });
+  } catch { /* ignore */ }
+  // If no log, seed from single-object goals
+  if (Object.keys(map).length === 0) {
+    try {
+      const g = JSON.parse(localStorage.getItem('trainer_macro_goals'));
+      if (g && (g.calories || g.protein)) map['2020-01-01'] = g;
+    } catch { /* ignore */ }
+  }
+  // Old skipped dates → null entries
+  try {
+    const skip = JSON.parse(localStorage.getItem('trainer_macro_skip')) || [];
+    skip.forEach(d => { map[d] = null; });
+  } catch { /* ignore */ }
+  if (Object.keys(map).length > 0) saveMacroGoalsMap(map);
 }
 
 // ── Custom Ingredients ──

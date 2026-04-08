@@ -3,7 +3,7 @@
 
 import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
-import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getMacroGoals, saveMacroGoals, getMacroGoalsLog, saveMacroGoalsLog, getGoalsForDate, getMacroSkippedDates, saveMacroSkippedDates } from './store.js';
+import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { calcMealTotals, MONTHS } from './utils.js';
 
@@ -77,9 +77,9 @@ export function renderNLMeals() {
   }
   list.innerHTML = meals.map(m => {
     const t = nlCalcTotals(m);
+    const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>` : '';
     return `<div class="nl-meal-card" onclick="nlShowMeal('${m.id}')">
-      <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div>
-        <button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>
+      <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div>${favBtn}
         <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
@@ -399,24 +399,24 @@ export function renderMacroGoals() {
   const viewDate = state.nlSelectedDate || today;
   const isToday = viewDate === today;
 
-  // Check if today's goal is skipped
-  if (isToday && getMacroSkippedDates().includes(today)) {
+  const goals = getGoalsForDate(viewDate);
+
+  // null = explicitly deleted goal for this date
+  if (goals === null) {
     section.innerHTML = `<div class="macro-goals-wrap" style="text-align:center;padding:18px;">
-      <div style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Goals paused for today</div>
-      <button class="macro-goals-edit" onclick="resumeTodayGoal()">Resume Tracking</button>
+      <div style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Goals cleared for this day</div>
+      <button class="macro-goals-edit" onclick="resumeDateGoal()">Resume Tracking</button>
+      <span style="margin:0 8px;color:var(--muted);">|</span>
+      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Set New Goal</button>
     </div>`;
     return;
   }
 
-  const goals = getGoalsForDate(viewDate);
   if (!goals) {
-    if (isToday) {
-      section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
-    } else {
-      section.innerHTML = `<div class="macro-goals-wrap" style="text-align:center;color:var(--muted);font-size:0.85rem;padding:18px;">No goals were set for this date.</div>`;
-    }
+    section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
     return;
   }
+
   const daily = nlCalcDailyTotals();
   const rows = [
     { name: 'Calories', cur: daily.cal, goal: goals.calories, color: 'var(--accent)', unit: '' },
@@ -429,7 +429,7 @@ export function renderMacroGoals() {
   section.innerHTML = `<div class="macro-goals-wrap">
     <div class="macro-goals-header">
       <span class="macro-goals-title">${dateLabel}</span>
-      ${isToday ? '<button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>' : ''}
+      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>
     </div>
     ${rows.map(r => {
       const pct = r.goal > 0 ? Math.min(100, Math.round(r.cur / r.goal * 100)) : 0;
@@ -517,7 +517,9 @@ export function setQuickCal(val) {
 }
 
 export function openMacroGoalsModal() {
-  const goals = getMacroGoals();
+  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  // Get existing goals for this date (inherit/default), but treat null (cleared) as no existing goal
+  let goals = getGoalsForDate(viewDate);
   if (goals && goals.calories > 0) {
     document.getElementById('goalCalInput').value = goals.calories;
     const pCal = (goals.protein || 0) * 4;
@@ -531,17 +533,18 @@ export function openMacroGoalsModal() {
       if (_pPct < 5) _pPct = 5;
       if (_cPct < 5) _cPct = 5;
     } else {
-      _pPct = 30; _cPct = 40;
+      _pPct = 40; _cPct = 30;
     }
   } else {
-    document.getElementById('goalCalInput').value = '';
-    _pPct = 30; _cPct = 40;
+    // Default: 2700 cal, 40% protein / 30% carbs / 30% fat
+    document.getElementById('goalCalInput').value = DEFAULT_MACRO_GOALS.calories;
+    _pPct = 40; _cPct = 30;
   }
   _updateMacroSliderUI();
   _initMacroSliderDrag();
-  // Show clear button only if goals exist
+  // Show clear button only if a real goal exists (not null/default)
   const clearBtn = document.getElementById('macroClearBtn');
-  if (clearBtn) clearBtn.style.display = goals ? '' : 'none';
+  if (clearBtn) clearBtn.style.display = (goals && goals !== DEFAULT_MACRO_GOALS) ? '' : 'none';
   document.getElementById('macroGoalsOverlay').classList.add('open');
 }
 
@@ -558,46 +561,23 @@ export function saveMacroGoalsFromModal() {
   const fat = Math.round((cal * fPct / 100) / 9);
   const goals = { calories: cal, protein, carbs, fat };
 
-  // Persist to dated goals history (read old goals BEFORE saving new ones)
-  const today = new Date().toISOString().slice(0, 10);
-  const log = getMacroGoalsLog();
-  if (log.length === 0) {
-    const prev = getMacroGoals();
-    if (prev && (prev.calories || prev.protein || prev.carbs || prev.fat)) {
-      if (prev.calories !== cal || prev.protein !== protein || prev.carbs !== carbs || prev.fat !== fat) {
-        log.push({ date: '2020-01-01', ...prev });
-      }
-    }
-  }
-
-  saveMacroGoals(goals);
-  // Remove today from skipped if it was
-  const skipped = getMacroSkippedDates();
-  const skipIdx = skipped.indexOf(today);
-  if (skipIdx >= 0) { skipped.splice(skipIdx, 1); saveMacroSkippedDates(skipped); }
-
-  const idx = log.findIndex(e => e.date === today);
-  if (idx >= 0) { log[idx] = { date: today, ...goals }; }
-  else { log.push({ date: today, ...goals }); log.sort((a, b) => a.date.localeCompare(b.date)); }
-  saveMacroGoalsLog(log);
+  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  setGoalForDate(viewDate, goals);
 
   closeMacroGoalsModal();
   renderMacroGoals();
 }
 
-export function clearTodayGoal() {
-  const today = new Date().toISOString().slice(0, 10);
-  const skipped = getMacroSkippedDates();
-  if (!skipped.includes(today)) { skipped.push(today); saveMacroSkippedDates(skipped); }
+export function clearDateGoal() {
+  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  setGoalForDate(viewDate, null);
   closeMacroGoalsModal();
   renderMacroGoals();
 }
 
-export function resumeTodayGoal() {
-  const today = new Date().toISOString().slice(0, 10);
-  const skipped = getMacroSkippedDates();
-  const idx = skipped.indexOf(today);
-  if (idx >= 0) { skipped.splice(idx, 1); saveMacroSkippedDates(skipped); }
+export function resumeDateGoal() {
+  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  removeGoalEntry(viewDate);
   renderMacroGoals();
 }
 

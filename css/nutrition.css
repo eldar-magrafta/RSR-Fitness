@@ -22,12 +22,12 @@
 .nl-fav-btn.active { color:#ffd93d; border-color:#ffd93d; background:rgba(255,217,61,0.1); }
 .nl-meal-card { background:var(--card); border-radius:16px; padding:16px; margin-bottom:12px; cursor:pointer; border:1px solid var(--border); }
 .nl-meal-card:active { opacity:0.85; }
-.nl-meal-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.nl-meal-top { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
 .nl-meal-name { font-weight:700; font-size:1.05rem; }
-.nl-meal-fav { background:none; border:none; font-size:1.2rem; cursor:pointer; padding:4px; }
+.nl-meal-fav { background:none; border:none; font-size:1rem; cursor:pointer; padding:2px 4px; color:#ffd93d; flex-shrink:0; }
 .nl-meal-del {
   background:none; border:none; color:var(--accent); font-size:1rem;
-  cursor:pointer; padding:4px 6px; margin-left:2px; opacity:0.7;
+  cursor:pointer; padding:4px 6px; margin-left:auto; opacity:0.7; flex-shrink:0;
 }
 .nl-meal-del:active { opacity:1; }
 .nl-meal-macros { display:flex; gap:14px; font-size:0.8rem; color:var(--muted); }
