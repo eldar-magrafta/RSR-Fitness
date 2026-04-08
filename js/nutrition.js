@@ -399,21 +399,30 @@ export function renderMacroGoals() {
   const viewDate = state.nlSelectedDate || today;
   const isToday = viewDate === today;
 
+  const isPast = viewDate < today;
+  const canEdit = !isPast; // today + future only
   const goals = getGoalsForDate(viewDate);
 
   // null = explicitly deleted goal for this date
   if (goals === null) {
+    const actions = canEdit
+      ? `<button class="macro-goals-edit" onclick="resumeDateGoal()">Resume Tracking</button>
+         <span style="margin:0 8px;color:var(--muted);">|</span>
+         <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Set New Goal</button>`
+      : '';
     section.innerHTML = `<div class="macro-goals-wrap" style="text-align:center;padding:18px;">
       <div style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Goals cleared for this day</div>
-      <button class="macro-goals-edit" onclick="resumeDateGoal()">Resume Tracking</button>
-      <span style="margin:0 8px;color:var(--muted);">|</span>
-      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Set New Goal</button>
+      ${actions}
     </div>`;
     return;
   }
 
   if (!goals) {
-    section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
+    if (canEdit) {
+      section.innerHTML = `<button class="macro-set-btn" onclick="openMacroGoalsModal()">Set Daily Calorie & Macro Goals</button>`;
+    } else {
+      section.innerHTML = `<div class="macro-goals-wrap" style="text-align:center;color:var(--muted);font-size:0.85rem;padding:18px;">No goals were set for this date.</div>`;
+    }
     return;
   }
 
@@ -429,7 +438,7 @@ export function renderMacroGoals() {
   section.innerHTML = `<div class="macro-goals-wrap">
     <div class="macro-goals-header">
       <span class="macro-goals-title">${dateLabel}</span>
-      <button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>
+      ${canEdit ? '<button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>' : ''}
     </div>
     ${rows.map(r => {
       const pct = r.goal > 0 ? Math.min(100, Math.round(r.cur / r.goal * 100)) : 0;
