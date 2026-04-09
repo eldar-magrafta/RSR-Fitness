@@ -64,11 +64,16 @@ function computeSummary(range) {
     weightDelta = Math.round((weightEnd - weightStart) * 10) / 10;
   }
 
-  // Nutrition averages
+  // Nutrition averages (always last 7 days)
   const meals = getNLMeals();
   const dailyNutr = {};
+  const today = new Date();
+  const nutrStart = new Date(today);
+  nutrStart.setDate(today.getDate() - 7);
+  const nutrStartStr = nutrStart.toISOString().slice(0, 10);
+  const nutrEndStr = today.toISOString().slice(0, 10);
   meals.forEach(m => {
-    if (!m.createdAt || m.createdAt < startDate || m.createdAt > endDate) return;
+    if (!m.createdAt || m.createdAt <= nutrStartStr || m.createdAt > nutrEndStr) return;
     const t = calcMealTotals(m);
     if (!dailyNutr[m.createdAt]) dailyNutr[m.createdAt] = { cal: 0, p: 0, c: 0, f: 0 };
     dailyNutr[m.createdAt].cal += t.cal;
@@ -192,7 +197,7 @@ export function renderSummary() {
   // Nutrition averages
   if (s.daysWithMeals > 0) {
     html += `<div class="summary-section">
-      <div class="summary-section-title">Avg Daily Nutrition (${s.daysWithMeals} day${s.daysWithMeals > 1 ? 's' : ''})</div>
+      <div class="summary-section-title">Avg Daily Nutrition (Last 7 Days${s.daysWithMeals < 7 ? ` \u2022 ${s.daysWithMeals} of 7 days logged` : ''})</div>
       <div class="summary-nutr-row"><span style="color:var(--accent)">Calories</span><span class="summary-nutr-val">${s.avgCalories}</span></div>
       <div class="summary-nutr-row"><span style="color:#4ecdc4">Protein</span><span class="summary-nutr-val">${s.avgProtein}g</span></div>
       <div class="summary-nutr-row"><span style="color:#ff6b6b">Carbs</span><span class="summary-nutr-val">${s.avgCarbs}g</span></div>
