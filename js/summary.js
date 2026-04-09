@@ -64,12 +64,13 @@ function computeSummary(range) {
     weightDelta = Math.round((weightEnd - weightStart) * 10) / 10;
   }
 
-  // Nutrition averages (always last 7 days)
+  // Nutrition averages (last 7 or 30 days based on range)
   const meals = getNLMeals();
   const dailyNutr = {};
+  const nutrPeriod = range === 'week' ? 7 : 30;
   const today = new Date();
   const nutrStart = new Date(today);
-  nutrStart.setDate(today.getDate() - 7);
+  nutrStart.setDate(today.getDate() - nutrPeriod);
   const nutrStartStr = nutrStart.toISOString().slice(0, 10);
   const nutrEndStr = today.toISOString().slice(0, 10);
   meals.forEach(m => {
@@ -95,7 +96,7 @@ function computeSummary(range) {
     workoutCount: workoutDates.size,
     topExercises,
     bwEntries, weightStart, weightEnd, weightDelta,
-    avgCalories, avgProtein, avgCarbs, avgFat, daysWithMeals,
+    avgCalories, avgProtein, avgCarbs, avgFat, daysWithMeals, nutrPeriod,
     startDate, endDate
   };
 }
@@ -197,7 +198,7 @@ export function renderSummary() {
   // Nutrition averages
   if (s.daysWithMeals > 0) {
     html += `<div class="summary-section">
-      <div class="summary-section-title">Avg Daily Nutrition (Last 7 Days${s.daysWithMeals < 7 ? ` \u2022 ${s.daysWithMeals} of 7 days logged` : ''})</div>
+      <div class="summary-section-title">Avg Daily Nutrition (Last ${s.nutrPeriod} Days${s.daysWithMeals < s.nutrPeriod ? ` \u2022 ${s.daysWithMeals} of ${s.nutrPeriod} days logged` : ''})</div>
       <div class="summary-nutr-row"><span style="color:var(--accent)">Calories</span><span class="summary-nutr-val">${s.avgCalories}</span></div>
       <div class="summary-nutr-row"><span style="color:#4ecdc4">Protein</span><span class="summary-nutr-val">${s.avgProtein}g</span></div>
       <div class="summary-nutr-row"><span style="color:#ff6b6b">Carbs</span><span class="summary-nutr-val">${s.avgCarbs}g</span></div>
