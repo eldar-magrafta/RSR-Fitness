@@ -35,6 +35,8 @@ export function nlSetViewMode(mode) {
   if (goalsSection) goalsSection.style.display = mode === 'today' ? '' : 'none';
   const calSection = document.getElementById('nlCalSection');
   if (calSection) calSection.style.display = mode === 'today' ? '' : 'none';
+  const browseBtn = document.querySelector('.nl-browse-btn');
+  if (browseBtn) browseBtn.style.display = mode === 'saved' ? '' : 'none';
   if (mode === 'today') renderNLCalendar();
   renderNLMeals();
 }
