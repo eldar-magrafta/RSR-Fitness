@@ -54,3 +54,11 @@
   padding:6px 0; font-size:0.9rem;
 }
 .summary-nutr-val { font-weight:700; }
+.summary-cal-balance {
+  margin-top:10px; padding:10px 12px; border-radius:10px;
+  font-size:0.85rem; font-weight:600; line-height:1.4;
+  background:var(--subtle-bg); border:1px solid var(--border);
+  color:var(--text-secondary);
+}
+.summary-cal-balance.deficit { color:var(--green); border-color:rgba(78,205,196,0.35); background:rgba(78,205,196,0.08); }
+.summary-cal-balance.surplus { color:var(--accent); border-color:rgba(233,69,96,0.35); background:rgba(233,69,96,0.08); }

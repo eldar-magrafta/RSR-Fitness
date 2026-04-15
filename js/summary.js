@@ -2,7 +2,7 @@
 
 import { state } from './state.js';
 import { exerciseData } from '../data/exercises.js';
-import { getExHist, getBWData, bwGetWeight, getNLMeals } from './store.js';
+import { getExHist, getBWData, bwGetWeight, getNLMeals, getGoalsForDate } from './store.js';
 import { calcMealTotals, dateToStr } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 
@@ -10,17 +10,23 @@ function getDateRange(range) {
   const now = new Date();
   let start, end;
   if (range === 'week') {
-    const day = now.getDay(); // 0=Sun
-    const diffToMon = day === 0 ? 6 : day - 1;
+    // Calendar week: Sunday (start) → Saturday (end)
+    const day = now.getDay(); // 0=Sun .. 6=Sat
     start = new Date(now);
-    start.setDate(now.getDate() - diffToMon);
+    start.setDate(now.getDate() - day);
     end = new Date(start);
     end.setDate(start.getDate() + 6);
   } else {
+    // Calendar month: 1st → last day of current month
     start = new Date(now.getFullYear(), now.getMonth(), 1);
     end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   }
-  const toStr = d => d.toISOString().slice(0, 10);
+  const toStr = d => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  };
   return { startDate: toStr(start), endDate: toStr(end) };
 }
 
@@ -64,17 +70,11 @@ function computeSummary(range) {
     weightDelta = Math.round((weightEnd - weightStart) * 10) / 10;
   }
 
-  // Nutrition averages (last 7 or 30 days based on range)
+  // Nutrition averages — respect selected calendar period (week or month)
   const meals = getNLMeals();
   const dailyNutr = {};
-  const nutrPeriod = range === 'week' ? 7 : 30;
-  const today = new Date();
-  const nutrStart = new Date(today);
-  nutrStart.setDate(today.getDate() - nutrPeriod);
-  const nutrStartStr = nutrStart.toISOString().slice(0, 10);
-  const nutrEndStr = today.toISOString().slice(0, 10);
   meals.forEach(m => {
-    if (!m.createdAt || m.createdAt <= nutrStartStr || m.createdAt > nutrEndStr) return;
+    if (!m.createdAt || m.createdAt < startDate || m.createdAt > endDate) return;
     const t = calcMealTotals(m);
     if (!dailyNutr[m.createdAt]) dailyNutr[m.createdAt] = { cal: 0, p: 0, c: 0, f: 0 };
     dailyNutr[m.createdAt].cal += t.cal;
@@ -92,12 +92,25 @@ function computeSummary(range) {
     avgFat = Math.round(totals.f / daysWithMeals);
   }
 
+  // Deficit / surplus vs goals — averaged over logged days in the selected period
+  let avgCalorieDiff = null; // positive = deficit (under goal), negative = surplus (over goal)
+  if (daysWithMeals > 0) {
+    let totalDiff = 0;
+    Object.entries(dailyNutr).forEach(([dateStr, d]) => {
+      const goals = getGoalsForDate(dateStr) || {};
+      const goalCal = Number(goals.calories) || 0;
+      totalDiff += (goalCal - d.cal);
+    });
+    avgCalorieDiff = Math.round(totalDiff / daysWithMeals);
+  }
+
   return {
     workoutCount: workoutDates.size,
     topExercises,
     bwEntries, weightStart, weightEnd, weightDelta,
-    avgCalories, avgProtein, avgCarbs, avgFat, daysWithMeals, nutrPeriod,
-    startDate, endDate
+    avgCalories, avgProtein, avgCarbs, avgFat, daysWithMeals,
+    avgCalorieDiff,
+    startDate, endDate, range
   };
 }
 
@@ -197,13 +210,25 @@ export function renderSummary() {
 
   // Nutrition averages
   if (s.daysWithMeals > 0) {
+    const periodLabel = s.range === 'week' ? 'This Week' : 'This Month';
+    const periodWord = s.range === 'week' ? 'this week' : 'this month';
     html += `<div class="summary-section">
-      <div class="summary-section-title">Avg Daily Nutrition (Last ${s.nutrPeriod} Days${s.daysWithMeals < s.nutrPeriod ? ` \u2022 ${s.daysWithMeals} of ${s.nutrPeriod} days logged` : ''})</div>
+      <div class="summary-section-title">Avg Daily Nutrition (${periodLabel} \u2022 ${s.daysWithMeals} day${s.daysWithMeals === 1 ? '' : 's'} logged)</div>
       <div class="summary-nutr-row"><span style="color:var(--accent)">Calories</span><span class="summary-nutr-val">${s.avgCalories}</span></div>
       <div class="summary-nutr-row"><span style="color:#4ecdc4">Protein</span><span class="summary-nutr-val">${s.avgProtein}g</span></div>
       <div class="summary-nutr-row"><span style="color:#ff6b6b">Carbs</span><span class="summary-nutr-val">${s.avgCarbs}g</span></div>
-      <div class="summary-nutr-row"><span style="color:#ffd93d">Fat</span><span class="summary-nutr-val">${s.avgFat}g</span></div>
-    </div>`;
+      <div class="summary-nutr-row"><span style="color:#ffd93d">Fat</span><span class="summary-nutr-val">${s.avgFat}g</span></div>`;
+    if (s.avgCalorieDiff !== null) {
+      const diff = s.avgCalorieDiff;
+      if (diff > 0) {
+        html += `<div class="summary-cal-balance deficit">You are in an average deficit of ${diff} calories per day ${periodWord}.</div>`;
+      } else if (diff < 0) {
+        html += `<div class="summary-cal-balance surplus">You are in an average surplus of ${Math.abs(diff)} calories per day ${periodWord}.</div>`;
+      } else {
+        html += `<div class="summary-cal-balance">You are meeting your calorie goal on average ${periodWord}.</div>`;
+      }
+    }
+    html += `</div>`;
   }
 
   // Empty state
