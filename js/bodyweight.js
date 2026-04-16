@@ -244,6 +244,9 @@ export function openBWEntry(dateStr) {
 }
 
 export function closeBWEntry() {
+  const sheet = document.getElementById('bwSheet');
+  sheet.style.transform = '';
+  sheet.style.transition = '';
   document.getElementById('bwOverlay').classList.remove('open');
   state.bwCurrentPhoto = null;
 }
