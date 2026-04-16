@@ -10,7 +10,7 @@ import { buildHome, showExercises, openModal, closeModal, handleOverlayClick, au
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, donePlanDetail, setPlanEditMode, openDeletePlanConfirm, closeDeletePlanConfirm, confirmDeletePlan, showPlanDetail, openRemoveExConfirm, closeRemoveExConfirm, confirmRemoveEx, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, deleteBWEntry, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, closeBWDeleteConfirm, confirmDeleteAllBW } from './bodyweight.js';
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, closeDeleteMealConfirm, confirmDeleteMeal, nlToggleFav, nlDuplicateMeal, nlCopySummary, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlSaveCustom, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, pickSavedMeal } from './nutrition.js';
-import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, deleteExHistEntry, initExHistSheetSwipe, openDeleteAllExHist, closeDeleteAllExHist, confirmDeleteAllExHist } from './history.js';
+import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, deleteExHistEntry, initExHistSheetSwipe, openDeleteAllExHist, closeDeleteAllExHist, confirmDeleteAllExHist } from './history.js';
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
@@ -233,6 +233,7 @@ window.setSummaryRange = setSummaryRange;
 window.setExHistRange = setExHistRange;
 window.exHistPrevMonth = exHistPrevMonth;
 window.exHistNextMonth = exHistNextMonth;
+window.exHistJumpToDate = exHistJumpToDate;
 window.renderExHistSets = renderExHistSets;
 window.openExHistEntry = openExHistEntry;
 window.closeExHistEntry = closeExHistEntry;

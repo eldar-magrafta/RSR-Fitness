@@ -212,6 +212,9 @@ export function bwNextMonth() {
 export function openBWEntry(dateStr) {
   if (dateStr > dateToStr(new Date())) return;
   state.bwSelDate = dateStr;
+  const [y, m] = dateStr.split('-').map(Number);
+  state.bwCalYear = y;
+  state.bwCalMon = m - 1;
   renderBWCalendar();
   const existing = getBWData()[dateStr];
   const w = existing ? bwGetWeight(existing) : null;

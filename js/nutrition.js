@@ -706,6 +706,9 @@ export function nlNextMonth() {
 
 export function nlSelectDate(dateStr) {
   state.nlSelectedDate = dateStr;
+  const [y, m] = dateStr.split('-').map(Number);
+  state.nlCalYear = y;
+  state.nlCalMon = m - 1;
   renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
