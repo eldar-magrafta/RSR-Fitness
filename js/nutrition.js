@@ -109,11 +109,15 @@ function renderNLMealDetail() {
 
   // Photo section
   const photoSection = document.getElementById('nlMealDetailPhoto');
+  const isDefaultMeal = meal.id.startsWith('default_meal_');
   if (photoSection) {
     if (meal.type === 'saved' && meal.image) {
+      const removeBtn = !isDefaultMeal
+        ? `<button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">\u2715\u00a0Remove</button>`
+        : '';
       photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
-        <img class="nl-detail-photo-img" src="${meal.image}" alt="">
-        <button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">\u2715\u00a0Remove</button>
+        <img class="nl-detail-photo-img" src="${meal.image}" alt="" onclick="nlOpenMealPhotoViewer()">
+        ${removeBtn}
       </div>`;
     } else {
       photoSection.innerHTML = '';
@@ -122,7 +126,7 @@ function renderNLMealDetail() {
   // Photo button label
   const photoBtn = document.getElementById('nlPhotoBtn');
   if (photoBtn) {
-    if (meal.type === 'saved') {
+    if (meal.type === 'saved' && !isDefaultMeal) {
       photoBtn.style.display = '';
       photoBtn.textContent = meal.image ? '\ud83d\uddbc\ufe0f\u00a0Change Photo' : '\ud83d\udcf7\u00a0Add Photo';
     } else {
@@ -383,6 +387,17 @@ export function nlRemoveMealPhoto() {
   saveNLMeals(meals);
   renderNLMealDetail();
   renderNLMeals();
+}
+
+export function nlOpenMealPhotoViewer() {
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal?.image) return;
+  document.getElementById('nlMealPhotoViewerImg').src = meal.image;
+  document.getElementById('nlMealPhotoViewer').classList.add('open');
+}
+
+export function nlCloseMealPhotoViewer() {
+  document.getElementById('nlMealPhotoViewer').classList.remove('open');
 }
 
 export function nlSetSort(by, btn) {

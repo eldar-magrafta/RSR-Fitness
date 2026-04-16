@@ -26,7 +26,7 @@
 .nl-meal-card-img { width:68px; height:68px; border-radius:12px; object-fit:cover; flex-shrink:0; }
 .nl-meal-card-body { flex:1; min-width:0; }
 .nl-detail-photo-wrap { position:relative; margin-bottom:16px; }
-.nl-detail-photo-img { width:100%; max-height:210px; object-fit:cover; border-radius:16px; display:block; }
+.nl-detail-photo-img { width:100%; max-height:210px; object-fit:cover; border-radius:16px; display:block; cursor:pointer; }
 .nl-detail-photo-remove { position:absolute; top:9px; right:9px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:8px; padding:6px 11px; font-size:0.78rem; font-weight:600; cursor:pointer; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
 .nl-detail-photo-remove:active { opacity:0.75; }
 .nl-meal-top { display:flex; align-items:flex-start; gap:6px; margin-bottom:8px; }
