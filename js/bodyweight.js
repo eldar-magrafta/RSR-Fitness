@@ -149,16 +149,11 @@ export function renderBWCalendar() {
 
   const firstDow = new Date(state.bwCalYear, state.bwCalMon, 1).getDay();
   const daysInMon = new Date(state.bwCalYear, state.bwCalMon + 1, 0).getDate();
-  const daysInPrev = new Date(state.bwCalYear, state.bwCalMon, 0).getDate();
+
 
   let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
 
-  for (let i = firstDow - 1; i >= 0; i--) {
-    const d = daysInPrev - i;
-    const m = state.bwCalMon === 0 ? 12 : state.bwCalMon, y = state.bwCalMon === 0 ? state.bwCalYear - 1 : state.bwCalYear;
-    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    html += `<div class="bw-cal-day other-month${data[ds] ? ' has-data' : ''}" onclick="openBWEntry('${ds}')">${d}</div>`;
-  }
+  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   for (let d = 1; d <= daysInMon; d++) {
     const ds = `${state.bwCalYear}-${String(state.bwCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const isFuture = ds > today;
@@ -172,12 +167,7 @@ export function renderBWCalendar() {
     html += `<div class="${cls}" onclick="openBWEntry('${ds}')">${d}</div>`;
   }
   const remain = 42 - (firstDow + daysInMon);
-  for (let d = 1; d <= remain; d++) {
-    const m = state.bwCalMon === 11 ? 1 : state.bwCalMon + 2, y = state.bwCalMon === 11 ? state.bwCalYear + 1 : state.bwCalYear;
-    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isFutureOther = ds > today;
-    html += `<div class="bw-cal-day other-month${isFutureOther ? ' future' : ''}${data[ds] ? ' has-data' : ''}"${isFutureOther ? '' : ` onclick="openBWEntry('${ds}')"`}>${d}</div>`;
-  }
+  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   document.getElementById('bwCalGrid').innerHTML = html;
 }
 

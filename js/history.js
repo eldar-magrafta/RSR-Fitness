@@ -124,16 +124,11 @@ function renderExHistCal() {
   const today = exHistToStr(new Date());
   const firstDow = new Date(state.exHistCalYear, state.exHistCalMon, 1).getDay();
   const daysInMonth = new Date(state.exHistCalYear, state.exHistCalMon + 1, 0).getDate();
-  const daysInPrev = new Date(state.exHistCalYear, state.exHistCalMon, 0).getDate();
+
 
   let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
 
-  for (let i = firstDow - 1; i >= 0; i--) {
-    const d = daysInPrev - i;
-    const pm = state.exHistCalMon === 0 ? 12 : state.exHistCalMon, py = state.exHistCalMon === 0 ? state.exHistCalYear - 1 : state.exHistCalYear;
-    const ds = `${py}-${String(pm).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    html += `<div class="bw-cal-day other-month${hist[ds] ? ' has-data' : ''}" onclick="exHistJumpToDate('${ds}')">${d}</div>`;
-  }
+  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${state.exHistCalYear}-${String(state.exHistCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const isFuture = ds > today;
@@ -141,12 +136,7 @@ function renderExHistCal() {
     html += `<div class="${cls}"${isFuture ? '' : ` onclick="openExHistEntry('${ds}')"`}>${d}</div>`;
   }
   const remain = 42 - (firstDow + daysInMonth);
-  for (let d = 1; d <= remain; d++) {
-    const nm = state.exHistCalMon === 11 ? 1 : state.exHistCalMon + 2, ny = state.exHistCalMon === 11 ? state.exHistCalYear + 1 : state.exHistCalYear;
-    const ds = `${ny}-${String(nm).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isFutureOther = ds > today;
-    html += `<div class="bw-cal-day other-month${hist[ds] ? ' has-data' : ''}"${isFutureOther ? '' : ` onclick="exHistJumpToDate('${ds}')"`}>${d}</div>`;
-  }
+  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   grid.innerHTML = html;
 }
 

@@ -663,16 +663,11 @@ export function renderNLCalendar() {
 
   const firstDow = new Date(state.nlCalYear, state.nlCalMon, 1).getDay();
   const daysInMon = new Date(state.nlCalYear, state.nlCalMon + 1, 0).getDate();
-  const daysInPrev = new Date(state.nlCalYear, state.nlCalMon, 0).getDate();
+
 
   let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
 
-  for (let i = firstDow - 1; i >= 0; i--) {
-    const d = daysInPrev - i;
-    const m = state.nlCalMon === 0 ? 12 : state.nlCalMon, y = state.nlCalMon === 0 ? state.nlCalYear - 1 : state.nlCalYear;
-    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    html += `<div class="bw-cal-day other-month${mealDates.has(ds) ? ' has-data' : ''}${ds === state.nlSelectedDate ? ' selected' : ''}" onclick="nlSelectDate('${ds}')">${d}</div>`;
-  }
+  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   for (let d = 1; d <= daysInMon; d++) {
     const ds = `${state.nlCalYear}-${String(state.nlCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const cls = [
@@ -684,11 +679,7 @@ export function renderNLCalendar() {
     html += `<div class="${cls}" onclick="nlSelectDate('${ds}')">${d}</div>`;
   }
   const remain = 42 - (firstDow + daysInMon);
-  for (let d = 1; d <= remain; d++) {
-    const m = state.nlCalMon === 11 ? 1 : state.nlCalMon + 2, y = state.nlCalMon === 11 ? state.nlCalYear + 1 : state.nlCalYear;
-    const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    html += `<div class="bw-cal-day other-month${mealDates.has(ds) ? ' has-data' : ''}${ds === state.nlSelectedDate ? ' selected' : ''}" onclick="nlSelectDate('${ds}')">${d}</div>`;
-  }
+  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
   document.getElementById('nlCalGrid').innerHTML = html;
 }
 
