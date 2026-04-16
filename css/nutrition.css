@@ -29,12 +29,13 @@
 .nl-detail-photo-img { width:100%; max-height:210px; object-fit:cover; border-radius:16px; display:block; }
 .nl-detail-photo-remove { position:absolute; top:9px; right:9px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:8px; padding:6px 11px; font-size:0.78rem; font-weight:600; cursor:pointer; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
 .nl-detail-photo-remove:active { opacity:0.75; }
-.nl-meal-top { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.nl-meal-top { display:flex; align-items:flex-start; gap:6px; margin-bottom:8px; }
+.nl-meal-name-row { flex:1; }
 .nl-meal-name { font-weight:700; font-size:1.05rem; }
-.nl-meal-fav { background:none; border:none; font-size:1rem; cursor:pointer; padding:2px 4px; color:#ffd93d; flex-shrink:0; }
+.nl-meal-fav { display:inline-block; vertical-align:middle; background:none; border:none; font-size:1rem; cursor:pointer; padding:2px 4px; color:#ffd93d; }
 .nl-meal-del {
   background:none; border:none; color:var(--accent); font-size:1rem;
-  cursor:pointer; padding:4px 6px; margin-left:auto; opacity:0.7; flex-shrink:0;
+  cursor:pointer; padding:4px 6px; opacity:0.7; flex-shrink:0;
 }
 .nl-meal-del:active { opacity:1; }
 .nl-meal-macros { display:flex; gap:14px; font-size:0.8rem; color:var(--muted); }

@@ -83,7 +83,7 @@ export function renderNLMeals() {
     const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
     return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="nlShowMeal('${m.id}')">
       ${cardImg}<div class="nl-meal-card-body">
-      <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div>${favBtn}
+      <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span>${favBtn}</div>
         <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
@@ -674,7 +674,7 @@ export function openSavedMealPicker() {
       const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
       return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="pickSavedMeal('${m.id}')">
         ${cardImg}<div class="nl-meal-card-body">
-        <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div></div>
+        <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span></div></div>
         <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
         <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
         </div></div>`;
