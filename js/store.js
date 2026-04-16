@@ -115,8 +115,54 @@ export function bwGetWeight(val) { return typeof val === 'object' && val ? Numbe
 export function bwGetPhoto(val) { return typeof val === 'object' && val ? (val.p || null) : null; }
 
 // ── Nutrition Lab Meals ──
+const DEFAULT_MEALS = [
+  {
+    id: 'default_meal_1',
+    name: 'High-Protein Breakfast',
+    type: 'saved',
+    ingredients: [
+      {name:'Eggs (whole, cooked)',  grams:150, p:13,   c:1.1,  f:11,  cal:155, img:'assets/foods/dairy/eggs.jpg'},
+      {name:'Oats',                  grams:80,  p:13.2, c:67.7, f:6.5, cal:382, img:'assets/foods/grains/oats.jpg'},
+      {name:'Greek Yogurt',          grams:150, p:10,   c:3.6,  f:0.7, cal:61,  img:'assets/foods/dairy/greek-yogurt.jpg'},
+    ],
+    notes: '',
+    favorite: false,
+    createdAt: '2025-01-01',
+  },
+  {
+    id: 'default_meal_2',
+    name: 'Chicken & Rice',
+    type: 'saved',
+    ingredients: [
+      {name:'Chicken Breast (cooked)', grams:200, p:31,  c:0,  f:3.6, cal:156, img:'assets/foods/meat/chicken-breast.jpg'},
+      {name:'White Rice (cooked)',     grams:200, p:2.7, c:28, f:0.3, cal:126, img:'assets/foods/grains/white-rice.jpg'},
+      {name:'Broccoli',               grams:150, p:2.8, c:7,  f:0.4, cal:43,  img:'assets/foods/vegetables/broccoli.jpg'},
+    ],
+    notes: '',
+    favorite: false,
+    createdAt: '2025-01-01',
+  },
+  {
+    id: 'default_meal_3',
+    name: 'Salmon & Sweet Potato',
+    type: 'saved',
+    ingredients: [
+      {name:'Salmon (cooked)',  grams:180, p:20,  c:0,  f:13,  cal:197, img:'assets/foods/seafood/salmon.jpg'},
+      {name:'Sweet Potato',    grams:200, p:1.6, c:20, f:0.1, cal:87,  img:'assets/foods/vegetables/sweet-potato.jpg'},
+      {name:'Spinach',         grams:100, p:2.9, c:3.6,f:0.4, cal:30,  img:'assets/foods/vegetables/spinach.jpg'},
+    ],
+    notes: '',
+    favorite: false,
+    createdAt: '2025-01-01',
+  },
+];
+
 export function getNLMeals() {
-  try { return JSON.parse(localStorage.getItem('trainer_meals')) || []; } catch { return []; }
+  try {
+    const raw = localStorage.getItem('trainer_meals');
+    if (raw === null) { saveNLMeals(DEFAULT_MEALS); return DEFAULT_MEALS; }
+    return JSON.parse(raw) || [];
+  } catch { return []; }
 }
 export function saveNLMeals(m) {
   const v = JSON.stringify(m);
