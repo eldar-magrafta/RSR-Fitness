@@ -194,6 +194,8 @@
     <div id="nlMealList"></div>
   </div>
   <div class="view" id="nlMealView">
+    <div id="nlMealDetailPhoto"></div>
+    <input type="file" id="nlMealPhotoInput" accept="image/*" style="display:none" onchange="nlUploadMealPhoto(this)">
     <div id="nlMealChart"></div>
     <div class="nl-totals" id="nlTotals"></div>
     <div id="nlIngList"></div>
@@ -202,7 +204,7 @@
     <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
     <div class="nl-meal-actions">
       <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
-      <button class="nl-action-btn" id="nlCopyBtn" onclick="nlCopySummary()">Copy Summary</button>
+      <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">📷&nbsp;Add Photo</button>
     </div>
   </div>
   <div class="view" id="nlPickerView">

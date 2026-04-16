@@ -120,6 +120,7 @@ const DEFAULT_MEALS = [
     id: 'default_meal_1',
     name: 'High-Protein Breakfast',
     type: 'saved',
+    image: 'assets/foods/saved-meals/Egg-Savory-Oats.webp',
     ingredients: [
       {name:'Eggs (whole, cooked)',  grams:150, p:13,   c:1.1,  f:11,  cal:155, img:'assets/foods/dairy/eggs.jpg'},
       {name:'Oats',                  grams:80,  p:13.2, c:67.7, f:6.5, cal:382, img:'assets/foods/grains/oats.jpg'},
@@ -133,6 +134,7 @@ const DEFAULT_MEALS = [
     id: 'default_meal_2',
     name: 'Chicken & Rice',
     type: 'saved',
+    image: 'assets/foods/saved-meals/teriyaki-chicken-rice-bowl.jpg',
     ingredients: [
       {name:'Chicken Breast (cooked)', grams:200, p:31,  c:0,  f:3.6, cal:156, img:'assets/foods/meat/chicken-breast.jpg'},
       {name:'White Rice (cooked)',     grams:200, p:2.7, c:28, f:0.3, cal:126, img:'assets/foods/grains/white-rice.jpg'},
@@ -146,6 +148,7 @@ const DEFAULT_MEALS = [
     id: 'default_meal_3',
     name: 'Salmon & Sweet Potato',
     type: 'saved',
+    image: 'assets/foods/saved-meals/Spicy-Salmon-Sweet-Potato.jpg',
     ingredients: [
       {name:'Salmon (cooked)',  grams:180, p:20,  c:0,  f:13,  cal:197, img:'assets/foods/seafood/salmon.jpg'},
       {name:'Sweet Potato',    grams:200, p:1.6, c:20, f:0.1, cal:87,  img:'assets/foods/vegetables/sweet-potato.jpg'},
@@ -161,7 +164,15 @@ export function getNLMeals() {
   try {
     const raw = localStorage.getItem('trainer_meals');
     if (raw === null) { saveNLMeals(DEFAULT_MEALS); return DEFAULT_MEALS; }
-    return JSON.parse(raw) || [];
+    const meals = JSON.parse(raw) || [];
+    // Migrate: patch default meal images if missing
+    let changed = false;
+    meals.forEach(m => {
+      const def = DEFAULT_MEALS.find(d => d.id === m.id);
+      if (def?.image && !m.image) { m.image = def.image; changed = true; }
+    });
+    if (changed) saveNLMeals(meals);
+    return meals;
   } catch { return []; }
 }
 export function saveNLMeals(m) {

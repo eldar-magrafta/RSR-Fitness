@@ -80,12 +80,15 @@ export function renderNLMeals() {
   list.innerHTML = meals.map(m => {
     const t = nlCalcTotals(m);
     const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>` : '';
-    return `<div class="nl-meal-card" onclick="nlShowMeal('${m.id}')">
+    const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
+    return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="nlShowMeal('${m.id}')">
+      ${cardImg}<div class="nl-meal-card-body">
       <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div>${favBtn}
         <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
-      <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div></div>`;
+      <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
+      </div></div>`;
   }).join('');
 }
 
@@ -103,6 +106,30 @@ function renderNLMealDetail() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
   const t = nlCalcTotals(meal);
+
+  // Photo section
+  const photoSection = document.getElementById('nlMealDetailPhoto');
+  if (photoSection) {
+    if (meal.type === 'saved' && meal.image) {
+      photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
+        <img class="nl-detail-photo-img" src="${meal.image}" alt="">
+        <button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">\u2715\u00a0Remove</button>
+      </div>`;
+    } else {
+      photoSection.innerHTML = '';
+    }
+  }
+  // Photo button label
+  const photoBtn = document.getElementById('nlPhotoBtn');
+  if (photoBtn) {
+    if (meal.type === 'saved') {
+      photoBtn.style.display = '';
+      photoBtn.textContent = meal.image ? '\ud83d\uddbc\ufe0f\u00a0Change Photo' : '\ud83d\udcf7\u00a0Add Photo';
+    } else {
+      photoBtn.style.display = 'none';
+    }
+  }
+
   document.getElementById('nlMealChart').innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
   document.getElementById('nlTotals').innerHTML = `
     <div class="nl-total-item"><div class="nl-total-val" style="color:var(--accent);">${t.cal}</div><div class="nl-total-label">Calories</div></div>
@@ -322,6 +349,40 @@ export function nlCopySummary() {
     const btn = document.getElementById('nlCopyBtn');
     if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy Summary'; }, 1500); }
   }).catch(() => { });
+}
+
+export function nlUploadMealPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 800; let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+      else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = canvas.toDataURL('image/jpeg', 0.82);
+      const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+      if (!meal) return;
+      meal.image = b64;
+      saveNLMeals(meals);
+      renderNLMealDetail();
+      renderNLMeals();
+      input.value = '';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+export function nlRemoveMealPhoto() {
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal) return;
+  delete meal.image;
+  saveNLMeals(meals);
+  renderNLMealDetail();
+  renderNLMeals();
 }
 
 export function nlSetSort(by, btn) {
@@ -610,10 +671,13 @@ export function openSavedMealPicker() {
   } else {
     list.innerHTML = meals.map(m => {
       const t = nlCalcTotals(m);
-      return `<div class="nl-meal-card" onclick="pickSavedMeal('${m.id}')">
+      const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
+      return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="pickSavedMeal('${m.id}')">
+        ${cardImg}<div class="nl-meal-card-body">
         <div class="nl-meal-top"><div class="nl-meal-name">${m.name}</div></div>
         <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
-        <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div></div>`;
+        <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
+        </div></div>`;
     }).join('');
   }
   document.getElementById('nlSavedPickerOverlay').classList.add('open');
