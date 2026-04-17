@@ -30,7 +30,7 @@
 .bw-cal-day.today { background: rgba(233,69,96,0.18); color: var(--accent); font-weight: 700; }
 .bw-cal-day.has-data::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--green); }
 .bw-cal-day.selected { background: var(--accent) !important; color: #fff !important; font-weight: 700; }
-.bw-cal-day.selected::after { display: none; }
+.bw-cal-day.selected.has-data::after { background: #fff; }
 .bw-cal-day.future { color: var(--text-faint); cursor: default; pointer-events: none; }
 
 /* ── Delete All Button ── */

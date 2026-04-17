@@ -73,6 +73,8 @@ function renderBWChart() {
   if (entries.length < 2) {
     svg.setAttribute('viewBox', '0 0 300 120'); svg.setAttribute('height', '120');
     svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="${textFaint}" font-size="13" dominant-baseline="middle" font-family="-apple-system,sans-serif">Log weight on multiple days to see your trend</text>`;
+    const clean = svg.cloneNode(true);
+    svg.parentNode.replaceChild(clean, svg);
     return;
   }
 
