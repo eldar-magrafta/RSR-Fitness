@@ -80,8 +80,10 @@ export function renderNLMeals() {
   list.innerHTML = meals.map(m => {
     const t = nlCalcTotals(m);
     const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>` : '';
-    const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
-    return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="nlShowMeal('${m.id}')">
+    const cardImg = m.image
+      ? `<img class="nl-meal-card-img" src="${m.image}" alt="">`
+      : `<div class="nl-meal-card-placeholder"></div>`;
+    return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
       ${cardImg}<div class="nl-meal-card-body">
       <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span>${favBtn}</div>
         <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
@@ -686,8 +688,10 @@ export function openSavedMealPicker() {
   } else {
     list.innerHTML = meals.map(m => {
       const t = nlCalcTotals(m);
-      const cardImg = m.image ? `<img class="nl-meal-card-img" src="${m.image}" alt="">` : '';
-      return `<div class="nl-meal-card${m.image ? ' nl-meal-has-img' : ''}" onclick="pickSavedMeal('${m.id}')">
+      const cardImg = m.image
+        ? `<img class="nl-meal-card-img" src="${m.image}" alt="">`
+        : `<div class="nl-meal-card-placeholder"></div>`;
+      return `<div class="nl-meal-card nl-meal-has-img" onclick="pickSavedMeal('${m.id}')">
         ${cardImg}<div class="nl-meal-card-body">
         <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span></div></div>
         <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
