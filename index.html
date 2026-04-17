@@ -1,610 +1,649 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f0f1a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="RSR Fitness" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
-  <title>RSR Fitness</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="theme-color" content="#0f0f1a"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-title" content="RSR Fitness"/>
+    <link rel="manifest" href="manifest.json"/>
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png"/>
+    <title>RSR Fitness</title>
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/exercises.css" />
-  <link rel="stylesheet" href="css/plans.css" />
-  <link rel="stylesheet" href="css/modals.css" />
-  <link rel="stylesheet" href="css/bodyweight.css" />
-  <link rel="stylesheet" href="css/nutrition.css" />
-  <link rel="stylesheet" href="css/summary.css" />
-  <link rel="stylesheet" href="css/auth.css" />
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/exercises.css"/>
+    <link rel="stylesheet" href="css/plans.css"/>
+    <link rel="stylesheet" href="css/modals.css"/>
+    <link rel="stylesheet" href="css/bodyweight.css"/>
+    <link rel="stylesheet" href="css/nutrition.css"/>
+    <link rel="stylesheet" href="css/summary.css"/>
+    <link rel="stylesheet" href="css/auth.css"/>
 </head>
 <body>
 <div id="appRoot" style="display:none;">
 
-  <!-- Header -->
-  <div class="header">
-    <button class="back-btn" id="backBtn" onclick="handleBack()">‹</button>
-    <span class="header-title" id="headerTitle">Exercises</span>
-    <button class="header-action" id="headerAction"></button>
-    <button class="burger-btn" id="burgerBtn" onclick="toggleBurgerMenu()">☰</button>
-    <span id="cloudSyncStatus" class="cloud-sync-dot" title="Synced"></span>
-  </div>
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" id="backBtn" onclick="handleBack()">‹</button>
+        <span class="header-title" id="headerTitle">Exercises</span>
+        <button class="header-action" id="headerAction"></button>
+        <button class="burger-btn" id="burgerBtn" onclick="toggleBurgerMenu()">☰</button>
+        <span id="cloudSyncStatus" class="cloud-sync-dot" title="Synced"></span>
+    </div>
 
-  <!-- Burger Menu -->
-  <div class="burger-overlay" id="burgerOverlay" onclick="closeBurgerMenu()"></div>
-  <div class="burger-menu" id="burgerMenu">
-    <div class="burger-header">Settings</div>
-    <div class="burger-item" onclick="toggleTheme()">
-      <span class="theme-emoji">🌙</span>
-      <div class="theme-toggle" id="themeToggle"><div class="theme-toggle-knob"></div></div>
-      <span class="theme-emoji">☀️</span>
-    </div>
-    <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
-      <span class="burger-item-icon">📊</span>
-      <span class="burger-item-label">Activity Summary</span>
-    </div>
-    <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;"></div>
-    <div style="padding:8px 20px 4px;font-size:0.75rem;color:var(--muted);" id="burgerUserEmail"></div>
-    <div class="burger-item" onclick="handleSignOut()">
-      <span class="burger-item-icon">🚪</span>
-      <span class="burger-item-label">Sign Out</span>
-    </div>
-    <div style="padding:10px 20px 6px;font-size:0.72rem;color:var(--muted);text-align:center;">© 2026 Eldar Magrafta</div>
-  </div>
-
-  <!-- ── Exercises Tab ── -->
-  <div class="view active" id="homeView">
-    <input type="text" id="globalExSearch" class="ex-search-input" placeholder="Search all exercises…" oninput="globalExSearchHandler()" />
-    <div id="globalSearchResults" class="exercise-list" style="display:none;"></div>
-    <div class="muscle-grid" id="muscleGrid"></div>
-  </div>
-  <div class="view" id="exerciseView">
-    <input type="text" id="groupExSearch" class="ex-search-input" placeholder="Search in this group…" oninput="groupExSearchHandler()" />
-    <div class="exercise-list" id="exerciseList"></div>
-  </div>
-
-  <!-- ── Plans Tab ── -->
-  <div class="view" id="plansView">
-    <div id="plansContent"></div>
-  </div>
-  <div class="view" id="planDetailView">
-    <div class="plan-detail-list" id="planDetailList"></div>
-    <div class="plan-detail-actions">
-      <button class="add-ex-btn" id="addExBtn" onclick="showExercisePicker()">＋ Add Exercises</button>
-      <button class="add-ex-btn add-title-btn" id="addTitleBtn" onclick="openAddTitle()">＋ Title</button>
-    </div>
-  </div>
-  <div class="view" id="exercisePickerView">
-    <div class="picker-list" id="pickerList"></div>
-  </div>
-
-  <!-- ── Body Weight Tab ── -->
-  <div class="view" id="bodyWeightView">
-    <div class="bw-stats" id="bwStats"></div>
-    <div class="bw-chart-wrap">
-      <div class="bw-chart-header">
-        <span class="bw-chart-title">Weight Trend</span>
-        <div class="bw-range-row">
-          <button class="bw-range-btn active" onclick="setBWRange(30,this)">1M</button>
-          <button class="bw-range-btn" onclick="setBWRange(90,this)">3M</button>
-          <button class="bw-range-btn" onclick="setBWRange(0,this)">All</button>
-        </div>
-      </div>
-      <div style="position:relative;">
-        <svg class="bw-chart-svg" id="bwChartSvg" viewBox="0 0 340 140" height="140"></svg>
-        <div class="bw-tooltip" id="bwTooltip">
-          <div class="bw-tooltip-val" id="bwTooltipVal"></div>
-          <div class="bw-tooltip-date" id="bwTooltipDate"></div>
-        </div>
-      </div>
-    </div>
-    <div class="bw-cal-header">
-      <button class="bw-cal-nav" onclick="bwPrevMonth()">‹</button>
-      <span class="bw-cal-month-lbl" id="bwCalMonthLbl"></span>
-      <button class="bw-cal-nav" onclick="bwNextMonth()">›</button>
-    </div>
-    <div class="bw-cal-grid" id="bwCalGrid"></div>
-    <button class="bw-delete-all-btn" onclick="openBWDeleteConfirm()">🗑  Delete All Weight Data</button>
-  </div>
-
-  <!-- Remove exercise from plan confirmation sheet -->
-  <div class="confirm-overlay" id="removeExConfirmOverlay" onclick="if(event.target===this)closeRemoveExConfirm()">
-    <div class="confirm-sheet">
-      <div class="confirm-title">Remove Exercise?</div>
-      <div class="confirm-msg" id="removeExConfirmMsg"></div>
-      <button class="confirm-btn-del" onclick="confirmRemoveEx()">Remove</button>
-      <button class="confirm-btn-cancel" onclick="closeRemoveExConfirm()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Delete-plan confirmation sheet -->
-  <div class="confirm-overlay" id="deletePlanConfirmOverlay" onclick="if(event.target===this)closeDeletePlanConfirm()">
-    <div class="confirm-sheet">
-      <div class="confirm-title">Delete Plan?</div>
-      <div class="confirm-msg" id="deletePlanConfirmMsg"></div>
-      <button class="confirm-btn-del" onclick="confirmDeletePlan()">Delete</button>
-      <button class="confirm-btn-cancel" onclick="closeDeletePlanConfirm()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Delete-all confirmation sheet -->
-  <div class="confirm-overlay" id="bwConfirmOverlay" onclick="if(event.target===this)closeBWDeleteConfirm()">
-    <div class="confirm-sheet">
-      <div class="confirm-title">Delete All Weight Data?</div>
-      <div class="confirm-msg">This will permanently remove every weight entry and progress photo you've logged. This cannot be undone.</div>
-      <button class="confirm-btn-del" onclick="confirmDeleteAllBW()">Yes, Delete Everything</button>
-      <button class="confirm-btn-cancel" onclick="closeBWDeleteConfirm()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Body Weight Entry Sheet -->
-  <div class="bw-overlay" id="bwOverlay" onclick="handleBWOverlay(event)">
-    <div class="bw-sheet" id="bwSheet">
-      <div class="bw-sheet-handle"></div>
-      <button class="sheet-close-btn" onclick="closeBWEntry()">&times;</button>
-      <div class="bw-sheet-dateLbl" id="bwSheetDate"></div>
-      <div class="bw-sheet-title">Log Body Weight</div>
-      <div class="bw-input-row">
-        <input type="number" id="bwInput" placeholder="0.0" inputmode="decimal" step="0.1" />
-        <span class="bw-unit">kg</span>
-      </div>
-      <!-- Photo area -->
-      <input type="file" id="bwFileInput" accept="image/*" style="display:none" onchange="bwOnFileSelect(event)">
-      <div class="bw-photo-area" id="bwPhotoArea">
-        <button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">
-          📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span>
-        </button>
-      </div>
-      <button class="bw-btn-save" onclick="saveBWEntry()">Save</button>
-      <button class="bw-btn-del" id="bwBtnDel" onclick="deleteBWEntry()">Delete Entry</button>
-    </div>
-  </div>
-
-  <!-- Full-size photo viewer -->
-  <div class="bw-viewer" id="bwViewer" onclick="closeBWViewer()">
-    <button class="bw-viewer-close" onclick="closeBWViewer()">✕</button>
-    <img id="bwViewerImg" />
-  </div>
-  <div class="bw-viewer" id="nlMealPhotoViewer" onclick="nlCloseMealPhotoViewer()">
-    <button class="bw-viewer-close" onclick="nlCloseMealPhotoViewer()">✕</button>
-    <img id="nlMealPhotoViewerImg" />
-  </div>
-
-  <!-- ── Nutrition Lab Tab ── -->
-  <div class="view" id="nutritionView">
-    <div class="nl-view-toggle">
-      <button class="nl-view-btn active" id="nlViewToday" onclick="nlSetViewMode('today')">Today</button>
-      <button class="nl-view-btn" id="nlViewSaved" onclick="nlSetViewMode('saved')">Saved Meals</button>
-    </div>
-    <div id="nlCalSection">
-      <div class="bw-cal-header">
-        <button class="bw-cal-nav" onclick="nlPrevMonth()">‹</button>
-        <span class="bw-cal-month-lbl" id="nlCalMonthLbl"></span>
-        <button class="bw-cal-nav" onclick="nlNextMonth()">›</button>
-      </div>
-      <div class="bw-cal-grid" id="nlCalGrid"></div>
-    </div>
-    <div id="macroGoalsSection"></div>
-    <div class="nl-sort-row">
-      <button class="nl-sort-btn active" onclick="nlSetSort('date',this)">Date</button>
-      <button class="nl-sort-btn" onclick="nlSetSort('cals',this)">Calories</button>
-      <button class="nl-sort-btn" onclick="nlSetSort('protein',this)">Protein</button>
-      <button class="nl-sort-btn nl-fav-btn" onclick="nlToggleFavFilter(this)">★</button>
-    </div>
-    <button class="nl-browse-btn" onclick="nlBrowseFoods()" style="display:none">🔍 Browse All Foods</button>
-    <div id="nlMealList"></div>
-  </div>
-  <div class="view" id="nlMealView">
-    <div id="nlMealDetailPhoto"></div>
-    <input type="file" id="nlMealPhotoInput" accept="image/*" style="display:none" onchange="nlUploadMealPhoto(this)">
-    <div id="nlMealChart"></div>
-    <div class="nl-totals" id="nlTotals"></div>
-    <div id="nlIngList"></div>
-    <button class="nl-add-ing-btn" onclick="nlShowPicker()">＋ Add Ingredient</button>
-    <div class="section-label" style="margin-top:18px;">Notes to Self</div>
-    <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
-    <div class="nl-meal-actions">
-      <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
-      <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">📷&nbsp;Add Photo</button>
-    </div>
-  </div>
-  <div class="view" id="nlPickerView">
-    <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="renderNLPicker()">
-    <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCustomModal()">＋ Create Custom Ingredient</button>
-    <div id="nlPickerList"></div>
-  </div>
-
-  <!-- ── Exercise History View ── -->
-  <div class="view" id="exHistoryView">
-    <div class="bw-chart-wrap">
-      <div class="bw-chart-header">
-        <span class="bw-chart-title">Weight Progression</span>
-        <div class="bw-range-row">
-          <button class="bw-range-btn active" onclick="setExHistRange(30,this)">1M</button>
-          <button class="bw-range-btn" onclick="setExHistRange(90,this)">3M</button>
-          <button class="bw-range-btn" onclick="setExHistRange(0,this)">All</button>
-        </div>
-      </div>
-      <div style="position:relative;">
-        <svg class="bw-chart-svg" id="exHistChartSvg" viewBox="0 0 340 140" height="140"></svg>
-        <div class="bw-tooltip" id="exHistTooltip">
-          <div class="bw-tooltip-val" id="exHistTooltipVal"></div>
-          <div class="bw-tooltip-date" id="exHistTooltipDate"></div>
-        </div>
-      </div>
-    </div>
-    <div class="bw-cal-wrap">
-      <div class="bw-cal-header">
-        <button class="bw-cal-nav" onclick="exHistPrevMonth()">‹</button>
-        <span class="bw-cal-title" id="exHistCalTitle"></span>
-        <button class="bw-cal-nav" onclick="exHistNextMonth()">›</button>
-      </div>
-      <div class="bw-cal-grid" id="exHistCalGrid"></div>
-    </div>
-    <button class="bw-delete-all-btn" onclick="openDeleteAllExHist()">🗑  Delete All History</button>
-  </div>
-
-  <!-- Delete-all exercise history confirmation -->
-  <div class="confirm-overlay" id="exHistDeleteAllOverlay" onclick="if(event.target===this)closeDeleteAllExHist()">
-    <div class="confirm-sheet">
-      <div class="confirm-title">Delete All History?</div>
-      <div class="confirm-msg">This will permanently remove every logged entry for this exercise. This cannot be undone.</div>
-      <button class="confirm-btn-del" onclick="confirmDeleteAllExHist()">Yes, Delete Everything</button>
-      <button class="confirm-btn-cancel" onclick="closeDeleteAllExHist()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- ── Summary View ── -->
-  <div class="view" id="summaryView">
-    <div id="summaryContent"></div>
-  </div>
-
-  <!-- Exercise History Entry Sheet -->
-  <div class="bw-overlay" id="exHistEntryOverlay" onclick="if(event.target===this)closeExHistEntry()">
-    <div class="bw-sheet" id="exHistEntrySheet">
-      <div class="bw-sheet-handle"></div>
-      <button class="sheet-close-btn" onclick="closeExHistEntry()">&times;</button>
-      <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-        <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
-        <button id="exHistBtnDelTop" onclick="deleteExHistEntry()" class="plan-card-delete" style="display:none;font-size:1rem;" title="Delete entry">🗑</button>
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Number of Sets</label>
-        <select id="exHistSetCount" onchange="renderExHistSets()" class="themed-select">
-          <option value="1">1 set</option>
-          <option value="2">2 sets</option>
-          <option value="3" selected>3 sets</option>
-          <option value="4">4 sets</option>
-          <option value="5">5 sets</option>
-        </select>
-      </div>
-      <div id="exHistSetsContainer"></div>
-      <div class="section-label">Notes</div>
-      <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…" class="themed-textarea"></textarea>
-      <button class="bw-btn-save" onclick="saveExHistEntry()">Save</button>
-      <button class="bw-btn-del" id="exHistBtnDel" onclick="deleteExHistEntry()">Delete Entry</button>
-    </div>
-  </div>
-
-  <!-- FAB (create plan / create meal) -->
-  <button class="fab hidden" id="fab" onclick="handleFab()">+</button>
-
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn active" id="tabEx" onclick="switchTab('exercises')">
-      <span class="tab-icon">💪</span><span>All Exercises</span>
-    </button>
-    <button class="tab-btn" id="tabPlans" onclick="switchTab('plans')">
-      <span class="tab-icon">📋</span><span>My Plans</span>
-    </button>
-    <button class="tab-btn" id="tabWeight" onclick="switchTab('weight')">
-      <span class="tab-icon"><img src="assets/icons/scale.png" alt="" style="width:22px;height:22px;object-fit:contain;vertical-align:middle;"></span><span>Body Weight</span>
-    </button>
-    <button class="tab-btn" id="tabNutrition" onclick="switchTab('nutrition')">
-      <span class="tab-icon">🍔</span><span>Nutrition</span>
-    </button>
-  </div>
-
-  <!-- Exercise Detail Modal -->
-  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle"></div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-      <div class="modal-tag" id="modalTag"></div>
-      <div class="modal-desc" id="modalDesc"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div class="section-label" style="margin-bottom:0;">Key Tips</div>
-        <img id="ytBtn" src="assets/icons/youtube-logo-icon.png" alt="Watch on YouTube"
-          style="height:28px;width:auto;cursor:pointer;opacity:0.85;transition:opacity 0.2s;"
-          onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.85'">
-      </div>
-      <ul class="tips-list" id="modalTips"></ul>
-      <video id="modalVid" autoplay loop muted playsinline
-        style="display:none;width:100%;border-radius:14px;margin-bottom:14px;object-fit:contain;"></video>
-      <img id="modalImg" style="display:none;width:100%;border-radius:14px;margin-bottom:14px;object-fit:contain;" alt="">
-      <div id="modalPlanSection">
-        <div class="pr-section" id="modalPRSection" style="display:none;">
-          <div class="section-label">Personal Record</div>
-          <div class="pr-box">
-            <span class="pr-icon">🏆</span>
-            <div>
-              <div class="pr-value" id="modalPRValue"></div>
-              <div class="pr-date" id="modalPRDate"></div>
+    <!-- Burger Menu -->
+    <div class="burger-overlay" id="burgerOverlay" onclick="closeBurgerMenu()"></div>
+    <div class="burger-menu" id="burgerMenu">
+        <div class="burger-header">Settings</div>
+        <div class="burger-item" onclick="toggleTheme()">
+            <span class="theme-emoji">🌙</span>
+            <div class="theme-toggle" id="themeToggle">
+                <div class="theme-toggle-knob"></div>
             </div>
-          </div>
+            <span class="theme-emoji">☀️</span>
         </div>
-        <div class="section-label">Last Session</div>
-        <div class="last-session-box">
-          <span class="ls-icon">🕐</span>
-          <div style="flex:1">
-            <div class="ls-value" id="lastSessionValue">No data yet</div>
-            <div class="ls-date" id="lastSessionDate"></div>
-          </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
+            <span class="burger-item-icon">📊</span>
+            <span class="burger-item-label">Activity Summary</span>
         </div>
-        <div class="section-label">Notes</div>
-        <textarea id="modalNotes" maxlength="250" placeholder="Personal notes about this exercise…"
-          oninput="autoSaveExNotes()" class="themed-textarea" style="height:90px;"></textarea>
-        <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">0 / 250</div>
-        <button class="yt-btn" style="background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.3);color:#4ecdc4;" onclick="openExHistory()">📊&nbsp; Log & History</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add Title Modal -->
-  <div class="modal-overlay" id="addTitleOverlay" onclick="handleTitleOverlayClick(event)">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">Add Section Title</div>
-        <button class="modal-close" onclick="closeAddTitle()">✕</button>
-      </div>
-      <input class="plan-name-input" id="titleInput"
-        type="text" placeholder="e.g. Warmup, Main Set, Finisher…"
-        maxlength="30" onkeydown="if(event.key==='Enter')saveTitle()" />
-      <button class="create-btn" onclick="saveTitle()">Add Title</button>
-    </div>
-  </div>
-
-  <!-- Create Plan Modal -->
-  <div class="modal-overlay" id="createPlanOverlay" onclick="handleCreateOverlayClick(event)">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">New Plan</div>
-        <button class="modal-close" onclick="closeCreatePlan()">✕</button>
-      </div>
-      <input class="plan-name-input" id="planNameInput"
-        type="text" placeholder="e.g. Push Day, Chest & Triceps..."
-        maxlength="40" onkeydown="if(event.key==='Enter')createPlan()" />
-      <button class="create-btn" onclick="createPlan()">Create Plan</button>
-    </div>
-  </div>
-
-  <!-- NL Amount Sheet -->
-  <div class="bw-overlay" id="nlAmountOverlay" onclick="if(event.target===this)nlCloseAmount()">
-    <div class="bw-sheet" id="nlAmountSheet">
-      <div class="bw-sheet-handle"></div>
-      <div class="nl-amount-header" id="nlAmountHeader"></div>
-      <div class="nl-quick-row">
-        <button class="nl-quick-btn" onclick="nlSetGrams(50)">50g</button>
-        <button class="nl-quick-btn" onclick="nlSetGrams(100)">100g</button>
-        <button class="nl-quick-btn" onclick="nlSetGrams(150)">150g</button>
-      </div>
-      <div class="nl-gram-row">
-        <button class="nl-gram-btn" onclick="nlAdjustPickerGrams(-10)">−</button>
-        <div class="nl-gram-display" id="nlGramDisplay">100g</div>
-        <button class="nl-gram-btn" onclick="nlAdjustPickerGrams(10)">+</button>
-      </div>
-      <div class="nl-amount-preview" id="nlAmountPreview"></div>
-      <button class="nl-confirm-btn" id="nlAddToMealBtn" onclick="nlConfirmAddIng()">Add to Meal</button>
-    </div>
-  </div>
-
-  <!-- NL Create Meal Modal -->
-  <div class="modal-overlay" id="nlCreateOverlay" onclick="if(event.target===this)nlCloseCreate()">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">New Meal</div>
-        <button class="modal-close" onclick="nlCloseCreate()">✕</button>
-      </div>
-      <input class="plan-name-input" id="nlMealNameInput" type="text" placeholder="e.g. Breakfast, Post-Workout, Chicken Bowl…" maxlength="50" onkeydown="if(event.key==='Enter')nlCreateMeal()" />
-      <button class="create-btn" onclick="nlCreateMeal()">Create Meal</button>
-    </div>
-  </div>
-
-  <!-- NL Custom Ingredient Modal -->
-  <div class="modal-overlay" id="nlCustomOverlay" onclick="if(event.target===this)nlCloseCustom()">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">Custom Ingredient</div>
-        <button class="modal-close" onclick="nlCloseCustom()">✕</button>
-      </div>
-      <input class="plan-name-input" id="nlCustomName" type="text" placeholder="Ingredient name" maxlength="40" />
-      <div class="nl-custom-photo-area">
-        <input type="file" id="nlCustomPhotoInput" accept="image/*" style="display:none" onchange="nlCustomPhotoSelected(this)">
-        <div id="nlCustomPhotoPreview">
-          <button class="nl-custom-photo-btn" onclick="document.getElementById('nlCustomPhotoInput').click()">📷 Add Photo (optional)</button>
+        <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;"></div>
+        <div style="padding:8px 20px 4px;font-size:0.75rem;color:var(--muted);" id="burgerUserEmail"></div>
+        <div class="burger-item" onclick="handleSignOut()">
+            <span class="burger-item-icon">🚪</span>
+            <span class="burger-item-label">Sign Out</span>
         </div>
-      </div>
-      <div style="font-size:0.8rem;color:var(--muted);margin:-10px 0 14px;">Values per 100g</div>
-      <div class="nl-custom-row">
-        <div class="nl-custom-field">
-          <label>Protein (g)</label>
-          <input type="number" id="nlCustomP" placeholder="0" inputmode="decimal" />
+        <div style="padding:10px 20px 6px;font-size:0.72rem;color:var(--muted);text-align:center;">© 2026 Eldar
+            Magrafta
         </div>
-        <div class="nl-custom-field">
-          <label>Carbs (g)</label>
-          <input type="number" id="nlCustomC" placeholder="0" inputmode="decimal" />
+    </div>
+
+    <!-- ── Exercises Tab ── -->
+    <div class="view active" id="homeView">
+        <input type="text" id="globalExSearch" class="ex-search-input" placeholder="Search all exercises…" oninput="globalExSearchHandler()"/>
+        <div id="globalSearchResults" class="exercise-list" style="display:none;"></div>
+        <div class="muscle-grid" id="muscleGrid"></div>
+    </div>
+    <div class="view" id="exerciseView">
+        <input type="text" id="groupExSearch" class="ex-search-input" placeholder="Search in this group…" oninput="groupExSearchHandler()"/>
+        <div class="exercise-list" id="exerciseList"></div>
+    </div>
+
+    <!-- ── Plans Tab ── -->
+    <div class="view" id="plansView">
+        <div id="plansContent"></div>
+    </div>
+    <div class="view" id="planDetailView">
+        <div class="plan-detail-list" id="planDetailList"></div>
+        <div class="plan-detail-actions">
+            <button class="add-ex-btn" id="addExBtn" onclick="showExercisePicker()">＋ Add Exercises</button>
+            <button class="add-ex-btn add-title-btn" id="addTitleBtn" onclick="openAddTitle()">＋ Title</button>
         </div>
-      </div>
-      <div class="nl-custom-row">
-        <div class="nl-custom-field">
-          <label>Fat (g)</label>
-          <input type="number" id="nlCustomF" placeholder="0" inputmode="decimal" />
+    </div>
+    <div class="view" id="exercisePickerView">
+        <div class="picker-list" id="pickerList"></div>
+    </div>
+
+    <!-- ── Body Weight Tab ── -->
+    <div class="view" id="bodyWeightView">
+        <div class="bw-stats" id="bwStats"></div>
+        <div class="bw-chart-wrap">
+            <div class="bw-chart-header">
+                <span class="bw-chart-title">Weight Trend</span>
+                <div class="bw-range-row">
+                    <button class="bw-range-btn active" onclick="setBWRange(30,this)">1M</button>
+                    <button class="bw-range-btn" onclick="setBWRange(90,this)">3M</button>
+                    <button class="bw-range-btn" onclick="setBWRange(0,this)">All</button>
+                </div>
+            </div>
+            <div style="position:relative;">
+                <svg class="bw-chart-svg" id="bwChartSvg" viewBox="0 0 340 140" height="140"></svg>
+                <div class="bw-tooltip" id="bwTooltip">
+                    <div class="bw-tooltip-val" id="bwTooltipVal"></div>
+                    <div class="bw-tooltip-date" id="bwTooltipDate"></div>
+                </div>
+            </div>
         </div>
-        <div class="nl-custom-field">
-          <label>Calories</label>
-          <input type="number" id="nlCustomCal" placeholder="0" inputmode="numeric" />
+        <div class="bw-cal-header">
+            <button class="bw-cal-nav" onclick="bwPrevMonth()">‹</button>
+            <span class="bw-cal-month-lbl" id="bwCalMonthLbl"></span>
+            <button class="bw-cal-nav" onclick="bwNextMonth()">›</button>
         </div>
-      </div>
-      <button class="create-btn" onclick="nlSaveCustom()">Save Ingredient</button>
+        <div class="bw-cal-grid" id="bwCalGrid"></div>
+        <button class="bw-delete-all-btn" onclick="openBWDeleteConfirm()">🗑 Delete All Weight Data</button>
     </div>
-  </div>
 
-  <!-- Delete Meal Confirmation -->
-  <div class="confirm-overlay" id="deleteMealConfirmOverlay" onclick="if(event.target===this)closeDeleteMealConfirm()">
-    <div class="confirm-sheet">
-      <div class="confirm-title">Delete Meal?</div>
-      <div class="confirm-msg" id="deleteMealConfirmMsg"></div>
-      <button class="confirm-btn-del" onclick="confirmDeleteMeal()">Delete</button>
-      <button class="confirm-btn-cancel" onclick="closeDeleteMealConfirm()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Macro Goals Modal -->
-  <div class="modal-overlay" id="macroGoalsOverlay" onclick="if(event.target===this)closeMacroGoalsModal()">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">Daily Goals</div>
-        <button class="modal-close" onclick="closeMacroGoalsModal()">✕</button>
-      </div>
-      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Set calories first, then adjust macro split</div>
-      <label class="macro-input-label">Daily Calories</label>
-      <input type="number" id="goalCalInput" class="macro-cal-input" placeholder="2000" inputmode="numeric" oninput="onMacroCalInput()" />
-      <div class="macro-cal-quick">
-        <button onclick="setQuickCal(1500)">1500</button>
-        <button onclick="setQuickCal(2000)">2000</button>
-        <button onclick="setQuickCal(2500)">2500</button>
-        <button onclick="setQuickCal(3000)">3000</button>
-      </div>
-      <label class="macro-input-label" style="margin-top:16px;">Macro Distribution</label>
-      <div class="macro-slider-wrap" id="macroSliderWrap">
-        <div class="macro-slider-track" id="macroSliderBar">
-          <div class="macro-slider-seg" id="macroSegP"></div>
-          <div class="macro-slider-seg" id="macroSegC"></div>
-          <div class="macro-slider-seg" id="macroSegF"></div>
+    <!-- Remove exercise from plan confirmation sheet -->
+    <div class="confirm-overlay" id="removeExConfirmOverlay" onclick="if(event.target===this)closeRemoveExConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Remove Exercise?</div>
+            <div class="confirm-msg" id="removeExConfirmMsg"></div>
+            <button class="confirm-btn-del" onclick="confirmRemoveEx()">Remove</button>
+            <button class="confirm-btn-cancel" onclick="closeRemoveExConfirm()">Cancel</button>
         </div>
-        <div class="macro-slider-handle" id="macroHandlePC"></div>
-        <div class="macro-slider-handle" id="macroHandleCF"></div>
-      </div>
-      <div class="macro-dist-info">
-        <div class="macro-dist-item"><span class="macro-dot" style="background:#4ecdc4;"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct" id="macroPctP">30%</span><span class="macro-dist-g" id="macroGramsP">150g</span></div>
-        <div class="macro-dist-item"><span class="macro-dot" style="background:#ff6b6b;"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct" id="macroPctC">40%</span><span class="macro-dist-g" id="macroGramsC">200g</span></div>
-        <div class="macro-dist-item"><span class="macro-dot" style="background:#ffd93d;"></span><span class="macro-dist-name">Fat</span><span class="macro-dist-pct" id="macroPctF">30%</span><span class="macro-dist-g" id="macroGramsF">67g</span></div>
-      </div>
-      <button class="create-btn" onclick="saveMacroGoalsFromModal()">Save Goals</button>
-      <button class="macro-clear-btn" id="macroClearBtn" onclick="clearDateGoal()">Clear Goal for This Day</button>
     </div>
-  </div>
 
-  <!-- Nutrition FAB Choice -->
-  <div class="confirm-overlay" id="nlFabChoiceOverlay" onclick="if(event.target===this)closeNLFabChoice()">
-    <div class="confirm-sheet" style="padding-bottom:12px;">
-      <div class="confirm-title">Add Meal</div>
-      <button class="nl-fab-choice-btn" onclick="closeNLFabChoice();nlOpenCreateModal()">＋ Create New Meal</button>
-      <button class="nl-fab-choice-btn nl-fab-choice-saved" onclick="closeNLFabChoice();openSavedMealPicker()">📋 Use Saved Meal</button>
-      <button class="confirm-btn-cancel" onclick="closeNLFabChoice()">Cancel</button>
+    <!-- Delete-plan confirmation sheet -->
+    <div class="confirm-overlay" id="deletePlanConfirmOverlay" onclick="if(event.target===this)closeDeletePlanConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete Plan?</div>
+            <div class="confirm-msg" id="deletePlanConfirmMsg"></div>
+            <button class="confirm-btn-del" onclick="confirmDeletePlan()">Delete</button>
+            <button class="confirm-btn-cancel" onclick="closeDeletePlanConfirm()">Cancel</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Saved Meal Picker -->
-  <div class="bw-overlay" id="nlSavedPickerOverlay" onclick="if(event.target===this)closeSavedMealPicker()">
-    <div class="bw-sheet" id="nlSavedPickerSheet">
-      <div class="bw-sheet-handle"></div>
-      <div class="bw-sheet-title">Choose a Saved Meal</div>
-      <div id="nlSavedPickerList" style="max-height:60vh;overflow-y:auto;"></div>
+    <!-- Delete-all confirmation sheet -->
+    <div class="confirm-overlay" id="bwConfirmOverlay" onclick="if(event.target===this)closeBWDeleteConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete All Weight Data?</div>
+            <div class="confirm-msg">This will permanently remove every weight entry and progress photo you've logged.
+                This cannot be undone.
+            </div>
+            <button class="confirm-btn-del" onclick="confirmDeleteAllBW()">Yes, Delete Everything</button>
+            <button class="confirm-btn-cancel" onclick="closeBWDeleteConfirm()">Cancel</button>
+        </div>
     </div>
-  </div>
 
-  <!-- App Entry Point -->
-  <script type="module" src="js/app.js"></script>
+    <!-- Body Weight Entry Sheet -->
+    <div class="bw-overlay" id="bwOverlay" onclick="handleBWOverlay(event)">
+        <div class="bw-sheet" id="bwSheet">
+            <div class="bw-sheet-handle"></div>
+            <button class="sheet-close-btn" onclick="closeBWEntry()">&times;</button>
+            <div class="bw-sheet-dateLbl" id="bwSheetDate"></div>
+            <div class="bw-sheet-title">Log Body Weight</div>
+            <div class="bw-input-row">
+                <input type="number" id="bwInput" placeholder="0.0" inputmode="decimal" step="0.1"/>
+                <span class="bw-unit">kg</span>
+            </div>
+            <!-- Photo area -->
+            <input type="file" id="bwFileInput" accept="image/*" style="display:none" onchange="bwOnFileSelect(event)">
+            <div class="bw-photo-area" id="bwPhotoArea">
+                <button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">
+                    📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span>
+                </button>
+            </div>
+            <button class="bw-btn-save" onclick="saveBWEntry()">Save</button>
+            <button class="bw-btn-del" id="bwBtnDel" onclick="deleteBWEntry()">Delete Entry</button>
+        </div>
+    </div>
+
+    <!-- Full-size photo viewer -->
+    <div class="bw-viewer" id="bwViewer" onclick="closeBWViewer()">
+        <button class="bw-viewer-close" onclick="closeBWViewer()">✕</button>
+        <img id="bwViewerImg"/>
+    </div>
+    <div class="bw-viewer" id="nlMealPhotoViewer" onclick="nlCloseMealPhotoViewer()">
+        <button class="bw-viewer-close" onclick="nlCloseMealPhotoViewer()">✕</button>
+        <img id="nlMealPhotoViewerImg"/>
+    </div>
+
+    <!-- ── Nutrition Lab Tab ── -->
+    <div class="view" id="nutritionView">
+        <div class="nl-view-toggle">
+            <button class="nl-view-btn active" id="nlViewToday" onclick="nlSetViewMode('today')">Today</button>
+            <button class="nl-view-btn" id="nlViewSaved" onclick="nlSetViewMode('saved')">Saved Meals</button>
+        </div>
+        <div id="nlCalSection">
+            <div class="bw-cal-header">
+                <button class="bw-cal-nav" onclick="nlPrevMonth()">‹</button>
+                <span class="bw-cal-month-lbl" id="nlCalMonthLbl"></span>
+                <button class="bw-cal-nav" onclick="nlNextMonth()">›</button>
+            </div>
+            <div class="bw-cal-grid" id="nlCalGrid"></div>
+        </div>
+        <div id="macroGoalsSection"></div>
+        <div class="nl-sort-row">
+            <button class="nl-sort-btn active" onclick="nlSetSort('date',this)">Date</button>
+            <button class="nl-sort-btn" onclick="nlSetSort('cals',this)">Calories</button>
+            <button class="nl-sort-btn" onclick="nlSetSort('protein',this)">Protein</button>
+            <button class="nl-sort-btn nl-fav-btn" onclick="nlToggleFavFilter(this)">★</button>
+        </div>
+        <button class="nl-browse-btn" onclick="nlBrowseFoods()" style="display:none">🔍 Browse All Foods</button>
+        <div id="nlMealList"></div>
+    </div>
+    <div class="view" id="nlMealView">
+        <div id="nlMealDetailPhoto"></div>
+        <input type="file" id="nlMealPhotoInput" accept="image/*" style="display:none" onchange="nlUploadMealPhoto(this)">
+        <div id="nlMealChart"></div>
+        <div class="nl-totals" id="nlTotals"></div>
+        <div id="nlIngList"></div>
+        <button class="nl-add-ing-btn" onclick="nlShowPicker()">＋ Add Ingredient</button>
+        <div class="section-label" style="margin-top:18px;">Notes to Self</div>
+        <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
+        <div class="nl-meal-actions">
+            <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
+            <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">
+                📷&nbsp;Add Photo
+            </button>
+        </div>
+    </div>
+    <div class="view" id="nlPickerView">
+        <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="renderNLPicker()">
+        <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCustomModal()">＋ Create Custom
+            Ingredient
+        </button>
+        <div id="nlPickerList"></div>
+    </div>
+
+    <!-- ── Exercise History View ── -->
+    <div class="view" id="exHistoryView">
+        <div class="bw-chart-wrap">
+            <div class="bw-chart-header">
+                <span class="bw-chart-title">Weight Progression</span>
+                <div class="bw-range-row">
+                    <button class="bw-range-btn active" onclick="setExHistRange(30,this)">1M</button>
+                    <button class="bw-range-btn" onclick="setExHistRange(90,this)">3M</button>
+                    <button class="bw-range-btn" onclick="setExHistRange(0,this)">All</button>
+                </div>
+            </div>
+            <div style="position:relative;">
+                <svg class="bw-chart-svg" id="exHistChartSvg" viewBox="0 0 340 140" height="140"></svg>
+                <div class="bw-tooltip" id="exHistTooltip">
+                    <div class="bw-tooltip-val" id="exHistTooltipVal"></div>
+                    <div class="bw-tooltip-date" id="exHistTooltipDate"></div>
+                </div>
+            </div>
+        </div>
+        <div class="bw-cal-wrap">
+            <div class="bw-cal-header">
+                <button class="bw-cal-nav" onclick="exHistPrevMonth()">‹</button>
+                <span class="bw-cal-title" id="exHistCalTitle"></span>
+                <button class="bw-cal-nav" onclick="exHistNextMonth()">›</button>
+            </div>
+            <div class="bw-cal-grid" id="exHistCalGrid"></div>
+        </div>
+        <button class="bw-delete-all-btn" onclick="openDeleteAllExHist()">🗑 Delete All History</button>
+    </div>
+
+    <!-- Delete-all exercise history confirmation -->
+    <div class="confirm-overlay" id="exHistDeleteAllOverlay" onclick="if(event.target===this)closeDeleteAllExHist()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete All History?</div>
+            <div class="confirm-msg">This will permanently remove every logged entry for this exercise. This cannot be
+                undone.
+            </div>
+            <button class="confirm-btn-del" onclick="confirmDeleteAllExHist()">Yes, Delete Everything</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteAllExHist()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ── Summary View ── -->
+    <div class="view" id="summaryView">
+        <div id="summaryContent"></div>
+    </div>
+
+    <!-- Exercise History Entry Sheet -->
+    <div class="bw-overlay" id="exHistEntryOverlay" onclick="if(event.target===this)closeExHistEntry()">
+        <div class="bw-sheet" id="exHistEntrySheet">
+            <div class="bw-sheet-handle"></div>
+            <button class="sheet-close-btn" onclick="closeExHistEntry()">&times;</button>
+            <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
+                <button id="exHistBtnDelTop" onclick="deleteExHistEntry()" class="plan-card-delete" style="display:none;font-size:1rem;" title="Delete entry">
+                    🗑
+                </button>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Number of
+                    Sets</label>
+                <select id="exHistSetCount" onchange="renderExHistSets()" class="themed-select">
+                    <option value="1">1 set</option>
+                    <option value="2">2 sets</option>
+                    <option value="3" selected>3 sets</option>
+                    <option value="4">4 sets</option>
+                    <option value="5">5 sets</option>
+                </select>
+            </div>
+            <div id="exHistSetsContainer"></div>
+            <div class="section-label">Notes</div>
+            <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…" class="themed-textarea"></textarea>
+            <button class="bw-btn-save" onclick="saveExHistEntry()">Save</button>
+            <button class="bw-btn-del" id="exHistBtnDel" onclick="deleteExHistEntry()">Delete Entry</button>
+        </div>
+    </div>
+
+    <!-- FAB (create plan / create meal) -->
+    <button class="fab hidden" id="fab" onclick="handleFab()">+</button>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <button class="tab-btn active" id="tabEx" onclick="switchTab('exercises')">
+            <span class="tab-icon">💪</span><span>All Exercises</span>
+        </button>
+        <button class="tab-btn" id="tabPlans" onclick="switchTab('plans')">
+            <span class="tab-icon">📋</span><span>My Plans</span>
+        </button>
+        <button class="tab-btn" id="tabWeight" onclick="switchTab('weight')">
+            <span class="tab-icon">⚖️</span><span>Body Weight</span></button>
+        <button class="tab-btn" id="tabNutrition" onclick="switchTab('nutrition')">
+            <span class="tab-icon">🍔</span><span>Nutrition</span>
+        </button>
+    </div>
+
+    <!-- Exercise Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle"></div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-tag" id="modalTag"></div>
+            <div class="modal-desc" id="modalDesc"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <div class="section-label" style="margin-bottom:0;">Key Tips</div>
+                <img id="ytBtn" src="assets/icons/youtube-logo-icon.png" alt="Watch on YouTube"
+                     style="height:28px;width:auto;cursor:pointer;opacity:0.85;transition:opacity 0.2s;"
+                     onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.85'">
+            </div>
+            <ul class="tips-list" id="modalTips"></ul>
+            <video id="modalVid" autoplay loop muted playsinline
+                   style="display:none;width:100%;border-radius:14px;margin-bottom:14px;object-fit:contain;"></video>
+            <img id="modalImg" style="display:none;width:100%;border-radius:14px;margin-bottom:14px;object-fit:contain;" alt="">
+            <div id="modalPlanSection">
+                <div class="pr-section" id="modalPRSection" style="display:none;">
+                    <div class="section-label">Personal Record</div>
+                    <div class="pr-box">
+                        <span class="pr-icon">🏆</span>
+                        <div>
+                            <div class="pr-value" id="modalPRValue"></div>
+                            <div class="pr-date" id="modalPRDate"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-label">Last Session</div>
+                <div class="last-session-box">
+                    <span class="ls-icon">🕐</span>
+                    <div style="flex:1">
+                        <div class="ls-value" id="lastSessionValue">No data yet</div>
+                        <div class="ls-date" id="lastSessionDate"></div>
+                    </div>
+                </div>
+                <div class="section-label">Notes</div>
+                <textarea id="modalNotes" maxlength="250" placeholder="Personal notes about this exercise…"
+                          oninput="autoSaveExNotes()" class="themed-textarea" style="height:90px;"></textarea>
+                <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">
+                    0 / 250
+                </div>
+                <button class="yt-btn" style="background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.3);color:#4ecdc4;" onclick="openExHistory()">
+                    📊&nbsp; Log & History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Title Modal -->
+    <div class="modal-overlay" id="addTitleOverlay" onclick="handleTitleOverlayClick(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Add Section Title</div>
+                <button class="modal-close" onclick="closeAddTitle()">✕</button>
+            </div>
+            <input class="plan-name-input" id="titleInput"
+                   type="text" placeholder="e.g. Warmup, Main Set, Finisher…"
+                   maxlength="30" onkeydown="if(event.key==='Enter')saveTitle()"/>
+            <button class="create-btn" onclick="saveTitle()">Add Title</button>
+        </div>
+    </div>
+
+    <!-- Create Plan Modal -->
+    <div class="modal-overlay" id="createPlanOverlay" onclick="handleCreateOverlayClick(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">New Plan</div>
+                <button class="modal-close" onclick="closeCreatePlan()">✕</button>
+            </div>
+            <input class="plan-name-input" id="planNameInput"
+                   type="text" placeholder="e.g. Push Day, Chest & Triceps..."
+                   maxlength="40" onkeydown="if(event.key==='Enter')createPlan()"/>
+            <button class="create-btn" onclick="createPlan()">Create Plan</button>
+        </div>
+    </div>
+
+    <!-- NL Amount Sheet -->
+    <div class="bw-overlay" id="nlAmountOverlay" onclick="if(event.target===this)nlCloseAmount()">
+        <div class="bw-sheet" id="nlAmountSheet">
+            <div class="bw-sheet-handle"></div>
+            <div class="nl-amount-header" id="nlAmountHeader"></div>
+            <div class="nl-quick-row">
+                <button class="nl-quick-btn" onclick="nlSetGrams(50)">50g</button>
+                <button class="nl-quick-btn" onclick="nlSetGrams(100)">100g</button>
+                <button class="nl-quick-btn" onclick="nlSetGrams(150)">150g</button>
+            </div>
+            <div class="nl-gram-row">
+                <button class="nl-gram-btn" onclick="nlAdjustPickerGrams(-10)">−</button>
+                <div class="nl-gram-display" id="nlGramDisplay">100g</div>
+                <button class="nl-gram-btn" onclick="nlAdjustPickerGrams(10)">+</button>
+            </div>
+            <div class="nl-amount-preview" id="nlAmountPreview"></div>
+            <button class="nl-confirm-btn" id="nlAddToMealBtn" onclick="nlConfirmAddIng()">Add to Meal</button>
+        </div>
+    </div>
+
+    <!-- NL Create Meal Modal -->
+    <div class="modal-overlay" id="nlCreateOverlay" onclick="if(event.target===this)nlCloseCreate()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">New Meal</div>
+                <button class="modal-close" onclick="nlCloseCreate()">✕</button>
+            </div>
+            <input class="plan-name-input" id="nlMealNameInput" type="text" placeholder="e.g. Breakfast, Post-Workout, Chicken Bowl…" maxlength="50" onkeydown="if(event.key==='Enter')nlCreateMeal()"/>
+            <button class="create-btn" onclick="nlCreateMeal()">Create Meal</button>
+        </div>
+    </div>
+
+    <!-- NL Custom Ingredient Modal -->
+    <div class="modal-overlay" id="nlCustomOverlay" onclick="if(event.target===this)nlCloseCustom()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Custom Ingredient</div>
+                <button class="modal-close" onclick="nlCloseCustom()">✕</button>
+            </div>
+            <input class="plan-name-input" id="nlCustomName" type="text" placeholder="Ingredient name" maxlength="40"/>
+            <div class="nl-custom-photo-area">
+                <input type="file" id="nlCustomPhotoInput" accept="image/*" style="display:none" onchange="nlCustomPhotoSelected(this)">
+                <div id="nlCustomPhotoPreview">
+                    <button class="nl-custom-photo-btn" onclick="document.getElementById('nlCustomPhotoInput').click()">
+                        📷 Add Photo (optional)
+                    </button>
+                </div>
+            </div>
+            <div style="font-size:0.8rem;color:var(--muted);margin:-10px 0 14px;">Values per 100g</div>
+            <div class="nl-custom-row">
+                <div class="nl-custom-field">
+                    <label>Protein (g)</label>
+                    <input type="number" id="nlCustomP" placeholder="0" inputmode="decimal"/>
+                </div>
+                <div class="nl-custom-field">
+                    <label>Carbs (g)</label>
+                    <input type="number" id="nlCustomC" placeholder="0" inputmode="decimal"/>
+                </div>
+            </div>
+            <div class="nl-custom-row">
+                <div class="nl-custom-field">
+                    <label>Fat (g)</label>
+                    <input type="number" id="nlCustomF" placeholder="0" inputmode="decimal"/>
+                </div>
+                <div class="nl-custom-field">
+                    <label>Calories</label>
+                    <input type="number" id="nlCustomCal" placeholder="0" inputmode="numeric"/>
+                </div>
+            </div>
+            <button class="create-btn" onclick="nlSaveCustom()">Save Ingredient</button>
+        </div>
+    </div>
+
+    <!-- Delete Meal Confirmation -->
+    <div class="confirm-overlay" id="deleteMealConfirmOverlay" onclick="if(event.target===this)closeDeleteMealConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete Meal?</div>
+            <div class="confirm-msg" id="deleteMealConfirmMsg"></div>
+            <button class="confirm-btn-del" onclick="confirmDeleteMeal()">Delete</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteMealConfirm()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Macro Goals Modal -->
+    <div class="modal-overlay" id="macroGoalsOverlay" onclick="if(event.target===this)closeMacroGoalsModal()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Daily Goals</div>
+                <button class="modal-close" onclick="closeMacroGoalsModal()">✕</button>
+            </div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Set calories first, then adjust macro
+                split
+            </div>
+            <label class="macro-input-label">Daily Calories</label>
+            <input type="number" id="goalCalInput" class="macro-cal-input" placeholder="2000" inputmode="numeric" oninput="onMacroCalInput()"/>
+            <div class="macro-cal-quick">
+                <button onclick="setQuickCal(1500)">1500</button>
+                <button onclick="setQuickCal(2000)">2000</button>
+                <button onclick="setQuickCal(2500)">2500</button>
+                <button onclick="setQuickCal(3000)">3000</button>
+            </div>
+            <label class="macro-input-label" style="margin-top:16px;">Macro Distribution</label>
+            <div class="macro-slider-wrap" id="macroSliderWrap">
+                <div class="macro-slider-track" id="macroSliderBar">
+                    <div class="macro-slider-seg" id="macroSegP"></div>
+                    <div class="macro-slider-seg" id="macroSegC"></div>
+                    <div class="macro-slider-seg" id="macroSegF"></div>
+                </div>
+                <div class="macro-slider-handle" id="macroHandlePC"></div>
+                <div class="macro-slider-handle" id="macroHandleCF"></div>
+            </div>
+            <div class="macro-dist-info">
+                <div class="macro-dist-item">
+                    <span class="macro-dot" style="background:#4ecdc4;"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct" id="macroPctP">30%</span><span class="macro-dist-g" id="macroGramsP">150g</span>
+                </div>
+                <div class="macro-dist-item">
+                    <span class="macro-dot" style="background:#ff6b6b;"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct" id="macroPctC">40%</span><span class="macro-dist-g" id="macroGramsC">200g</span>
+                </div>
+                <div class="macro-dist-item">
+                    <span class="macro-dot" style="background:#ffd93d;"></span><span class="macro-dist-name">Fat</span><span class="macro-dist-pct" id="macroPctF">30%</span><span class="macro-dist-g" id="macroGramsF">67g</span>
+                </div>
+            </div>
+            <button class="create-btn" onclick="saveMacroGoalsFromModal()">Save Goals</button>
+            <button class="macro-clear-btn" id="macroClearBtn" onclick="clearDateGoal()">Clear Goal for This Day
+            </button>
+        </div>
+    </div>
+
+    <!-- Nutrition FAB Choice -->
+    <div class="confirm-overlay" id="nlFabChoiceOverlay" onclick="if(event.target===this)closeNLFabChoice()">
+        <div class="confirm-sheet" style="padding-bottom:12px;">
+            <div class="confirm-title">Add Meal</div>
+            <button class="nl-fab-choice-btn" onclick="closeNLFabChoice();nlOpenCreateModal()">＋ Create New Meal
+            </button>
+            <button class="nl-fab-choice-btn nl-fab-choice-saved" onclick="closeNLFabChoice();openSavedMealPicker()">📋
+                Use Saved Meal
+            </button>
+            <button class="confirm-btn-cancel" onclick="closeNLFabChoice()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Saved Meal Picker -->
+    <div class="bw-overlay" id="nlSavedPickerOverlay" onclick="if(event.target===this)closeSavedMealPicker()">
+        <div class="bw-sheet" id="nlSavedPickerSheet">
+            <div class="bw-sheet-handle"></div>
+            <div class="bw-sheet-title">Choose a Saved Meal</div>
+            <div id="nlSavedPickerList" style="max-height:60vh;overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- App Entry Point -->
+    <script type="module" src="js/app.js"></script>
 </div><!-- /#appRoot -->
 
 <!-- Sign-In Screen -->
 <div id="signInOverlay">
-  <div class="auth-content">
-    <div class="auth-header">
-      <img src="assets/icons/icon-192.png" alt="RSR Fitness" class="auth-logo">
-      <div class="auth-title">RSR Fitness</div>
-      <div class="auth-tagline">The only fitness app you'll ever need!</div>
-    </div>
+    <div class="auth-content">
+        <div class="auth-header">
+            <img src="assets/icons/icon-192.png" alt="RSR Fitness" class="auth-logo">
+            <div class="auth-title">RSR Fitness</div>
+            <div class="auth-tagline">The only fitness app you'll ever need!</div>
+        </div>
 
-    <!-- Tabs -->
-    <div class="auth-tabs">
-      <button id="authTabSignIn" class="auth-tab auth-tab-active" onclick="showAuthTab('signin')">Sign In</button>
-      <button id="authTabRegister" class="auth-tab" onclick="showAuthTab('register')">Create Account</button>
-    </div>
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button id="authTabSignIn" class="auth-tab auth-tab-active" onclick="showAuthTab('signin')">Sign In</button>
+            <button id="authTabRegister" class="auth-tab" onclick="showAuthTab('register')">Create Account</button>
+        </div>
 
-    <!-- Sign In Panel -->
-    <div id="authPanelSignIn">
-      <button onclick="handleSignIn()" class="auth-google-btn">
-        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 6.9-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.7 2.2-7.7 2.2-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
-        Continue with Google
-      </button>
-      <div class="auth-divider">
-        <div class="auth-divider-line"></div>
-        <span class="auth-divider-text">or</span>
-        <div class="auth-divider-line"></div>
-      </div>
-      <input id="siEmail" type="email" placeholder="Email" autocomplete="email" class="auth-input" />
-      <input id="siPassword" type="password" placeholder="Password" autocomplete="current-password" class="auth-input auth-input-last" />
-      <div id="siError" class="auth-error"></div>
-      <button onclick="handleEmailSignIn()" class="auth-btn auth-btn-signin">Sign In</button>
-      <div class="auth-forgot-wrap">
-        <button onclick="handleForgotPassword()" class="auth-forgot-btn">Forgot password?</button>
-      </div>
-    </div>
+        <!-- Sign In Panel -->
+        <div id="authPanelSignIn">
+            <button onclick="handleSignIn()" class="auth-google-btn">
+                <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.3 13.2 17.7 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 6.9-10.1 7.1-17z"/>
+                    <path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.8-6z"/>
+                    <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.7 2.2-7.7 2.2-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/>
+                </svg>
+                Continue with Google
+            </button>
+            <div class="auth-divider">
+                <div class="auth-divider-line"></div>
+                <span class="auth-divider-text">or</span>
+                <div class="auth-divider-line"></div>
+            </div>
+            <input id="siEmail" type="email" placeholder="Email" autocomplete="email" class="auth-input"/>
+            <input id="siPassword" type="password" placeholder="Password" autocomplete="current-password" class="auth-input auth-input-last"/>
+            <div id="siError" class="auth-error"></div>
+            <button onclick="handleEmailSignIn()" class="auth-btn auth-btn-signin">Sign In</button>
+            <div class="auth-forgot-wrap">
+                <button onclick="handleForgotPassword()" class="auth-forgot-btn">Forgot password?</button>
+            </div>
+        </div>
 
-    <!-- Register Panel -->
-    <div id="authPanelRegister" style="display:none;">
-      <input id="regName" type="text" placeholder="Full Name" autocomplete="name" class="auth-input" />
-      <input id="regEmail" type="email" placeholder="Email" autocomplete="email" class="auth-input" />
-      <input id="regPassword" type="password" placeholder="Password (min. 8 characters)" autocomplete="new-password" class="auth-input" />
-      <input id="regConfirm" type="password" placeholder="Confirm Password" autocomplete="new-password" class="auth-input auth-input-last" />
-      <div id="regError" class="auth-error-reg"></div>
-      <button onclick="handleEmailRegister()" class="auth-btn">Create Account</button>
-    </div>
+        <!-- Register Panel -->
+        <div id="authPanelRegister" style="display:none;">
+            <input id="regName" type="text" placeholder="Full Name" autocomplete="name" class="auth-input"/>
+            <input id="regEmail" type="email" placeholder="Email" autocomplete="email" class="auth-input"/>
+            <input id="regPassword" type="password" placeholder="Password (min. 8 characters)" autocomplete="new-password" class="auth-input"/>
+            <input id="regConfirm" type="password" placeholder="Confirm Password" autocomplete="new-password" class="auth-input auth-input-last"/>
+            <div id="regError" class="auth-error-reg"></div>
+            <button onclick="handleEmailRegister()" class="auth-btn">Create Account</button>
+        </div>
 
-    <!-- Verify Email Panel -->
-    <div id="authPanelVerify" class="auth-panel-verify">
-      <div class="auth-verify-emoji">📧</div>
-      <div class="auth-verify-title">Check your email</div>
-      <div class="auth-verify-text">We sent a verification link to:</div>
-      <div id="verifyEmailAddr" class="auth-verify-email"></div>
-      <div class="auth-verify-hint">Click the link in the email to activate your account, then come back and sign in.</div>
-      <button onclick="showAuthTab('signin')" class="auth-btn">Back to Sign In</button>
+        <!-- Verify Email Panel -->
+        <div id="authPanelVerify" class="auth-panel-verify">
+            <div class="auth-verify-emoji">📧</div>
+            <div class="auth-verify-title">Check your email</div>
+            <div class="auth-verify-text">We sent a verification link to:</div>
+            <div id="verifyEmailAddr" class="auth-verify-email"></div>
+            <div class="auth-verify-hint">Click the link in the email to activate your account, then come back and sign
+                in.
+            </div>
+            <button onclick="showAuthTab('signin')" class="auth-btn">Back to Sign In</button>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Loading Screen -->
 <div id="loadingOverlay">
-  <img src="assets/icons/icon-192.png" alt="" class="auth-loading-icon">
-  <div id="loadingMsg" class="auth-loading-msg">Loading…</div>
+    <img src="assets/icons/icon-192.png" alt="" class="auth-loading-icon">
+    <div id="loadingMsg" class="auth-loading-msg">Loading…</div>
 </div>
 
 <!-- Sign Out Confirmation -->
 <div id="signOutConfirm">
-  <div class="signout-card">
-    <div class="signout-emoji">🚪</div>
-    <div class="signout-title">Sign Out?</div>
-    <div class="signout-msg">Your data is safely stored in the cloud. You can sign back in anytime.</div>
-    <div class="signout-btns">
-      <button onclick="cancelSignOut()" class="signout-btn signout-btn-cancel">Cancel</button>
-      <button onclick="confirmSignOut()" class="signout-btn signout-btn-confirm">Sign Out</button>
+    <div class="signout-card">
+        <div class="signout-emoji">🚪</div>
+        <div class="signout-title">Sign Out?</div>
+        <div class="signout-msg">Your data is safely stored in the cloud. You can sign back in anytime.</div>
+        <div class="signout-btns">
+            <button onclick="cancelSignOut()" class="signout-btn signout-btn-cancel">Cancel</button>
+            <button onclick="confirmSignOut()" class="signout-btn signout-btn-confirm">Sign Out</button>
+        </div>
     </div>
-  </div>
 </div>
 </body>
 </html>
