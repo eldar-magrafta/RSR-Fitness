@@ -721,6 +721,7 @@ export function pickSavedMeal(id) {
     favorite: false,
     createdAt: state.nlSelectedDate || new Date().toISOString().slice(0, 10)
   };
+  if (meal.image) logged.image = meal.image;
   meals.push(logged);
   saveNLMeals(meals);
   closeSavedMealPicker();
