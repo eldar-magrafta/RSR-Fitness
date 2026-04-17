@@ -76,7 +76,7 @@ export async function handleForgotPassword() {
   if (!email) { errEl.textContent = 'Enter your email above first.'; return; }
   try {
     await sendForgotPassword(email);
-    errEl.style.color = '#2ecc71';
+    errEl.style.color = 'var(--green)';
     errEl.textContent = 'Password reset email sent! Check your inbox.';
     setTimeout(() => { errEl.style.color = ''; errEl.textContent = ''; }, 5000);
   } catch (e) {

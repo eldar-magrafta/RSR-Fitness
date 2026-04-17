@@ -13,12 +13,12 @@ import { FIREBASE_CONFIG } from './firebase-config.js';
 import { setCloudSaver } from './store.js';
 
 const SECTION_MAP = {
-  plans:      'trainer_plans',
-  bodyweight: 'trainer_bw',
-  meals:      'trainer_meals',
-  prs:        'trainer_prs',
-  macrogoals: 'trainer_macro_goals',
-  customings: 'trainer_custom_ings',
+  plans:         'trainer_plans',
+  bodyweight:    'trainer_bw',
+  meals:         'trainer_meals',
+  prs:           'trainer_prs',
+  macrogoalsmap: 'trainer_macro_goals_map',
+  customings:    'trainer_custom_ings',
 };
 
 let db, auth;
@@ -78,7 +78,7 @@ export async function loadFromCloud(uid) {
       try {
         const snap = await getDoc(doc(db, 'users', uid, 'sections', section));
         if (snap.exists()) localStorage.setItem(lsKey, snap.data().value);
-      } catch (e) {}
+      } catch (e) { console.warn('[cloud] failed to load section', section, e.code); }
     })
   );
   try {
@@ -86,13 +86,13 @@ export async function loadFromCloud(uid) {
     snaps.forEach(d => {
       localStorage.setItem('trainer_exhist_' + decodeURIComponent(d.id), d.data().value);
     });
-  } catch (e) {}
+  } catch (e) { console.warn('[cloud] failed to load exhist', e.code); }
   try {
     const snaps = await getDocs(collection(db, 'users', uid, 'notes'));
     snaps.forEach(d => {
       localStorage.setItem('trainer_notes_' + decodeURIComponent(d.id), d.data().value);
     });
-  } catch (e) {}
+  } catch (e) { console.warn('[cloud] failed to load notes', e.code); }
 }
 
 let _cloudError = false;

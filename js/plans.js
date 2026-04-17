@@ -6,6 +6,7 @@ import { state } from './state.js';
 import { getPlans, savePlans, getPlan, getLog } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { openModal } from './exercises.js';
+import { escHtml } from './utils.js';
 
 // ── Plans List ──
 
@@ -29,7 +30,7 @@ export function renderPlans() {
       const exCount = plan.exercises.filter(i => typeof i === 'string').length;
       card.innerHTML = `
         <div class="plan-card-info">
-          <div class="plan-card-name">${plan.name}</div>
+          <div class="plan-card-name">${escHtml(plan.name)}</div>
           <div class="plan-card-meta">${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
         </div>
         <button class="plan-card-delete" title="Delete plan">\u2715</button>`;
@@ -58,7 +59,7 @@ export function handleCreateOverlayClick(e) {
 }
 
 export function createPlan() {
-  const name = document.getElementById('planNameInput').value.trim();
+  const name = document.getElementById('planNameInput').value.trim().slice(0, 100);
   if (!name) return;
   const plans = getPlans();
   const newPlan = { id: 'plan_' + Date.now(), name, exercises: [] };
@@ -143,7 +144,7 @@ export function showPlanDetail(planId) {
         row.dataset.planItemIdx = idx;
         row.innerHTML = `
           <span class="drag-handle" style="padding:4px 8px 4px 0;font-size:1rem;">\u2807</span>
-          <span class="plan-section-title-text">${item.title}</span>
+          <span class="plan-section-title-text">${escHtml(item.title)}</span>
           <button class="plan-title-remove" title="Remove title">\u2715</button>`;
         row.querySelector('.plan-title-remove').onclick = () => {
           removeTitleFromPlan(planId, idx);
@@ -252,7 +253,7 @@ export function handleTitleOverlayClick(e) {
 }
 
 export function saveTitle() {
-  const text = document.getElementById('titleInput').value.trim();
+  const text = document.getElementById('titleInput').value.trim().slice(0, 100);
   if (!text || !state.currentPlanId) return;
   const plans = getPlans();
   const plan = plans.find(p => p.id === state.currentPlanId);

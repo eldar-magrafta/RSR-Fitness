@@ -14,11 +14,13 @@ export function isBase64(str) { return typeof str === 'string' && str.startsWith
 const DB_NAME = 'rsr-photos';
 const STORE_NAME = 'photos';
 
+let _idb = null;
 function openIDB() {
+  if (_idb) return Promise.resolve(_idb);
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1);
     req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => { _idb = req.result; resolve(_idb); };
     req.onerror = () => reject(req.error);
   });
 }

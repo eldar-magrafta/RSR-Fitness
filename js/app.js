@@ -303,9 +303,6 @@ function startApp() {
   migrateMacroGoalsToMap();
   rebuildAllPRs();
   buildHome();
-  initModalSwipe();
-  initExHistSheetSwipe();
-  initBWSheetSwipe();
 }
 
 if ('serviceWorker' in navigator) {
@@ -316,6 +313,11 @@ if ('serviceWorker' in navigator) {
   // Auto-reload when a new Service Worker takes over (new code deployed)
   navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
 }
+
+// Register swipe dismissals once — before Firebase, so they never accumulate
+initModalSwipe();
+initExHistSheetSwipe();
+initBWSheetSwipe();
 
 initFirebase();
 

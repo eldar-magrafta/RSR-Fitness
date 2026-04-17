@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getExHist, saveExHist } from './store.js';
-import { MONTHS, exHistMaxWeight } from './utils.js';
+import { MONTHS, exHistMaxWeight, initSheetSwipe } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
@@ -209,39 +209,7 @@ export function closeExHistEntry() {
 
 /** Initialize swipe-down-to-dismiss on the Log Exercise sheet */
 export function initExHistSheetSwipe() {
-  const overlay = document.getElementById('exHistEntryOverlay');
-  const sheet = document.getElementById('exHistEntrySheet');
-  let _sd = null;
-
-  sheet.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    const rect = sheet.getBoundingClientRect();
-    if (touch.clientY - rect.top > 50) return;
-    _sd = { startY: touch.clientY };
-  }, { passive: true });
-
-  sheet.addEventListener('touchmove', e => {
-    if (!_sd) return;
-    const dy = Math.max(0, e.touches[0].clientY - _sd.startY);
-    e.preventDefault();
-    sheet.style.transition = 'none';
-    sheet.style.transform = `translateY(${dy}px)`;
-    overlay.style.background = `rgba(0,0,0,${Math.max(0.05, 0.65 - dy / 400)})`;
-  }, { passive: false });
-
-  sheet.addEventListener('touchend', e => {
-    if (!_sd) return;
-    const dy = e.changedTouches[0].clientY - _sd.startY;
-    sheet.style.transition = '';
-    overlay.style.background = '';
-    if (dy > 120) {
-      sheet.style.transform = `translateY(110%)`;
-      setTimeout(() => closeExHistEntry(), 250);
-    } else {
-      sheet.style.transform = 'translateY(0)';
-    }
-    _sd = null;
-  });
+  initSheetSwipe('exHistEntryOverlay', 'exHistEntrySheet', closeExHistEntry);
 }
 
 export function saveExHistEntry() {
@@ -266,7 +234,7 @@ export function saveExHistEntry() {
   const maxW = Math.max(...sets.map(s => parseFloat(s.w) || 0));
   if (maxW > 0) {
     const topSet = sets.reduce((a, b) => (parseFloat(b.w) || 0) > (parseFloat(a.w) || 0) ? b : a);
-    const result = checkForNewPR(state.currentExerciseName, maxW, parseInt(topSet.r) || 0, state.exHistSelectedDate);
+    const result = checkForNewPR(state.currentExerciseName, maxW, parseInt(topSet.r) || 0, sets.length, state.exHistSelectedDate);
     if (result.isNew) showNewPRToast(state.currentExerciseName, maxW);
   }
 

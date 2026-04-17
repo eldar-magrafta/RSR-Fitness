@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml } from './utils.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
@@ -85,7 +85,7 @@ export function renderNLMeals() {
       : `<div class="nl-meal-card-placeholder"></div>`;
     return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
       ${cardImg}<div class="nl-meal-card-body">
-      <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span>${favBtn}</div>
+      <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span>${favBtn}</div>
         <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
@@ -148,9 +148,9 @@ function renderNLMealDetail() {
   } else {
     ingList.innerHTML = meal.ingredients.map((ing, idx) => {
       const m = ing.grams / 100;
-      const imgHtml = ing.img ? `<img class="nl-ing-img" src="${ing.img}">` : `<div class="nl-ing-initial">${ing.name[0]}</div>`;
+      const imgHtml = ing.img ? `<img class="nl-ing-img" src="${ing.img}">` : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
       return `<div class="nl-ing-card">
-        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${ing.name}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">\u2715</button></div>
+        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">\u2715</button></div>
         <div class="nl-ing-controls">
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">\u2212</button>
           <div class="nl-ing-grams">${ing.grams}g</div>
@@ -221,11 +221,11 @@ export function renderNLPicker() {
     if (items.length === 0) return;
     html += `<div class="nl-cat-label">${catNames[cat]}</div>`;
     items.forEach(ing => {
-      const safeName = ing.name.replace(/'/g, "\\'");
-      const imgHtml = ing.img ? `<img class="nl-pick-img" src="${ing.img}">` : `<div class="nl-pick-initial">${ing.name[0]}</div>`;
-      html += `<div class="nl-pick-item" onclick="nlPickIngredient('${safeName}')">
+      const safeName = escHtml(ing.name);
+      const imgHtml = ing.img ? `<img class="nl-pick-img" src="${ing.img}">` : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
+      html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
-        <div style="flex:1;"><div class="nl-pick-name">${ing.name}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
+        <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
         <span class="arrow">\u203a</span></div>`;
     });
   });
@@ -237,8 +237,8 @@ export function nlPickIngredient(name) {
   if (!ing) return;
   state.nlPickerIng = ing;
   state.nlPickerGrams = 100;
-  const imgHtml = ing.img ? `<img class="nl-amount-img" src="${ing.img}">` : `<div class="nl-amount-initial">${ing.name[0]}</div>`;
-  document.getElementById('nlAmountHeader').innerHTML = `${imgHtml}<div><div class="nl-amount-title">${ing.name}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
+  const imgHtml = ing.img ? `<img class="nl-amount-img" src="${ing.img}">` : `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div>`;
+  document.getElementById('nlAmountHeader').innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
   document.getElementById('nlGramDisplay').textContent = '100g';
   document.getElementById('nlAddToMealBtn').style.display = state.nlBrowseMode ? 'none' : '';
   nlUpdateAmountPreview();
@@ -298,7 +298,7 @@ export function nlOpenCreateModal() {
 export function nlCloseCreate() { document.getElementById('nlCreateOverlay').classList.remove('open'); }
 
 export function nlCreateMeal() {
-  const name = document.getElementById('nlMealNameInput').value.trim();
+  const name = document.getElementById('nlMealNameInput').value.trim().slice(0, 100);
   if (!name) return;
   const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
   const date = type === 'logged' ? (state.nlSelectedDate || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
@@ -363,12 +363,12 @@ export function nlUploadMealPhoto(input) {
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      const MAX = 800; let w = img.width, h = img.height;
+      const MAX = 600; let w = img.width, h = img.height;
       if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
       else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
       const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const b64 = canvas.toDataURL('image/jpeg', 0.82);
+      const b64 = canvas.toDataURL('image/jpeg', 0.75);
       const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
       if (!meal) return;
       meal.image = b64;
@@ -433,7 +433,7 @@ export function nlCustomPhotoSelected(input) {
     const img = new Image();
     img.onload = () => {
       const MAX = 300; let w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } } else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } } else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
       const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       state.nlCustomPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
@@ -693,7 +693,7 @@ export function openSavedMealPicker() {
         : `<div class="nl-meal-card-placeholder"></div>`;
       return `<div class="nl-meal-card nl-meal-has-img" onclick="pickSavedMeal('${m.id}')">
         ${cardImg}<div class="nl-meal-card-body">
-        <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${m.name}</span></div></div>
+        <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span></div></div>
         <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
         <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
         </div></div>`;

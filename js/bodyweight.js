@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getBWData, saveBWData, bwGetWeight, bwGetPhoto, saveBWEmpty } from './store.js';
-import { dateToStr, fmtDateLabel, resizeImage, MONTHS } from './utils.js';
+import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
@@ -244,39 +244,7 @@ export function closeBWEntry() {
 }
 
 export function initBWSheetSwipe() {
-  const overlay = document.getElementById('bwOverlay');
-  const sheet = document.getElementById('bwSheet');
-  let _sd = null;
-
-  sheet.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    const rect = sheet.getBoundingClientRect();
-    if (touch.clientY - rect.top > 50) return;
-    _sd = { startY: touch.clientY };
-  }, { passive: true });
-
-  sheet.addEventListener('touchmove', e => {
-    if (!_sd) return;
-    const dy = Math.max(0, e.touches[0].clientY - _sd.startY);
-    e.preventDefault();
-    sheet.style.transition = 'none';
-    sheet.style.transform = `translateY(${dy}px)`;
-    overlay.style.background = `rgba(0,0,0,${Math.max(0.05, 0.65 - dy / 400)})`;
-  }, { passive: false });
-
-  sheet.addEventListener('touchend', e => {
-    if (!_sd) return;
-    const dy = e.changedTouches[0].clientY - _sd.startY;
-    sheet.style.transition = '';
-    overlay.style.background = '';
-    if (dy > 120) {
-      sheet.style.transform = `translateY(110%)`;
-      setTimeout(() => closeBWEntry(), 250);
-    } else {
-      sheet.style.transform = 'translateY(0)';
-    }
-    _sd = null;
-  });
+  initSheetSwipe('bwOverlay', 'bwSheet', closeBWEntry);
 }
 
 export function handleBWOverlay(e) {

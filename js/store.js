@@ -7,6 +7,14 @@ let _cloudSave = () => {};
 
 export function setCloudSaver(fn) { _cloudSave = fn; }
 
+// Debounce rapid writes to the same Firestore document (e.g. ingredient adjustments, notes)
+const _debounceMap = {};
+function _debouncedCloudSave(section, docId, value, delay = 900) {
+  const key = `${section}/${docId}`;
+  clearTimeout(_debounceMap[key]);
+  _debounceMap[key] = setTimeout(() => _cloudSave(section, docId, value), delay);
+}
+
 // ── Exercise History (date-keyed) ──
 export function getExHist(name) {
   try { return JSON.parse(localStorage.getItem('trainer_exhist_' + name)) || {}; } catch { return {}; }
@@ -92,7 +100,7 @@ export function getNotes(name) {
 export function saveNotesData(name, text) {
   const t = text.slice(0, 250);
   localStorage.setItem('trainer_notes_' + name, t);
-  _cloudSave('notes', encodeURIComponent(name), t);
+  _debouncedCloudSave('notes', encodeURIComponent(name), t);
 }
 
 // ── Body Weight ──
@@ -178,7 +186,7 @@ export function getNLMeals() {
 export function saveNLMeals(m) {
   const v = JSON.stringify(m);
   localStorage.setItem('trainer_meals', v);
-  _cloudSave('sections', 'meals', v);
+  _debouncedCloudSave('sections', 'meals', v);
 }
 
 // ── Personal Records ──

@@ -43,13 +43,13 @@ export function getPR(exerciseName) {
 }
 
 /** Check if a new weight beats the cached PR. Returns { isNew, previous }. Updates cache if new. */
-export function checkForNewPR(exerciseName, newWeight, newReps, dateStr) {
+export function checkForNewPR(exerciseName, newWeight, newReps, newSets, dateStr) {
   const prs = getPRs();
   const current = prs[exerciseName] || null;
   const curWeight = current ? current.weight : 0;
   if (newWeight > curWeight) {
     const previous = current ? { ...current } : null;
-    prs[exerciseName] = { weight: newWeight, reps: newReps, sets: 0, date: dateStr };
+    prs[exerciseName] = { weight: newWeight, reps: newReps, sets: newSets, date: dateStr };
     savePRs(prs);
     return { isNew: true, previous };
   }
