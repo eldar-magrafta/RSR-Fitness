@@ -191,11 +191,17 @@
 }
 
 /* Loading overlay */
-.auth-loading-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  margin-bottom: 4px;
+.auth-loading-spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid #1a0000;
+  border-top-color: #e02020;
+  animation: auth-spin 0.75s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
 }
 .auth-loading-msg {
   color: var(--muted, #888);
