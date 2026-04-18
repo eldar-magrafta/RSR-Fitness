@@ -27,6 +27,13 @@ function nlRenderPie(p, c, f) {
 // ── View Mode Toggle ──
 
 export function nlSetViewMode(mode) {
+  if (mode === 'today') {
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    state.nlSelectedDate = todayStr;
+    state.nlCalYear = now.getFullYear();
+    state.nlCalMon = now.getMonth();
+  }
   state.nlViewMode = mode;
   document.getElementById('nlViewToday').classList.toggle('active', mode === 'today');
   document.getElementById('nlViewSaved').classList.toggle('active', mode === 'saved');
@@ -39,6 +46,7 @@ export function nlSetViewMode(mode) {
   if (browseBtn) browseBtn.style.display = mode === 'saved' ? '' : 'none';
   if (mode === 'today') renderNLCalendar();
   renderNLMeals();
+  if (mode === 'today') renderMacroGoals();
 }
 
 // ── Meal List ──
@@ -768,7 +776,7 @@ export function renderNLCalendar() {
 }
 
 export function nlPrevMonth() {
-  if (state.nlCalYear === 2020 && state.nlCalMon === 0) return;
+  if (state.nlCalYear === 2026 && state.nlCalMon === 0) return;
   if (state.nlCalMon === 0) { state.nlCalMon = 11; state.nlCalYear--; } else state.nlCalMon--;
   renderNLCalendar();
 }

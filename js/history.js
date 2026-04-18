@@ -141,7 +141,7 @@ function renderExHistCal() {
 }
 
 export function exHistPrevMonth() {
-  if (state.exHistCalYear === 2020 && state.exHistCalMon === 0) return;
+  if (state.exHistCalYear === 2026 && state.exHistCalMon === 0) return;
   if (state.exHistCalMon === 0) { state.exHistCalMon = 11; state.exHistCalYear--; } else state.exHistCalMon--;
   renderExHistCal();
 }

@@ -189,7 +189,7 @@ export function confirmDeleteAllBW() {
 }
 
 export function bwPrevMonth() {
-  if (state.bwCalYear === 2020 && state.bwCalMon === 0) return;
+  if (state.bwCalYear === 2026 && state.bwCalMon === 0) return;
   if (state.bwCalMon === 0) { state.bwCalMon = 11; state.bwCalYear--; } else state.bwCalMon--;
   renderBWCalendar();
 }
