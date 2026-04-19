@@ -3,3 +3,7 @@
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Muscle group generator archive + folder
+musclegroup-image-generator-main.zip
+musclegroup-image-generator-main/
