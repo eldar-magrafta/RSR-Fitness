@@ -258,8 +258,15 @@ export async function saveBWEntry() {
   const val = parseFloat(document.getElementById('bwInput').value);
   const inp = document.getElementById('bwInput');
   if (!val || val <= 0 || val > 500) {
+    const inputRow = inp.closest('.bw-input-row');
+    inputRow.style.outline = '2px solid var(--accent)';
+    inputRow.style.outlineOffset = '2px';
     inp.style.color = 'var(--accent)';
-    setTimeout(() => inp.style.color = '', 600);
+    setTimeout(() => {
+      inputRow.style.outline = '';
+      inputRow.style.outlineOffset = '';
+      inp.style.color = '';
+    }, 600);
     return;
   }
 
