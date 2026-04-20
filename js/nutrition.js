@@ -9,7 +9,17 @@ import { calcMealTotals, MONTHS, escHtml } from './utils.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
-function nlCalcTotals(meal) { return calcMealTotals(meal); }
+function nlCalcTotals(meal) {
+  // Use cached totals if available, otherwise calculate and cache
+  if (!meal._cachedTotals) {
+    meal._cachedTotals = calcMealTotals(meal);
+  }
+  return meal._cachedTotals;
+}
+
+function nlInvalidateTotalsCache(meal) {
+  delete meal._cachedTotals;
+}
 
 function nlRenderPie(p, c, f) {
   const pCal = p * 4, cCal = c * 4, fCal = f * 9, total = pCal + cCal + fCal;
@@ -179,6 +189,7 @@ export function nlAdjustIng(idx, delta) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal || !meal.ingredients[idx]) return;
   meal.ingredients[idx].grams = Math.max(10, meal.ingredients[idx].grams + delta);
+  nlInvalidateTotalsCache(meal);
   saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
 }
 
@@ -186,6 +197,7 @@ export function nlRemoveIng(idx) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
   meal.ingredients.splice(idx, 1);
+  nlInvalidateTotalsCache(meal);
   saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
 }
 
@@ -285,6 +297,7 @@ export function nlConfirmAddIng() {
   const ingData = { name: state.nlPickerIng.name, grams: state.nlPickerGrams, p: state.nlPickerIng.p, c: state.nlPickerIng.c, f: state.nlPickerIng.f, cal: state.nlPickerIng.cal };
   if (state.nlPickerIng.img) ingData.img = state.nlPickerIng.img;
   meal.ingredients.push(ingData);
+  nlInvalidateTotalsCache(meal);
   saveNLMeals(meals);
   nlCloseAmount();
   state.nlPickerIng = null;
@@ -652,10 +665,24 @@ export function closeMacroGoalsModal() {
 export function saveMacroGoalsFromModal() {
   const cal = parseInt(document.getElementById('goalCalInput').value) || 0;
   if (!cal) return;
-  const fPct = 100 - _pPct - _cPct;
-  const protein = Math.round((cal * _pPct / 100) / 4);
-  const carbs = Math.round((cal * _cPct / 100) / 4);
-  const fat = Math.round((cal * fPct / 100) / 9);
+
+  // Normalize percentages to ensure they sum to 100%
+  const total = _pPct + _cPct;
+  let normalizedP = _pPct;
+  let normalizedC = _cPct;
+  let normalizedF = 100 - total;
+
+  // If total exceeds 100%, proportionally scale down protein and carbs
+  if (total > 100) {
+    const scale = 100 / total;
+    normalizedP = Math.round(_pPct * scale);
+    normalizedC = Math.round(_cPct * scale);
+    normalizedF = 100 - normalizedP - normalizedC;
+  }
+
+  const protein = Math.round((cal * normalizedP / 100) / 4);
+  const carbs = Math.round((cal * normalizedC / 100) / 4);
+  const fat = Math.round((cal * normalizedF / 100) / 9);
   const goals = { calories: cal, protein, carbs, fat };
 
   const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
