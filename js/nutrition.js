@@ -529,7 +529,7 @@ export function renderMacroGoals() {
 
   const daily = nlCalcDailyTotals();
   const rows = [
-    { name: 'Calories', cur: daily.cal, goal: goals.calories, color: 'var(--accent)', unit: '' },
+    { name: 'Calories', cur: daily.cal, goal: goals.calories, color: '#FF0000', unit: '' },
     { name: 'Protein', cur: daily.p, goal: goals.protein, color: '#4ecdc4', unit: 'g' },
     { name: 'Carbs', cur: daily.c, goal: goals.carbs, color: '#ff6b6b', unit: 'g' },
     { name: 'Fat', cur: daily.f, goal: goals.fat, color: '#ffd93d', unit: 'g' },
