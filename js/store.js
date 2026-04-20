@@ -205,6 +205,9 @@ export function savePRs(prs) {
 
 export const DEFAULT_MACRO_GOALS = { calories: 2700, protein: 270, carbs: 203, fat: 90 };
 
+// Cache sorted dates to avoid re-sorting on every getGoalsForDate() call
+let _cachedGoalDates = null;
+
 export function getMacroGoalsMap() {
   try { return JSON.parse(localStorage.getItem('trainer_macro_goals_map')) || {}; } catch { return {}; }
 }
@@ -212,6 +215,8 @@ export function saveMacroGoalsMap(map) {
   const v = JSON.stringify(map);
   localStorage.setItem('trainer_macro_goals_map', v);
   _cloudSave('sections', 'macrogoalsmap', v);
+  // Invalidate cache when map changes
+  _cachedGoalDates = null;
 }
 
 /** Set or delete a goal for a specific date. Pass null to delete. */
@@ -239,9 +244,12 @@ export function getGoalsForDate(dateStr) {
   // Exact-date check
   if (dateStr in map) return map[dateStr];
   // Walk backwards for inheritance (skip deletions)
-  const dates = Object.keys(map).sort();
-  for (let i = dates.length - 1; i >= 0; i--) {
-    if (dates[i] < dateStr && map[dates[i]] !== null) return map[dates[i]];
+  // Cache sorted dates to avoid re-sorting on every call
+  if (!_cachedGoalDates) {
+    _cachedGoalDates = Object.keys(map).sort();
+  }
+  for (let i = _cachedGoalDates.length - 1; i >= 0; i--) {
+    if (_cachedGoalDates[i] < dateStr && map[_cachedGoalDates[i]] !== null) return map[_cachedGoalDates[i]];
   }
   return DEFAULT_MACRO_GOALS;
 }
