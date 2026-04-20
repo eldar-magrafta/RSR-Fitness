@@ -241,6 +241,9 @@ export function closeBWEntry() {
   sheet.style.transition = '';
   document.getElementById('bwOverlay').classList.remove('open');
   state.bwCurrentPhoto = null;
+  // Reset spinner state
+  document.getElementById('bwSaveSpinner').style.display = 'none';
+  document.getElementById('bwBtnSave').style.display = '';
 }
 
 export function initBWSheetSwipe() {
@@ -259,6 +262,19 @@ export async function saveBWEntry() {
     setTimeout(() => inp.style.color = '', 600);
     return;
   }
+
+  // Prevent concurrent saves
+  const saveBtn = document.getElementById('bwBtnSave');
+  const deleteBtn = document.getElementById('bwBtnDel');
+  const spinner = document.getElementById('bwSaveSpinner');
+  const hasPhoto = state.bwCurrentPhoto && isBase64(state.bwCurrentPhoto);
+
+  if (hasPhoto) {
+    saveBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+    spinner.style.display = 'flex';
+  }
+
   const data = getBWData();
   const dateStr = state.bwSelDate;
   const weight = Math.round(val * 10) / 10;
@@ -269,7 +285,7 @@ export async function saveBWEntry() {
     deletePhoto('bw-photos', dateStr);
   }
 
-  if (state.bwCurrentPhoto && isBase64(state.bwCurrentPhoto)) {
+  if (hasPhoto) {
     // Save photo to its own Firestore doc + IndexedDB cache
     try {
       await savePhoto('bw-photos', dateStr, state.bwCurrentPhoto);

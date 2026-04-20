@@ -165,7 +165,11 @@
                     📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span>
                 </button>
             </div>
-            <button class="bw-btn-save" onclick="saveBWEntry()">Save</button>
+            <div class="bw-save-spinner" id="bwSaveSpinner" style="display:none;">
+                <div class="bw-spinner"></div>
+                <div style="color: var(--muted); font-size: 0.9rem; margin-top: 8px;">Saving photo...</div>
+            </div>
+            <button class="bw-btn-save" id="bwBtnSave" onclick="saveBWEntry()">Save</button>
             <button class="bw-btn-del" id="bwBtnDel" onclick="deleteBWEntry()">Delete Entry</button>
         </div>
     </div>
