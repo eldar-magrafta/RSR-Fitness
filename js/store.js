@@ -12,7 +12,7 @@ const _debounceMap = {};
 function _debouncedCloudSave(section, docId, value, delay = 900) {
   const key = `${section}/${docId}`;
   clearTimeout(_debounceMap[key]);
-  _debounceMap[key] = setTimeout(() => _cloudSave(section, docId, value), delay);
+  _debounceMap[key] = setTimeout(() => { delete _debounceMap[key]; _cloudSave(section, docId, value); }, delay);
 }
 
 // ── Exercise History (date-keyed) ──
