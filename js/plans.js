@@ -89,7 +89,7 @@ export function setPlanEditMode(editing) {
   const btn = document.getElementById('headerAction');
   if (editing) {
     btn.textContent = '\u2713  Done';
-    btn.onclick = donePlanDetail;
+    btn.onclick = () => { state._planEditing = false; showPlanDetail(state.currentPlanId); };
     btn.classList.add('visible');
   } else {
     btn.innerHTML = '&#9998;';
