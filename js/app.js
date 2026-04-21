@@ -110,6 +110,7 @@ function handleBack() {
     state.navContext = 'nutrition';
     renderNLCalendar();
     renderNLMeals();
+    renderMacroGoals();
   } else if (state.navContext === 'summary') {
     switchTab(state.currentTab);
   }
