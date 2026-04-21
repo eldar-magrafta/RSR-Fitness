@@ -198,7 +198,11 @@ function renderNLMealDetail() {
   } else {
     ingList.innerHTML = meal.ingredients.map((ing, idx) => {
       const m = ing.grams / 100;
-      const imgHtml = ing.img ? `<img class="nl-ing-img" src="${ing.img}">` : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
+      const imgHtml = ing.img
+        ? (_isCloudMarker(ing.img)
+          ? `<img class="nl-ing-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="">`
+          : `<img class="nl-ing-img" src="${ing.img}">`)
+        : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
       return `<div class="nl-ing-card">
         <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">✕</button></div>
         <div class="nl-ing-controls">
@@ -213,6 +217,7 @@ function renderNLMealDetail() {
           <div>🔥 <span>${Math.round(ing.cal * m)}</span></div>
         </div></div>`;
     }).join('');
+    _resolveCloudImages(ingList);
   }
   document.getElementById('nlNotes').value = meal.notes || '';
   const counter = document.getElementById('nlNotesCount');
@@ -278,7 +283,11 @@ export function renderNLPicker() {
     html += `<div class="nl-cat-label">${catNames[cat]}</div>`;
     items.forEach(ing => {
       const safeName = escHtml(ing.name);
-      const imgHtml = ing.img ? `<img class="nl-pick-img" src="${ing.img}">` : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
+      const imgHtml = ing.img
+        ? (_isCloudMarker(ing.img)
+          ? `<img class="nl-pick-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="">`
+          : `<img class="nl-pick-img" src="${ing.img}">`)
+        : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
       const isCustom = cat === 'custom';
       const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
       const delBtn = isCustom && customIdx >= 0
@@ -290,7 +299,9 @@ export function renderNLPicker() {
         ${delBtn}<span class="arrow">›</span></div>`;
     });
   });
-  document.getElementById('nlPickerList').innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
+  const pickerList = document.getElementById('nlPickerList');
+  pickerList.innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
+  _resolveCloudImages(pickerList);
 }
 
 export function nlPickIngredient(name) {
@@ -298,8 +309,14 @@ export function nlPickIngredient(name) {
   if (!ing) return;
   state.nlPickerIng = ing;
   state.nlPickerGrams = 100;
-  const imgHtml = ing.img ? `<img class="nl-amount-img" src="${ing.img}">` : `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div>`;
-  document.getElementById('nlAmountHeader').innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
+  const imgHtml = ing.img
+    ? (_isCloudMarker(ing.img)
+      ? `<img class="nl-amount-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="">`
+      : `<img class="nl-amount-img" src="${ing.img}">`)
+    : `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div>`;
+  const header = document.getElementById('nlAmountHeader');
+  header.innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
+  _resolveCloudImages(header);
   document.getElementById('nlGramDisplay').textContent = '100g';
   document.getElementById('nlAddToMealBtn').style.display = state.nlBrowseMode ? 'none' : '';
   // Show edit button only for custom ingredients
@@ -551,11 +568,15 @@ export function nlOpenCustomModal(editIdx) {
   document.getElementById('nlCustomPhotoInput').value = '';
 
   if (ing && ing.img) {
-    document.getElementById('nlCustomPhotoPreview').innerHTML = `
+    const preview = document.getElementById('nlCustomPhotoPreview');
+    const thumbSrc = _isCloudMarker(ing.img) ? '' : ing.img;
+    const cloudAttr = _isCloudMarker(ing.img) ? ` data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}"` : '';
+    preview.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;">
-        <img class="nl-custom-thumb" src="${ing.img.startsWith('cloud:') ? '' : ing.img}">
+        <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr}>
         <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
       </div>`;
+    _resolveCloudImages(preview);
   } else {
     document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
   }
