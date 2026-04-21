@@ -335,7 +335,10 @@ export function nlPickIngredient(name) {
   setTimeout(() => document.getElementById('nlAmountSheet').style.transform = 'translateY(0)', 10);
 }
 
-export function nlCloseAmount() { document.getElementById('nlAmountOverlay').classList.remove('open'); }
+export function nlCloseAmount() {
+  document.getElementById('nlAmountSheet').style.transform = '';
+  document.getElementById('nlAmountOverlay').classList.remove('open');
+}
 
 export function nlSetGrams(g) {
   state.nlPickerGrams = g;
