@@ -282,7 +282,7 @@ export function renderNLPicker() {
       const isCustom = cat === 'custom';
       const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
       const delBtn = isCustom && customIdx >= 0
-        ? `<button class="nl-custom-edit-btn" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">🗑</button>`
+        ? `<button class="plan-ex-remove" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">✕</button>`
         : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
@@ -561,9 +561,7 @@ export function nlOpenCustomModal(editIdx) {
   }
 
   document.getElementById('nlCustomModalTitle').textContent = isEdit ? 'Edit Ingredient' : 'Custom Ingredient';
-  document.getElementById('nlCustomSaveBtn').textContent = isEdit ? 'Update Ingredient' : 'Save Ingredient';
-  const delBtn = document.getElementById('nlCustomDeleteBtn');
-  if (delBtn) delBtn.style.display = isEdit ? '' : 'none';
+  document.getElementById('nlCustomSaveBtn').textContent = 'Save Ingredient';
 
   document.getElementById('nlCustomOverlay').classList.add('open');
   setTimeout(() => document.getElementById('nlCustomName').focus(), 300);
@@ -640,15 +638,6 @@ export async function nlSaveCustom() {
 
   if (!isEdit) customs.push(ingData);
   saveCustomIngs(customs); nlCloseCustom(); renderNLPicker();
-}
-
-export function nlDeleteCustom() {
-  if (state._editingCustomIdx === null) return;
-  const customs = getCustomIngs();
-  customs.splice(state._editingCustomIdx, 1);
-  saveCustomIngs(customs);
-  nlCloseCustom();
-  renderNLPicker();
 }
 
 export function nlDeleteCustomConfirm(idx) {
