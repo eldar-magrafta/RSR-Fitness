@@ -206,6 +206,7 @@ export function closeModal() {
   const modal = document.querySelector('#modalOverlay .modal');
   modal.style.transform = '';
   document.getElementById('modalOverlay').classList.remove('open');
+  state.currentExerciseName = null;
 }
 
 export function handleOverlayClick(e) {
