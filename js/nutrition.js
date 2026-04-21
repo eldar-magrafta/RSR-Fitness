@@ -363,7 +363,7 @@ export function nlConfirmAddIng() {
   if (!state.nlPickerIng || !state.nlCurrentMealId) return;
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
-  const ingData = { name: state.nlPickerIng.name, grams: state.nlPickerGrams, p: state.nlPickerIng.p, c: state.nlPickerIng.c, f: state.nlPickerIng.f, cal: state.nlPickerIng.cal };
+  const ingData = { name: state.nlPickerIng.name, grams: state.nlPickerGrams, p: state.nlPickerIng.p, c: state.nlPickerIng.c, f: state.nlPickerIng.f, cal: state.nlPickerIng.cal, cat: state.nlPickerIng.cat };
   if (state.nlPickerIng.img) ingData.img = state.nlPickerIng.img;
   meal.ingredients.push(ingData);
   nlInvalidateTotalsCache(meal);
