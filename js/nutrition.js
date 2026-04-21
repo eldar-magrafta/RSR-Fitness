@@ -279,10 +279,15 @@ export function renderNLPicker() {
     items.forEach(ing => {
       const safeName = escHtml(ing.name);
       const imgHtml = ing.img ? `<img class="nl-pick-img" src="${ing.img}">` : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
+      const isCustom = cat === 'custom';
+      const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
+      const editBtn = isCustom && customIdx >= 0
+        ? `<button class="nl-custom-edit-btn" onclick="event.stopPropagation();nlOpenCustomModal(${customIdx})" title="Edit">✎</button>`
+        : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
         <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
-        <span class="arrow">›</span></div>`;
+        ${editBtn}<span class="arrow">›</span></div>`;
     });
   });
   document.getElementById('nlPickerList').innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
@@ -391,6 +396,30 @@ export function confirmDeleteMeal() {
   renderMacroGoals();
 }
 
+export function nlOpenRenameModal() {
+  const meal = getNLMeals().find(m => m.id === state.nlCurrentMealId);
+  if (!meal) return;
+  document.getElementById('nlRenameInput').value = meal.name;
+  document.getElementById('nlRenameOverlay').classList.add('open');
+  setTimeout(() => { document.getElementById('nlRenameInput').focus(); document.getElementById('nlRenameInput').select(); }, 300);
+}
+
+export function nlCloseRename() {
+  document.getElementById('nlRenameOverlay').classList.remove('open');
+}
+
+export function nlSaveRename() {
+  const name = document.getElementById('nlRenameInput').value.trim().slice(0, 100);
+  if (!name) return;
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal) return;
+  meal.name = name;
+  saveNLMeals(meals);
+  nlCloseRename();
+  setHeader(name, true);
+  renderNLMeals();
+}
+
 export function nlToggleFav(id) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === id);
   if (!meal) return;
@@ -496,15 +525,42 @@ export function nlToggleFavFilter(btn) {
 
 // ── Custom Ingredients ──
 
-export function nlOpenCustomModal() {
-  ['nlCustomName', 'nlCustomP', 'nlCustomC', 'nlCustomF', 'nlCustomCal'].forEach(id => document.getElementById(id).value = '');
+export function nlOpenCustomModal(editIdx) {
+  state._editingCustomIdx = typeof editIdx === 'number' ? editIdx : null;
+  const isEdit = state._editingCustomIdx !== null;
+  const customs = isEdit ? getCustomIngs() : [];
+  const ing = isEdit ? customs[state._editingCustomIdx] : null;
+
+  document.getElementById('nlCustomName').value = ing ? ing.name : '';
+  document.getElementById('nlCustomP').value = ing ? ing.p : '';
+  document.getElementById('nlCustomC').value = ing ? ing.c : '';
+  document.getElementById('nlCustomF').value = ing ? ing.f : '';
+  document.getElementById('nlCustomCal').value = ing ? ing.cal : '';
   state.nlCustomPhotoBase64 = null;
   document.getElementById('nlCustomPhotoInput').value = '';
-  document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
+
+  if (ing && ing.img) {
+    document.getElementById('nlCustomPhotoPreview').innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img class="nl-custom-thumb" src="${ing.img.startsWith('cloud:') ? '' : ing.img}">
+        <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
+      </div>`;
+  } else {
+    document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
+  }
+
+  document.getElementById('nlCustomModalTitle').textContent = isEdit ? 'Edit Ingredient' : 'Custom Ingredient';
+  document.getElementById('nlCustomSaveBtn').textContent = isEdit ? 'Update Ingredient' : 'Save Ingredient';
+  const delBtn = document.getElementById('nlCustomDeleteBtn');
+  if (delBtn) delBtn.style.display = isEdit ? '' : 'none';
+
   document.getElementById('nlCustomOverlay').classList.add('open');
   setTimeout(() => document.getElementById('nlCustomName').focus(), 300);
 }
-export function nlCloseCustom() { document.getElementById('nlCustomOverlay').classList.remove('open'); }
+export function nlCloseCustom() {
+  document.getElementById('nlCustomOverlay').classList.remove('open');
+  state._editingCustomIdx = null;
+}
 
 export function nlCustomPhotoSelected(input) {
   if (!input.files || !input.files[0]) return;
@@ -536,7 +592,31 @@ export async function nlSaveCustom() {
   let cal = parseFloat(document.getElementById('nlCustomCal').value) || 0;
   if (!name) return;
   if (cal === 0) cal = Math.round(p * 4 + c * 4 + f * 9);
-  const ingData = { name, cat: 'custom', p, c, f, cal };
+
+  const customs = getCustomIngs();
+  const isEdit = state._editingCustomIdx !== null && state._editingCustomIdx < customs.length;
+  const ingData = isEdit ? customs[state._editingCustomIdx] : { name, cat: 'custom', p, c, f, cal };
+
+  if (isEdit) {
+    const oldName = ingData.name;
+    ingData.name = name;
+    ingData.p = p;
+    ingData.c = c;
+    ingData.f = f;
+    ingData.cal = cal;
+    // Update name in all meals that use this ingredient
+    if (oldName !== name) {
+      const meals = getNLMeals();
+      let mealsChanged = false;
+      meals.forEach(m => {
+        (m.ingredients || []).forEach(i => {
+          if (i.name === oldName && i.cat === 'custom') { i.name = name; mealsChanged = true; }
+        });
+      });
+      if (mealsChanged) saveNLMeals(meals);
+    }
+  }
+
   if (state.nlCustomPhotoBase64) {
     const docId = 'cing_' + Date.now();
     try {
@@ -546,8 +626,18 @@ export async function nlSaveCustom() {
       ingData.img = state.nlCustomPhotoBase64;
     }
   }
-  const customs = getCustomIngs(); customs.push(ingData);
+
+  if (!isEdit) customs.push(ingData);
   saveCustomIngs(customs); nlCloseCustom(); renderNLPicker();
+}
+
+export function nlDeleteCustom() {
+  if (state._editingCustomIdx === null) return;
+  const customs = getCustomIngs();
+  customs.splice(state._editingCustomIdx, 1);
+  saveCustomIngs(customs);
+  nlCloseCustom();
+  renderNLPicker();
 }
 
 // ── Macro Goals ──

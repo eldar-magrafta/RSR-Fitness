@@ -49,4 +49,7 @@ export const state = {
 
   // Delete meal confirmation
   _pendingDeleteMealId: null,
+
+  // Custom ingredient editing
+  _editingCustomIdx: null,
 };

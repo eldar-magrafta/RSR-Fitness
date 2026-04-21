@@ -219,6 +219,7 @@
         <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
         <div id="nlNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;"></div>
         <div class="nl-meal-actions">
+            <button class="nl-action-btn" id="nlRenameBtn" onclick="nlOpenRenameModal()">Rename</button>
             <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
             <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">
                 📷&nbsp;Add Photo
@@ -449,7 +450,7 @@
         <div class="modal">
             <div class="modal-handle"></div>
             <div class="modal-header">
-                <div class="modal-title">Custom Ingredient</div>
+                <div class="modal-title" id="nlCustomModalTitle">Custom Ingredient</div>
                 <button class="modal-close" onclick="nlCloseCustom()">✕</button>
             </div>
             <input class="plan-name-input" id="nlCustomName" type="text" placeholder="Ingredient name" maxlength="40"/>
@@ -482,7 +483,21 @@
                     <input type="number" id="nlCustomCal" placeholder="0" inputmode="numeric"/>
                 </div>
             </div>
-            <button class="create-btn" onclick="nlSaveCustom()">Save Ingredient</button>
+            <button class="create-btn" id="nlCustomSaveBtn" onclick="nlSaveCustom()">Save Ingredient</button>
+            <button class="confirm-btn-del" id="nlCustomDeleteBtn" style="display:none;margin-top:10px;width:100%;border-radius:12px;" onclick="nlDeleteCustom()">Delete Ingredient</button>
+        </div>
+    </div>
+
+    <!-- Rename Meal Modal -->
+    <div class="modal-overlay" id="nlRenameOverlay" onclick="if(event.target===this)nlCloseRename()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Rename Meal</div>
+                <button class="modal-close" onclick="nlCloseRename()">✕</button>
+            </div>
+            <input class="plan-name-input" id="nlRenameInput" type="text" placeholder="Meal name" maxlength="100"/>
+            <button class="create-btn" onclick="nlSaveRename()">Save</button>
         </div>
     </div>
 
