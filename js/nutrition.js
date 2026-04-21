@@ -563,7 +563,7 @@ export function nlOpenCustomModal(editIdx) {
   document.getElementById('nlCustomP').value = ing ? ing.p : '';
   document.getElementById('nlCustomC').value = ing ? ing.c : '';
   document.getElementById('nlCustomF').value = ing ? ing.f : '';
-  document.getElementById('nlCustomCal').value = ing ? ing.cal : '';
+  nlUpdateCustomCal();
   state.nlCustomPhotoBase64 = null;
   document.getElementById('nlCustomPhotoInput').value = '';
 
@@ -621,14 +621,20 @@ export function nlViewCustomPhoto(imgEl) {
   document.getElementById('bwViewer').classList.add('open');
 }
 
+export function nlUpdateCustomCal() {
+  const p = parseFloat(document.getElementById('nlCustomP').value) || 0;
+  const c = parseFloat(document.getElementById('nlCustomC').value) || 0;
+  const f = parseFloat(document.getElementById('nlCustomF').value) || 0;
+  document.getElementById('nlCustomCal').value = Math.round(p * 4 + c * 4 + f * 9);
+}
+
 export async function nlSaveCustom() {
   const name = document.getElementById('nlCustomName').value.trim();
   const p = parseFloat(document.getElementById('nlCustomP').value) || 0;
   const c = parseFloat(document.getElementById('nlCustomC').value) || 0;
   const f = parseFloat(document.getElementById('nlCustomF').value) || 0;
-  let cal = parseFloat(document.getElementById('nlCustomCal').value) || 0;
+  const cal = Math.round(p * 4 + c * 4 + f * 9);
   if (!name) return;
-  if (cal === 0) cal = Math.round(p * 4 + c * 4 + f * 9);
 
   const customs = getCustomIngs();
   const isEdit = state._editingCustomIdx !== null && state._editingCustomIdx < customs.length;
