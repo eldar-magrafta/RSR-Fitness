@@ -3,7 +3,7 @@
 // IndexedDB caches photos locally for offline use and reduced Firestore reads.
 
 import { savePhotoDoc, deletePhotoDoc, loadPhotoDoc, loadAllPhotoDocs } from './cloud.js';
-import { getBWData, saveBWData, bwGetPhoto, bwGetWeight } from './store.js';
+import { getBWData, saveBWData, bwGetPhoto, bwGetWeight, getNLMeals, saveNLMeals } from './store.js';
 
 // ── Helpers ──
 
@@ -106,4 +106,42 @@ export async function preloadPhotoCache() {
       await cachePhoto(`bw-photos/${docId}`, base64);
     }
   } catch { /* offline — use whatever is already in cache */ }
+  try {
+    const mealPhotos = await loadAllPhotoDocs('meal-photos');
+    for (const [docId, base64] of Object.entries(mealPhotos)) {
+      await cachePhoto(`meal-photos/${docId}`, base64);
+    }
+  } catch { /* offline */ }
+  try {
+    const ingPhotos = await loadAllPhotoDocs('custom-ing-photos');
+    for (const [docId, base64] of Object.entries(ingPhotos)) {
+      await cachePhoto(`custom-ing-photos/${docId}`, base64);
+    }
+  } catch { /* offline */ }
+}
+
+// ── Migration: extract inline base64 meal/ingredient photos to separate Firestore docs ──
+
+export async function migrateMealPhotosToStorage(uid) {
+  if (!uid) return;
+
+  let migrated = {};
+  try { migrated = JSON.parse(localStorage.getItem('trainer_meal_photos_migrated') || '{}'); } catch { migrated = {}; }
+
+  let changed = false;
+  const meals = getNLMeals();
+
+  for (const meal of meals) {
+    if (meal.image && meal.image.startsWith('data:') && !migrated['meal:' + meal.id]) {
+      try {
+        await savePhoto('meal-photos', meal.id, meal.image);
+        meal.image = 'cloud:' + meal.id;
+        migrated['meal:' + meal.id] = true;
+        changed = true;
+      } catch { /* leave as-is, retry next login */ }
+    }
+  }
+
+  if (changed) saveNLMeals(meals);
+  localStorage.setItem('trainer_meal_photos_migrated', JSON.stringify(migrated));
 }

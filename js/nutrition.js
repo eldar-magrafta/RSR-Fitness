@@ -6,8 +6,33 @@ import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { calcMealTotals, MONTHS, escHtml } from './utils.js';
+import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
+
+function _isCloudMarker(img) { return typeof img === 'string' && img.startsWith('cloud:'); }
+function _cloudDocId(img) { return img.slice(6); }
+
+function _mealCardImg(m) {
+  if (m.image && _isCloudMarker(m.image)) {
+    return `<img class="nl-meal-card-img" data-cloud-src="meal-photos/${_cloudDocId(m.image)}" src="" alt="">`;
+  } else if (m.image) {
+    return `<img class="nl-meal-card-img" src="${m.image}" alt="">`;
+  }
+  return `<div class="nl-meal-card-placeholder"></div>`;
+}
+
+function _resolveCloudImages(container) {
+  container.querySelectorAll('[data-cloud-src]').forEach(el => {
+    const key = el.dataset.cloudSrc;
+    const sep = key.indexOf('/');
+    const col = key.slice(0, sep);
+    const docId = key.slice(sep + 1);
+    loadPhoto(col, docId).then(base64 => {
+      if (base64) el.src = base64;
+    });
+  });
+}
 
 function nlCalcTotals(meal) {
   // Use cached totals if available, otherwise calculate and cache
@@ -31,7 +56,7 @@ function nlRenderPie(p, c, f) {
   let circles = '';
   segs.forEach(s => { if (s.pct > 0) { circles += `<circle cx="70" cy="70" r="${r}" fill="none" stroke="${s.col}" stroke-width="22" stroke-dasharray="${s.pct * circ} ${circ}" stroke-dashoffset="${-offset * circ}"/>`; offset += s.pct; } });
   return `<svg class="nl-pie-svg" viewBox="0 0 140 140" width="130" height="130">${circles}</svg>
-    <div class="nl-chart-legend">${segs.map(s => `<div><span style="color:${s.col};font-size:1.1rem;">\u25cf</span> ${s.lbl} <b>${Math.round(s.pct * 100)}%</b></div>`).join('')}</div>`;
+    <div class="nl-chart-legend">${segs.map(s => `<div><span style="color:${s.col};font-size:1.1rem;">●</span> ${s.lbl} <b>${Math.round(s.pct * 100)}%</b></div>`).join('')}</div>`;
 }
 
 // ── View Mode Toggle ──
@@ -92,24 +117,23 @@ export function renderNLMeals() {
     } else {
       emptyMsg = state.nlFavOnly ? 'No favorite meals yet.<br>Star a meal to see it here.' : 'No saved meals yet.<br>Tap + to create a reusable meal.';
     }
-    list.innerHTML = `<div class="nl-empty"><div class="nl-empty-icon">${state.nlViewMode === 'today' ? '\ud83c\udf7d\ufe0f' : '\ud83d\udcd6'}</div><div class="nl-empty-text">${emptyMsg}</div></div>`;
+    list.innerHTML = `<div class="nl-empty"><div class="nl-empty-icon">${state.nlViewMode === 'today' ? '🍽️' : '📖'}</div><div class="nl-empty-text">${emptyMsg}</div></div>`;
     return;
   }
   list.innerHTML = meals.map(m => {
     const t = nlCalcTotals(m);
-    const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '\u2605' : '\u2606'}</button>` : '';
-    const cardImg = m.image
-      ? `<img class="nl-meal-card-img" src="${m.image}" alt="">`
-      : `<div class="nl-meal-card-placeholder"></div>`;
+    const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '★' : '☆'}</button>` : '';
+    const cardImg = _mealCardImg(m);
     return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
       ${cardImg}<div class="nl-meal-card-body">
       <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span>${favBtn}</div>
-        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">\u2715</button>
+        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">✕</button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
-      <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
+      <div class="nl-meal-cals">🔥 ${t.cal} cal</div>
       </div></div>`;
   }).join('');
+  _resolveCloudImages(list);
 }
 
 export function nlShowMeal(id) {
@@ -133,12 +157,20 @@ function renderNLMealDetail() {
   if (photoSection) {
     if (meal.type === 'saved' && meal.image) {
       const removeBtn = !isDefaultMeal
-        ? `<button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">\u2715\u00a0Remove</button>`
+        ? `<button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">✕ Remove</button>`
         : '';
-      photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
-        <img class="nl-detail-photo-img" src="${meal.image}" alt="" onclick="nlOpenMealPhotoViewer()">
-        ${removeBtn}
-      </div>`;
+      if (_isCloudMarker(meal.image)) {
+        photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
+          <img class="nl-detail-photo-img" data-cloud-src="meal-photos/${_cloudDocId(meal.image)}" src="" alt="" onclick="nlOpenMealPhotoViewer()">
+          ${removeBtn}
+        </div>`;
+        _resolveCloudImages(photoSection);
+      } else {
+        photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
+          <img class="nl-detail-photo-img" src="${meal.image}" alt="" onclick="nlOpenMealPhotoViewer()">
+          ${removeBtn}
+        </div>`;
+      }
     } else {
       photoSection.innerHTML = '';
     }
@@ -148,7 +180,7 @@ function renderNLMealDetail() {
   if (photoBtn) {
     if (meal.type === 'saved' && !isDefaultMeal) {
       photoBtn.style.display = '';
-      photoBtn.textContent = meal.image ? '\ud83d\uddbc\ufe0f\u00a0Change Photo' : '\ud83d\udcf7\u00a0Add Photo';
+      photoBtn.textContent = meal.image ? '🖼️ Change Photo' : '📷 Add Photo';
     } else {
       photoBtn.style.display = 'none';
     }
@@ -168,9 +200,9 @@ function renderNLMealDetail() {
       const m = ing.grams / 100;
       const imgHtml = ing.img ? `<img class="nl-ing-img" src="${ing.img}">` : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
       return `<div class="nl-ing-card">
-        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">\u2715</button></div>
+        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">✕</button></div>
         <div class="nl-ing-controls">
-          <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">\u2212</button>
+          <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">−</button>
           <div class="nl-ing-grams">${ing.grams}g</div>
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},10)">+</button>
         </div>
@@ -178,7 +210,7 @@ function renderNLMealDetail() {
           <div>P: <span>${(ing.p * m).toFixed(1)}g</span></div>
           <div>C: <span>${(ing.c * m).toFixed(1)}g</span></div>
           <div>F: <span>${(ing.f * m).toFixed(1)}g</span></div>
-          <div>\ud83d\udd25 <span>${Math.round(ing.cal * m)}</span></div>
+          <div>🔥 <span>${Math.round(ing.cal * m)}</span></div>
         </div></div>`;
     }).join('');
   }
@@ -204,7 +236,7 @@ export function nlRemoveIng(idx) {
 export function nlAutoSaveNotes() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
-  meal.notes = document.getElementById('nlNotes').value;
+  meal.notes = document.getElementById('nlNotes').value.slice(0, 500);
   saveNLMeals(meals);
 }
 
@@ -246,7 +278,7 @@ export function renderNLPicker() {
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
         <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
-        <span class="arrow">\u203a</span></div>`;
+        <span class="arrow">›</span></div>`;
     });
   });
   document.getElementById('nlPickerList').innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
@@ -344,6 +376,10 @@ export function closeDeleteMealConfirm() {
 
 export function confirmDeleteMeal() {
   if (!state._pendingDeleteMealId) return;
+  const meal = getNLMeals().find(m => m.id === state._pendingDeleteMealId);
+  if (meal && meal.image && _isCloudMarker(meal.image)) {
+    deletePhoto('meal-photos', _cloudDocId(meal.image));
+  }
   saveNLMeals(getNLMeals().filter(m => m.id !== state._pendingDeleteMealId));
   closeDeleteMealConfirm();
   renderNLCalendar();
@@ -361,6 +397,7 @@ export function nlDuplicateMeal() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
   const dup = { id: 'meal_' + Date.now(), name: meal.name + ' (copy)', type: meal.type || 'logged', ingredients: meal.ingredients.map(i => ({ ...i })), notes: meal.notes, favorite: false, createdAt: new Date().toISOString().slice(0, 10) };
+  if (meal.image) dup.image = meal.image;
   meals.push(dup); saveNLMeals(meals); nlShowMeal(dup.id);
 }
 
@@ -369,7 +406,7 @@ export function nlCopySummary() {
   if (!meal) return;
   const t = nlCalcTotals(meal);
   let text = meal.name + '\n\n';
-  (meal.ingredients || []).forEach(i => { const m = i.grams / 100; text += `\u2022 ${i.name} \u2014 ${i.grams}g (P:${(i.p * m).toFixed(1)}g C:${(i.c * m).toFixed(1)}g F:${(i.f * m).toFixed(1)}g ${Math.round(i.cal * m)}cal)\n`; });
+  (meal.ingredients || []).forEach(i => { const m = i.grams / 100; text += `• ${i.name} — ${i.grams}g (P:${(i.p * m).toFixed(1)}g C:${(i.c * m).toFixed(1)}g F:${(i.f * m).toFixed(1)}g ${Math.round(i.cal * m)}cal)\n`; });
   text += `\nTotals: ${t.cal} cal | P:${t.p}g | C:${t.c}g | F:${t.f}g`;
   if (meal.notes) text += '\n\nNotes: ' + meal.notes;
   navigator.clipboard.writeText(text).then(() => {
@@ -378,12 +415,12 @@ export function nlCopySummary() {
   }).catch(() => { });
 }
 
-export function nlUploadMealPhoto(input) {
+export async function nlUploadMealPhoto(input) {
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
-    img.onload = () => {
+    img.onload = async () => {
       const MAX = 600; let w = img.width, h = img.height;
       if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
       else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
@@ -392,7 +429,13 @@ export function nlUploadMealPhoto(input) {
       const b64 = canvas.toDataURL('image/jpeg', 0.75);
       const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
       if (!meal) return;
-      meal.image = b64;
+      const docId = meal.id;
+      try {
+        await savePhoto('meal-photos', docId, b64);
+        meal.image = 'cloud:' + docId;
+      } catch {
+        meal.image = b64;
+      }
       saveNLMeals(meals);
       renderNLMealDetail();
       renderNLMeals();
@@ -406,6 +449,9 @@ export function nlUploadMealPhoto(input) {
 export function nlRemoveMealPhoto() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
+  if (meal.image && _isCloudMarker(meal.image)) {
+    deletePhoto('meal-photos', _cloudDocId(meal.image));
+  }
   delete meal.image;
   saveNLMeals(meals);
   renderNLMealDetail();
@@ -415,8 +461,17 @@ export function nlRemoveMealPhoto() {
 export function nlOpenMealPhotoViewer() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal?.image) return;
-  document.getElementById('nlMealPhotoViewerImg').src = meal.image;
-  document.getElementById('nlMealPhotoViewer').classList.add('open');
+  if (_isCloudMarker(meal.image)) {
+    loadPhoto('meal-photos', _cloudDocId(meal.image)).then(base64 => {
+      if (base64) {
+        document.getElementById('nlMealPhotoViewerImg').src = base64;
+        document.getElementById('nlMealPhotoViewer').classList.add('open');
+      }
+    });
+  } else {
+    document.getElementById('nlMealPhotoViewerImg').src = meal.image;
+    document.getElementById('nlMealPhotoViewer').classList.add('open');
+  }
 }
 
 export function nlCloseMealPhotoViewer() {
@@ -441,7 +496,7 @@ export function nlOpenCustomModal() {
   ['nlCustomName', 'nlCustomP', 'nlCustomC', 'nlCustomF', 'nlCustomCal'].forEach(id => document.getElementById(id).value = '');
   state.nlCustomPhotoBase64 = null;
   document.getElementById('nlCustomPhotoInput').value = '';
-  document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">\ud83d\udcf7 Add Photo (optional)</button>';
+  document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
   document.getElementById('nlCustomOverlay').classList.add('open');
   setTimeout(() => document.getElementById('nlCustomName').focus(), 300);
 }
@@ -469,7 +524,7 @@ export function nlCustomPhotoSelected(input) {
   reader.readAsDataURL(input.files[0]);
 }
 
-export function nlSaveCustom() {
+export async function nlSaveCustom() {
   const name = document.getElementById('nlCustomName').value.trim();
   const p = parseFloat(document.getElementById('nlCustomP').value) || 0;
   const c = parseFloat(document.getElementById('nlCustomC').value) || 0;
@@ -478,7 +533,15 @@ export function nlSaveCustom() {
   if (!name) return;
   if (cal === 0) cal = Math.round(p * 4 + c * 4 + f * 9);
   const ingData = { name, cat: 'custom', p, c, f, cal };
-  if (state.nlCustomPhotoBase64) ingData.img = state.nlCustomPhotoBase64;
+  if (state.nlCustomPhotoBase64) {
+    const docId = 'cing_' + Date.now();
+    try {
+      await savePhoto('custom-ing-photos', docId, state.nlCustomPhotoBase64);
+      ingData.img = 'cloud:' + docId;
+    } catch {
+      ingData.img = state.nlCustomPhotoBase64;
+    }
+  }
   const customs = getCustomIngs(); customs.push(ingData);
   saveCustomIngs(customs); nlCloseCustom(); renderNLPicker();
 }
@@ -723,16 +786,15 @@ export function openSavedMealPicker() {
   } else {
     list.innerHTML = meals.map(m => {
       const t = nlCalcTotals(m);
-      const cardImg = m.image
-        ? `<img class="nl-meal-card-img" src="${m.image}" alt="">`
-        : `<div class="nl-meal-card-placeholder"></div>`;
+      const cardImg = _mealCardImg(m);
       return `<div class="nl-meal-card nl-meal-has-img" onclick="pickSavedMeal('${m.id}')">
         ${cardImg}<div class="nl-meal-card-body">
         <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span></div></div>
         <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
-        <div class="nl-meal-cals">\ud83d\udd25 ${t.cal} cal</div>
+        <div class="nl-meal-cals">🔥 ${t.cal} cal</div>
         </div></div>`;
     }).join('');
+    _resolveCloudImages(list);
   }
   document.getElementById('nlSavedPickerOverlay').classList.add('open');
   setTimeout(() => document.getElementById('nlSavedPickerSheet').style.transform = 'translateY(0)', 10);

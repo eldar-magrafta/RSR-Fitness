@@ -4,7 +4,7 @@
 import { state } from './state.js';
 import { migrateOldExLogs, getNLMeals, migrateMacroGoalsToMap } from './store.js';
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser } from './cloud.js';
-import { migratePhotosToStorage, preloadPhotoCache } from './storage.js';
+import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler } from './exercises.js';
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, donePlanDetail, setPlanEditMode, openDeletePlanConfirm, closeDeletePlanConfirm, confirmDeletePlan, showPlanDetail, openRemoveExConfirm, closeRemoveExConfirm, confirmRemoveEx, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
@@ -337,6 +337,7 @@ onAuthChange(async (user) => {
     startApp();
     // Background: migrate base64 photos to separate Firestore docs, then cache locally
     migratePhotosToStorage(user.uid)
+      .then(() => migrateMealPhotosToStorage(user.uid))
       .then(() => preloadPhotoCache())
       .catch(() => {});
   } else {
