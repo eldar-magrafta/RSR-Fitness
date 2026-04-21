@@ -141,12 +141,12 @@ function renderExHistCal() {
 }
 
 export function exHistPrevMonth() {
-  if (state.exHistCalYear === 2026 && state.exHistCalMon === 0) return;
+  if (state.exHistCalYear <= 2020 && state.exHistCalMon === 0) return;
   if (state.exHistCalMon === 0) { state.exHistCalMon = 11; state.exHistCalYear--; } else state.exHistCalMon--;
   renderExHistCal();
 }
 export function exHistNextMonth() {
-  if (state.exHistCalYear === 2035 && state.exHistCalMon === 11) return;
+  if (state.exHistCalYear >= new Date().getFullYear() + 1 && state.exHistCalMon === 11) return;
   if (state.exHistCalMon === 11) { state.exHistCalMon = 0; state.exHistCalYear++; } else state.exHistCalMon++;
   renderExHistCal();
 }
