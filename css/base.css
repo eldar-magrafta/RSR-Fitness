@@ -151,7 +151,7 @@ body {
   background: var(--accent); border: none; border-radius: 50%;
   color: white; font-size: 2rem; line-height: 1; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(233,69,96,0.45); z-index: 15;
+  box-shadow: 0 4px 20px rgba(233,69,96,0.45); z-index: 25;
   transition: transform 0.15s;
 }
 .fab:active { transform: scale(0.9); }
