@@ -281,13 +281,13 @@ export function renderNLPicker() {
       const imgHtml = ing.img ? `<img class="nl-pick-img" src="${ing.img}">` : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
       const isCustom = cat === 'custom';
       const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
-      const editBtn = isCustom && customIdx >= 0
-        ? `<button class="nl-custom-edit-btn" onclick="event.stopPropagation();nlOpenCustomModal(${customIdx})" title="Edit">✎</button>`
+      const delBtn = isCustom && customIdx >= 0
+        ? `<button class="nl-custom-edit-btn" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">🗑</button>`
         : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
         <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
-        ${editBtn}<span class="arrow">›</span></div>`;
+        ${delBtn}<span class="arrow">›</span></div>`;
     });
   });
   document.getElementById('nlPickerList').innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
@@ -302,6 +302,17 @@ export function nlPickIngredient(name) {
   document.getElementById('nlAmountHeader').innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
   document.getElementById('nlGramDisplay').textContent = '100g';
   document.getElementById('nlAddToMealBtn').style.display = state.nlBrowseMode ? 'none' : '';
+  // Show edit button only for custom ingredients
+  const editBtn = document.getElementById('nlAmountEditBtn');
+  if (editBtn) {
+    const customIdx = ing.cat === 'custom' ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
+    if (customIdx >= 0) {
+      editBtn.style.display = '';
+      editBtn.onclick = () => { nlCloseAmount(); nlOpenCustomModal(customIdx); };
+    } else {
+      editBtn.style.display = 'none';
+    }
+  }
   nlUpdateAmountPreview();
   document.getElementById('nlAmountOverlay').classList.add('open');
   setTimeout(() => document.getElementById('nlAmountSheet').style.transform = 'translateY(0)', 10);
@@ -637,6 +648,29 @@ export function nlDeleteCustom() {
   customs.splice(state._editingCustomIdx, 1);
   saveCustomIngs(customs);
   nlCloseCustom();
+  renderNLPicker();
+}
+
+export function nlDeleteCustomConfirm(idx) {
+  const customs = getCustomIngs();
+  if (idx < 0 || idx >= customs.length) return;
+  state._pendingDeleteCustomIdx = idx;
+  document.getElementById('deleteCustomConfirmMsg').textContent =
+    `Delete "${customs[idx].name}"? This cannot be undone.`;
+  document.getElementById('deleteCustomConfirmOverlay').classList.add('open');
+}
+
+export function closeDeleteCustomConfirm() {
+  document.getElementById('deleteCustomConfirmOverlay').classList.remove('open');
+  state._pendingDeleteCustomIdx = null;
+}
+
+export function confirmDeleteCustom() {
+  if (state._pendingDeleteCustomIdx === null) return;
+  const customs = getCustomIngs();
+  customs.splice(state._pendingDeleteCustomIdx, 1);
+  saveCustomIngs(customs);
+  closeDeleteCustomConfirm();
   renderNLPicker();
 }
 

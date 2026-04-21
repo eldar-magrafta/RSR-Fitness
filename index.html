@@ -416,7 +416,10 @@
     <div class="bw-overlay" id="nlAmountOverlay" onclick="if(event.target===this)nlCloseAmount()">
         <div class="bw-sheet" id="nlAmountSheet">
             <div class="bw-sheet-handle"></div>
-            <div class="nl-amount-header" id="nlAmountHeader"></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div class="nl-amount-header" id="nlAmountHeader" style="flex:1;"></div>
+                <button class="nl-custom-edit-btn" id="nlAmountEditBtn" style="display:none;" title="Edit ingredient">✎</button>
+            </div>
             <div class="nl-quick-row">
                 <button class="nl-quick-btn" onclick="nlSetGrams(50)">50g</button>
                 <button class="nl-quick-btn" onclick="nlSetGrams(100)">100g</button>
@@ -498,6 +501,16 @@
             </div>
             <input class="plan-name-input" id="nlRenameInput" type="text" placeholder="Meal name" maxlength="100"/>
             <button class="create-btn" onclick="nlSaveRename()">Save</button>
+        </div>
+    </div>
+
+    <!-- Delete Custom Ingredient Confirmation -->
+    <div class="confirm-overlay" id="deleteCustomConfirmOverlay" onclick="if(event.target===this)closeDeleteCustomConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete Ingredient?</div>
+            <div class="confirm-msg" id="deleteCustomConfirmMsg"></div>
+            <button class="confirm-btn-del" onclick="confirmDeleteCustom()">Delete</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteCustomConfirm()">Cancel</button>
         </div>
     </div>
 

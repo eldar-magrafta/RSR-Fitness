@@ -52,4 +52,5 @@ export const state = {
 
   // Custom ingredient editing
   _editingCustomIdx: null,
+  _pendingDeleteCustomIdx: null,
 };
