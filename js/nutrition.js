@@ -593,6 +593,7 @@ export function nlOpenCustomModal(editIdx) {
 export function nlCloseCustom() {
   document.getElementById('nlCustomOverlay').classList.remove('open');
   state._editingCustomIdx = null;
+  state.nlCustomPhotoBase64 = null;
 }
 
 export function nlCustomPhotoSelected(input) {
