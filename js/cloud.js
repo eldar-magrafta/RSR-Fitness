@@ -10,7 +10,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 import { FIREBASE_CONFIG } from './firebase-config.js';
-import { setCloudSaver } from './store.js';
+import { setCloudSaver, invalidateGoalDatesCache } from './store.js';
 
 const SECTION_MAP = {
   plans:         'trainer_plans',
@@ -93,6 +93,7 @@ export async function loadFromCloud(uid) {
       localStorage.setItem('trainer_notes_' + decodeURIComponent(d.id), d.data().value);
     });
   } catch (e) { console.warn('[cloud] failed to load notes', e.code); }
+  invalidateGoalDatesCache();
 }
 
 let _cloudError = false;

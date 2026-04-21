@@ -208,6 +208,8 @@ export const DEFAULT_MACRO_GOALS = { calories: 2700, protein: 270, carbs: 203, f
 // Cache sorted dates to avoid re-sorting on every getGoalsForDate() call
 let _cachedGoalDates = null;
 
+export function invalidateGoalDatesCache() { _cachedGoalDates = null; }
+
 export function getMacroGoalsMap() {
   try { return JSON.parse(localStorage.getItem('trainer_macro_goals_map')) || {}; } catch { return {}; }
 }
