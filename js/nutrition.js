@@ -573,7 +573,7 @@ export function nlOpenCustomModal(editIdx) {
     const cloudAttr = _isCloudMarker(ing.img) ? ` data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}"` : '';
     preview.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;">
-        <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr}>
+        <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr} onclick="nlViewCustomPhoto(this)">
         <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
       </div>`;
     _resolveCloudImages(preview);
@@ -605,13 +605,20 @@ export function nlCustomPhotoSelected(input) {
       state.nlCustomPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
       document.getElementById('nlCustomPhotoPreview').innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
-          <img class="nl-custom-thumb" src="${state.nlCustomPhotoBase64}">
+          <img class="nl-custom-thumb" src="${state.nlCustomPhotoBase64}" onclick="nlViewCustomPhoto(this)">
           <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
         </div>`;
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+export function nlViewCustomPhoto(imgEl) {
+  const src = imgEl.src;
+  if (!src) return;
+  document.getElementById('bwViewerImg').src = src;
+  document.getElementById('bwViewer').classList.add('open');
 }
 
 export async function nlSaveCustom() {
