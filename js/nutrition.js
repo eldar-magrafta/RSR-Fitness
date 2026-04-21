@@ -619,9 +619,18 @@ export function nlCustomPhotoSelected(input) {
 
 export function nlViewCustomPhoto(imgEl) {
   const src = imgEl.src;
-  if (!src) return;
-  document.getElementById('bwViewerImg').src = src;
-  document.getElementById('bwViewer').classList.add('open');
+  const cloudKey = imgEl.dataset.cloudSrc;
+  if (src) {
+    document.getElementById('bwViewerImg').src = src;
+    document.getElementById('bwViewer').classList.add('open');
+  } else if (cloudKey) {
+    const sep = cloudKey.indexOf('/');
+    loadPhoto(cloudKey.slice(0, sep), cloudKey.slice(sep + 1)).then(base64 => {
+      if (!base64) return;
+      document.getElementById('bwViewerImg').src = base64;
+      document.getElementById('bwViewer').classList.add('open');
+    });
+  }
 }
 
 export function nlUpdateCustomCal() {
