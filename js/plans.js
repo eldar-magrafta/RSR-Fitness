@@ -70,16 +70,6 @@ export function createPlan() {
   showPlanDetail(newPlan.id);
 }
 
-/** "Done" button in plan detail — navigate back to plans list */
-export function donePlanDetail() {
-  state._planEditing = false;
-  state.currentPlanId = null;
-  showView('plansView');
-  setHeader('My Plans', false);
-  document.getElementById('fab').classList.remove('hidden');
-  state.navContext = 'plans';
-  renderPlans();
-}
 
 /** Toggle between view mode and edit mode in plan detail */
 export function setPlanEditMode(editing) {
