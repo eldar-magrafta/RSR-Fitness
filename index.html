@@ -217,6 +217,7 @@
         <button class="nl-add-ing-btn" onclick="nlShowPicker()">＋ Add Ingredient</button>
         <div class="section-label" style="margin-top:18px;">Notes to Self</div>
         <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
+        <div id="nlNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;"></div>
         <div class="nl-meal-actions">
             <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
             <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">

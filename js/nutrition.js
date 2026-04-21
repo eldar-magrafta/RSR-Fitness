@@ -215,6 +215,8 @@ function renderNLMealDetail() {
     }).join('');
   }
   document.getElementById('nlNotes').value = meal.notes || '';
+  const counter = document.getElementById('nlNotesCount');
+  if (counter) counter.textContent = meal.notes ? `${meal.notes.length} / 500` : '';
 }
 
 export function nlAdjustIng(idx, delta) {
@@ -238,6 +240,8 @@ export function nlAutoSaveNotes() {
   if (!meal) return;
   meal.notes = document.getElementById('nlNotes').value.slice(0, 500);
   saveNLMeals(meals);
+  const counter = document.getElementById('nlNotesCount');
+  if (counter) counter.textContent = `${meal.notes.length} / 500`;
 }
 
 export function nlBrowseFoods() {
