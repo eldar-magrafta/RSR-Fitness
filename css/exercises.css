@@ -83,7 +83,7 @@
   left: 50%; transform: translateX(-50%);
   background: linear-gradient(135deg, #ffd700, #ffaa00);
   color: #1a1a2e; font-weight: 700; font-size: 0.95rem;
-  padding: 12px 24px; border-radius: 14px; z-index: 200;
+  padding: 12px 24px; border-radius: 14px; z-index: 350;
   box-shadow: 0 4px 20px rgba(255,215,0,0.4);
   animation: prToastIn 0.3s ease, prToastOut 0.3s ease 2.2s forwards;
   white-space: nowrap;
