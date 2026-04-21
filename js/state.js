@@ -39,6 +39,11 @@ export const state = {
   // Summary
   summaryRange: 'week',
 
+  // Plans editing
+  _planEditing: false,
+  _planJustCreated: false,
+  _pendingDeletePlanId: null,
+
   // Drag state (plans)
   _drag: null,
   _dragOrigItems: null,
