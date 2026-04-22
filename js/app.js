@@ -13,6 +13,7 @@ import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlPickIngredie
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, deleteExHistEntry, initExHistSheetSwipe, openDeleteAllExHist, closeDeleteAllExHist, confirmDeleteAllExHist } from './history.js';
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
+import { exportData } from './export.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -248,6 +249,7 @@ window.pickSavedMeal = pickSavedMeal;
 
 // Summary
 window.openSummary = openSummary;
+window.exportData = exportData;
 window.setSummaryRange = setSummaryRange;
 
 // Exercise History

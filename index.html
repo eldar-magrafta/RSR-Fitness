@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/nutrition.css"/>
     <link rel="stylesheet" href="css/summary.css"/>
     <link rel="stylesheet" href="css/auth.css"/>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js"></script>
 </head>
 <body>
 <div id="appRoot" style="display:none;">
@@ -48,6 +49,10 @@
         <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
             <span class="burger-item-icon">📊</span>
             <span class="burger-item-label">Activity Summary</span>
+        </div>
+        <div class="burger-item" onclick="closeBurgerMenu();exportData()">
+            <span class="burger-item-icon">📥</span>
+            <span class="burger-item-label">Export Data</span>
         </div>
         <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;"></div>
         <div style="padding:8px 20px 4px;font-size:0.75rem;color:var(--muted);" id="burgerUserEmail"></div>
