@@ -219,8 +219,6 @@
         <textarea class="nl-notes" id="nlNotes" maxlength="500" placeholder="Taste, digestion, timing, reminders…" oninput="nlAutoSaveNotes()"></textarea>
         <div id="nlNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;"></div>
         <div class="nl-meal-actions">
-            <button class="nl-action-btn" id="nlRenameBtn" onclick="nlOpenRenameModal()">Rename</button>
-            <button class="nl-action-btn" onclick="nlDuplicateMeal()">Duplicate</button>
             <button class="nl-action-btn" id="nlPhotoBtn" onclick="document.getElementById('nlMealPhotoInput').click()">
                 📷&nbsp;Add Photo
             </button>
@@ -587,6 +585,7 @@
     <div class="bw-overlay" id="nlSavedPickerOverlay" onclick="if(event.target===this)closeSavedMealPicker()">
         <div class="bw-sheet" id="nlSavedPickerSheet">
             <div class="bw-sheet-handle"></div>
+            <button class="sheet-close-btn" onclick="closeSavedMealPicker()">&times;</button>
             <div class="bw-sheet-title">Choose a Saved Meal</div>
             <div id="nlSavedPickerList" style="max-height:60vh;overflow-y:auto;"></div>
         </div>

@@ -20,6 +20,10 @@ import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignI
 // ═══════════════════════════════════════════
 
 function switchTab(tab) {
+  if (state.currentTab === tab) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
   state.currentTab = tab;
   document.getElementById('tabEx').classList.toggle('active', tab === 'exercises');
   document.getElementById('tabPlans').classList.toggle('active', tab === 'plans');
@@ -98,7 +102,7 @@ function handleBack() {
   } else if (state.navContext === 'nl-picker') {
     const meal = getNLMeals().find(m => m.id === state.nlCurrentMealId);
     showView('nlMealView');
-    setHeader(meal ? meal.name : 'Meal', true);
+    setHeader(meal ? meal.name : 'Meal', true, '✏️', nlOpenRenameModal);
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'nl-meal';
   } else if (state.navContext === 'ex-history') {

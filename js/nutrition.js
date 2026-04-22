@@ -141,7 +141,7 @@ export function nlShowMeal(id) {
   renderNLMealDetail();
   showView('nlMealView');
   const meal = getNLMeals().find(m => m.id === id);
-  setHeader(meal ? meal.name : 'Meal', true);
+  setHeader(meal ? meal.name : 'Meal', true, '✏️', nlOpenRenameModal);
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'nl-meal';
 }
@@ -377,7 +377,7 @@ export function nlConfirmAddIng() {
   renderMacroGoals();
   showView('nlMealView');
   const updated = getNLMeals().find(m => m.id === state.nlCurrentMealId);
-  setHeader(updated ? updated.name : 'Meal', true);
+  setHeader(updated ? updated.name : 'Meal', true, '✏️', nlOpenRenameModal);
   state.navContext = 'nl-meal';
 }
 
@@ -447,7 +447,7 @@ export function nlSaveRename() {
   meal.name = name;
   saveNLMeals(meals);
   nlCloseRename();
-  setHeader(name, true);
+  setHeader(name, true, '✏️', nlOpenRenameModal);
   renderNLMeals();
 }
 
