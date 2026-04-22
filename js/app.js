@@ -102,7 +102,7 @@ function handleBack() {
   } else if (state.navContext === 'nl-picker') {
     const meal = getNLMeals().find(m => m.id === state.nlCurrentMealId);
     showView('nlMealView');
-    setHeader(meal ? meal.name : 'Meal', true, '✏️', nlOpenRenameModal);
+    setHeader(meal ? meal.name : 'Meal', true, '&#9998;', nlOpenRenameModal);
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'nl-meal';
   } else if (state.navContext === 'ex-history') {
