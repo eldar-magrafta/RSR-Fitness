@@ -207,6 +207,7 @@
         </div>
         <button class="nl-browse-btn" onclick="nlBrowseFoods()" style="display:none">🔍 Browse All Foods</button>
         <div id="nlMealList"></div>
+        <button class="bw-delete-all-btn" id="nlDeleteAllLogsBtn" onclick="openDeleteAllMealLogs()">🗑 Delete All Meal Logs</button>
     </div>
     <div class="view" id="nlMealView">
         <div id="nlMealDetailPhoto"></div>
@@ -509,6 +510,16 @@
             <div class="confirm-msg" id="deleteCustomConfirmMsg"></div>
             <button class="confirm-btn-del" onclick="confirmDeleteCustom()">Delete</button>
             <button class="confirm-btn-cancel" onclick="closeDeleteCustomConfirm()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Delete all meal logs confirmation -->
+    <div class="confirm-overlay" id="deleteAllMealLogsOverlay" onclick="if(event.target===this)closeDeleteAllMealLogs()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete All Meal Logs?</div>
+            <div class="confirm-msg">This will permanently remove every logged meal. Your saved meals and custom ingredients will not be affected. This cannot be undone.</div>
+            <button class="confirm-btn-del" onclick="confirmDeleteAllMealLogs()">Yes, Delete Everything</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteAllMealLogs()">Cancel</button>
         </div>
     </div>
 

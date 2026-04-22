@@ -79,6 +79,8 @@ export function nlSetViewMode(mode) {
   if (calSection) calSection.style.display = mode === 'today' ? '' : 'none';
   const browseBtn = document.querySelector('.nl-browse-btn');
   if (browseBtn) browseBtn.style.display = mode === 'saved' ? '' : 'none';
+  const delLogsBtn = document.getElementById('nlDeleteAllLogsBtn');
+  if (delLogsBtn) delLogsBtn.style.display = mode === 'today' ? '' : 'none';
   if (mode === 'today') renderNLCalendar();
   renderNLMeals();
   if (mode === 'today') renderMacroGoals();
@@ -996,6 +998,25 @@ export function pickSavedMeal(id) {
   toast.textContent = `Logged "${meal.name}"`;
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+}
+
+// ── Delete All Meal Logs ──
+
+export function openDeleteAllMealLogs() {
+  document.getElementById('deleteAllMealLogsOverlay').classList.add('open');
+}
+
+export function closeDeleteAllMealLogs() {
+  document.getElementById('deleteAllMealLogsOverlay').classList.remove('open');
+}
+
+export function confirmDeleteAllMealLogs() {
+  const meals = getNLMeals().filter(m => m.type === 'saved');
+  saveNLMeals(meals);
+  closeDeleteAllMealLogs();
+  renderNLCalendar();
+  renderNLMeals();
+  renderMacroGoals();
 }
 
 // ── Nutrition Calendar ──
