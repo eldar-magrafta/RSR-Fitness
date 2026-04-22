@@ -74,6 +74,7 @@ function computeSummary(range) {
   const meals = getNLMeals();
   const dailyNutr = {};
   meals.forEach(m => {
+    if ((m.type || 'logged') !== 'logged') return;
     if (!m.createdAt || m.createdAt < startDate || m.createdAt > endDate) return;
     const t = calcMealTotals(m);
     if (!dailyNutr[m.createdAt]) dailyNutr[m.createdAt] = { cal: 0, p: 0, c: 0, f: 0 };
