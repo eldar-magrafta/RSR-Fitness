@@ -14,6 +14,7 @@ import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHist
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
 import { exportData } from './export.js';
+import { startWorkout, wsChangeSetCount, wsSaveAndNext, wsSkipExercise, wsSetRestDuration, wsSkipRest, wsAddRestTime, wsQuitWorkout, wsConfirmQuit, wsCancelQuit, wsFinishAndReturn } from './workout.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -21,6 +22,10 @@ import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignI
 // ═══════════════════════════════════════════
 
 function switchTab(tab) {
+  if (state.ws) {
+    if (!state.ws.finished) { wsQuitWorkout(); return; }
+    state.ws = null;
+  }
   if (state.currentTab === tab) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
@@ -116,6 +121,9 @@ function handleBack() {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
+  } else if (state.navContext === 'workout') {
+    if (state.ws && state.ws.finished) wsFinishAndReturn();
+    else wsQuitWorkout();
   } else if (state.navContext === 'summary') {
     const tab = state.currentTab;
     state.currentTab = null;
@@ -251,6 +259,20 @@ window.pickSavedMeal = pickSavedMeal;
 window.openSummary = openSummary;
 window.exportData = exportData;
 window.setSummaryRange = setSummaryRange;
+
+// Workout Session
+window.startWorkout = startWorkout;
+window.wsStartFromPlan = () => startWorkout(state.currentPlanId);
+window.wsChangeSetCount = wsChangeSetCount;
+window.wsSaveAndNext = wsSaveAndNext;
+window.wsSkipExercise = wsSkipExercise;
+window.wsSetRestDuration = wsSetRestDuration;
+window.wsSkipRest = wsSkipRest;
+window.wsAddRestTime = wsAddRestTime;
+window.wsQuitWorkout = wsQuitWorkout;
+window.wsConfirmQuit = wsConfirmQuit;
+window.wsCancelQuit = wsCancelQuit;
+window.wsFinishAndReturn = wsFinishAndReturn;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

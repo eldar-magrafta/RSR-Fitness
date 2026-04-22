@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/nutrition.css"/>
     <link rel="stylesheet" href="css/summary.css"/>
     <link rel="stylesheet" href="css/auth.css"/>
+    <link rel="stylesheet" href="css/workout.css"/>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js"></script>
 </head>
 <body>
@@ -82,6 +83,7 @@
     </div>
     <div class="view" id="planDetailView">
         <div class="plan-detail-list" id="planDetailList"></div>
+        <button class="ws-nav-btn accent" id="startWorkoutBtn" style="width:100%;margin-top:14px;padding:16px;font-size:1rem;font-weight:700;border-radius:16px;" onclick="wsStartFromPlan()">▶ Start Workout</button>
         <div class="plan-detail-actions">
             <button class="add-ex-btn" id="addExBtn" onclick="showExercisePicker()">＋ Add Exercises</button>
             <button class="add-ex-btn add-title-btn" id="addTitleBtn" onclick="openAddTitle()">＋ Title</button>
@@ -89,6 +91,44 @@
     </div>
     <div class="view" id="exercisePickerView">
         <div class="picker-list" id="pickerList"></div>
+    </div>
+
+    <!-- ── Workout Session View ── -->
+    <div class="view" id="workoutSessionView">
+        <div id="workoutSessionContent"></div>
+    </div>
+
+    <!-- Rest Timer Overlay -->
+    <div class="ws-rest-overlay" id="wsRestOverlay">
+        <div class="ws-rest-circle">
+            <svg viewBox="0 0 212 212">
+                <circle class="track" cx="106" cy="106" r="97"/>
+                <circle class="fill" id="wsRestFill" cx="106" cy="106" r="97"/>
+            </svg>
+            <div class="ws-rest-time" id="wsRestTime">1:30</div>
+        </div>
+        <div class="ws-rest-label">Rest Timer</div>
+        <div class="ws-rest-presets">
+            <button class="ws-rest-preset" data-secs="30" onclick="wsSetRestDuration(30)">0:30</button>
+            <button class="ws-rest-preset" data-secs="60" onclick="wsSetRestDuration(60)">1:00</button>
+            <button class="ws-rest-preset active" data-secs="90" onclick="wsSetRestDuration(90)">1:30</button>
+            <button class="ws-rest-preset" data-secs="120" onclick="wsSetRestDuration(120)">2:00</button>
+            <button class="ws-rest-preset" data-secs="180" onclick="wsSetRestDuration(180)">3:00</button>
+        </div>
+        <div class="ws-rest-btns">
+            <button class="ws-rest-btn" onclick="wsAddRestTime(15)">+15s</button>
+            <button class="ws-rest-btn skip" onclick="wsSkipRest()">Skip</button>
+        </div>
+    </div>
+
+    <!-- Quit Workout Confirmation -->
+    <div class="confirm-overlay" id="wsQuitOverlay" onclick="if(event.target===this)wsCancelQuit()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">End Workout?</div>
+            <div class="confirm-msg">Your progress so far has been saved. Are you sure you want to end this workout?</div>
+            <button class="confirm-btn-del" onclick="wsConfirmQuit()">End Workout</button>
+            <button class="confirm-btn-cancel" onclick="wsCancelQuit()">Keep Going</button>
+        </div>
     </div>
 
     <!-- ── Body Weight Tab ── -->

@@ -8,7 +8,7 @@ export const state = {
   currentMuscleKey: null,
   currentPlanId: null,
   currentExerciseName: null,
-  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'
+  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'|'workout'
 
   // Body Weight
   bwCalYear: new Date().getFullYear(),
@@ -58,4 +58,7 @@ export const state = {
   // Custom ingredient editing
   _editingCustomIdx: null,
   _pendingDeleteCustomIdx: null,
+
+  // Workout session (transient — not persisted)
+  ws: null,
 };

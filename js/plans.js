@@ -171,6 +171,11 @@ export function showPlanDetail(planId) {
   // Init drag-to-reorder
   [...list.children].forEach((child, i) => _initItemDrag(child, i));
 
+  // Start Workout button (only if plan has exercises)
+  const startBtn = document.getElementById('startWorkoutBtn');
+  const hasExercises = plan.exercises.some(i => typeof i === 'string');
+  if (startBtn) startBtn.style.display = hasExercises ? '' : 'none';
+
   showView('planDetailView');
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'plan-detail';

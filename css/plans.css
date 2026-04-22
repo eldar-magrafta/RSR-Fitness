@@ -32,6 +32,8 @@
 #planDetailView.editing .plan-title-remove,
 #planDetailView.editing .plan-detail-actions { display: flex; }
 
+#planDetailView.editing #startWorkoutBtn { display: none !important; }
+
 /* ── Plan Detail ── */
 .plan-detail-list { display: flex; flex-direction: column; gap: 10px; }
 .plan-ex-item {
