@@ -116,7 +116,9 @@ function handleBack() {
     renderNLMeals();
     renderMacroGoals();
   } else if (state.navContext === 'summary') {
-    switchTab(state.currentTab);
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
   }
 }
 
