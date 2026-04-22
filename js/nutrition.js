@@ -1051,13 +1051,13 @@ export function renderNLCalendar() {
 }
 
 export function nlPrevMonth() {
-  if (state.nlCalYear <= 2020 && state.nlCalMon === 0) return;
+  if (state.nlCalYear <= 2026 && state.nlCalMon === 0) return;
   if (state.nlCalMon === 0) { state.nlCalMon = 11; state.nlCalYear--; } else state.nlCalMon--;
   renderNLCalendar();
 }
 
 export function nlNextMonth() {
-  if (state.nlCalYear >= new Date().getFullYear() + 1 && state.nlCalMon === 11) return;
+  if (state.nlCalYear >= 2035 && state.nlCalMon === 11) return;
   if (state.nlCalMon === 11) { state.nlCalMon = 0; state.nlCalYear++; } else state.nlCalMon++;
   renderNLCalendar();
 }
