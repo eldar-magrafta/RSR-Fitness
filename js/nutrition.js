@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml, resizeImage } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
@@ -556,6 +556,22 @@ export function nlToggleFavFilter(btn) {
 
 // ── Custom Ingredients ──
 
+function nlRenderCustomPhotoArea() {
+  const area = document.getElementById('nlCustomPhotoPreview');
+  const photo = state.nlCustomPhotoBase64;
+  if (photo && photo !== 'cloud' && photo !== '_remove_') {
+    area.innerHTML = `
+      <div class="bw-thumb-wrap">
+        <img class="bw-thumb-img" src="${photo}" onclick="nlViewCustomPhoto()" />
+        <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
+      </div>`;
+  } else if (photo === 'cloud') {
+    area.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:10px 0;">📷 Photo saved (offline — connect to view)</div>';
+  } else {
+    area.innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
+  }
+}
+
 export function nlOpenCustomModal(editIdx) {
   state._editingCustomIdx = typeof editIdx === 'number' ? editIdx : null;
   const isEdit = state._editingCustomIdx !== null;
@@ -567,24 +583,22 @@ export function nlOpenCustomModal(editIdx) {
   document.getElementById('nlCustomC').value = ing ? ing.c : '';
   document.getElementById('nlCustomF').value = ing ? ing.f : '';
   nlUpdateCustomCal();
-  state.nlCustomPhotoBase64 = null;
   document.getElementById('nlCustomPhotoInput').value = '';
 
   if (ing && ing.img) {
-    const preview = document.getElementById('nlCustomPhotoPreview');
-    const thumbSrc = _isCloudMarker(ing.img) ? '' : ing.img;
-    const cloudAttr = _isCloudMarker(ing.img) ? ` data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}"` : '';
-    preview.innerHTML = `
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="position:relative;flex-shrink:0;">
-          <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr} onclick="nlViewCustomPhoto(this)">
-          <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
-        </div>
-        <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
-      </div>`;
-    _resolveCloudImages(preview);
+    if (_isCloudMarker(ing.img)) {
+      state.nlCustomPhotoBase64 = 'cloud';
+      nlRenderCustomPhotoArea();
+      loadPhoto('custom-ing-photos', _cloudDocId(ing.img)).then(base64 => {
+        if (base64) { state.nlCustomPhotoBase64 = base64; nlRenderCustomPhotoArea(); }
+      });
+    } else {
+      state.nlCustomPhotoBase64 = ing.img;
+      nlRenderCustomPhotoArea();
+    }
   } else {
-    document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
+    state.nlCustomPhotoBase64 = null;
+    nlRenderCustomPhotoArea();
   }
 
   document.getElementById('nlCustomModalTitle').textContent = isEdit ? 'Edit Ingredient' : 'Custom Ingredient';
@@ -601,49 +615,22 @@ export function nlCloseCustom() {
 
 export function nlCustomPhotoSelected(input) {
   if (!input.files || !input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX = 300; let w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } } else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
-      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      state.nlCustomPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-      document.getElementById('nlCustomPhotoPreview').innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="position:relative;flex-shrink:0;">
-            <img class="nl-custom-thumb" src="${state.nlCustomPhotoBase64}" onclick="nlViewCustomPhoto(this)">
-            <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
-          </div>
-          <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
-        </div>`;
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(input.files[0]);
+  resizeImage(input.files[0], 700, 0.72, base64 => {
+    state.nlCustomPhotoBase64 = base64;
+    nlRenderCustomPhotoArea();
+  });
 }
 
 export function nlRemoveCustomPhoto() {
   state.nlCustomPhotoBase64 = '_remove_';
   document.getElementById('nlCustomPhotoInput').value = '';
-  document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
+  nlRenderCustomPhotoArea();
 }
 
-export function nlViewCustomPhoto(imgEl) {
-  const src = imgEl.src;
-  const cloudKey = imgEl.dataset.cloudSrc;
-  if (src) {
-    document.getElementById('bwViewerImg').src = src;
-    document.getElementById('bwViewer').classList.add('open');
-  } else if (cloudKey) {
-    const sep = cloudKey.indexOf('/');
-    loadPhoto(cloudKey.slice(0, sep), cloudKey.slice(sep + 1)).then(base64 => {
-      if (!base64) return;
-      document.getElementById('bwViewerImg').src = base64;
-      document.getElementById('bwViewer').classList.add('open');
-    });
-  }
+export function nlViewCustomPhoto() {
+  if (!state.nlCustomPhotoBase64 || state.nlCustomPhotoBase64 === 'cloud') return;
+  document.getElementById('bwViewerImg').src = state.nlCustomPhotoBase64;
+  document.getElementById('bwViewer').classList.add('open');
 }
 
 export function nlUpdateCustomCal() {
@@ -687,7 +674,7 @@ export async function nlSaveCustom() {
 
   if (state.nlCustomPhotoBase64 === '_remove_') {
     delete ingData.img;
-  } else if (state.nlCustomPhotoBase64) {
+  } else if (state.nlCustomPhotoBase64 && state.nlCustomPhotoBase64 !== 'cloud') {
     const docId = 'cing_' + Date.now();
     try {
       await savePhoto('custom-ing-photos', docId, state.nlCustomPhotoBase64);
