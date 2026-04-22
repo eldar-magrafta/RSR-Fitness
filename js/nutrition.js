@@ -291,7 +291,7 @@ export function renderNLPicker() {
       const isCustom = cat === 'custom';
       const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
       const delBtn = isCustom && customIdx >= 0
-        ? `<button class="plan-ex-remove" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">✕</button>`
+        ? `<button class="plan-card-delete" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">✕</button>`
         : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}

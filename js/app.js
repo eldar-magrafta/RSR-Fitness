@@ -39,7 +39,6 @@ function switchTab(tab) {
   } else if (tab === 'plans') {
     showView('plansView');
     setHeader('My Plans', false);
-    document.getElementById('fab').classList.remove('hidden');
     state.navContext = 'plans';
     renderPlans();
   } else if (tab === 'weight') {

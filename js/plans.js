@@ -13,6 +13,7 @@ import { escHtml } from './utils.js';
 export function renderPlans() {
   const plans = getPlans();
   const container = document.getElementById('plansContent');
+  document.getElementById('fab').classList.toggle('hidden', plans.length === 0);
   if (plans.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
