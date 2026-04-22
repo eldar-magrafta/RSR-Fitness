@@ -576,7 +576,10 @@ export function nlOpenCustomModal(editIdx) {
     const cloudAttr = _isCloudMarker(ing.img) ? ` data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}"` : '';
     preview.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;">
-        <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr} onclick="nlViewCustomPhoto(this)">
+        <div style="position:relative;flex-shrink:0;">
+          <img class="nl-custom-thumb" src="${thumbSrc}"${cloudAttr} onclick="nlViewCustomPhoto(this)">
+          <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
+        </div>
         <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
       </div>`;
     _resolveCloudImages(preview);
@@ -609,13 +612,22 @@ export function nlCustomPhotoSelected(input) {
       state.nlCustomPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
       document.getElementById('nlCustomPhotoPreview').innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
-          <img class="nl-custom-thumb" src="${state.nlCustomPhotoBase64}" onclick="nlViewCustomPhoto(this)">
+          <div style="position:relative;flex-shrink:0;">
+            <img class="nl-custom-thumb" src="${state.nlCustomPhotoBase64}" onclick="nlViewCustomPhoto(this)">
+            <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
+          </div>
           <button class="nl-custom-photo-btn" style="flex:1;" onclick="document.getElementById('nlCustomPhotoInput').click()">Change Photo</button>
         </div>`;
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+export function nlRemoveCustomPhoto() {
+  state.nlCustomPhotoBase64 = '_remove_';
+  document.getElementById('nlCustomPhotoInput').value = '';
+  document.getElementById('nlCustomPhotoPreview').innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
 }
 
 export function nlViewCustomPhoto(imgEl) {
@@ -673,7 +685,9 @@ export async function nlSaveCustom() {
     }
   }
 
-  if (state.nlCustomPhotoBase64) {
+  if (state.nlCustomPhotoBase64 === '_remove_') {
+    delete ingData.img;
+  } else if (state.nlCustomPhotoBase64) {
     const docId = 'cing_' + Date.now();
     try {
       await savePhoto('custom-ing-photos', docId, state.nlCustomPhotoBase64);
