@@ -179,7 +179,8 @@ export function showPlanDetail(planId) {
   const wasEditing = state._planEditing;
   const justCreated = state._planJustCreated;
   state._planJustCreated = false;
-  if (justCreated || wasEditing) {
+  const isEmpty = plan.exercises.length === 0;
+  if (justCreated || wasEditing || isEmpty) {
     setHeader(plan.name, true, null);
     setPlanEditMode(true);
   } else {
