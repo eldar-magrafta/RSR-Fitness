@@ -39,7 +39,11 @@
   display: flex; align-items: center; gap: 12px;
   border: 1px solid var(--border);
 }
-.plan-ex-info { flex: 1; cursor: pointer; }
+.plan-ex-thumb {
+  width: 44px; height: 44px; border-radius: 10px; object-fit: cover;
+  flex-shrink: 0; background: var(--card2);
+}
+.plan-ex-info { flex: 1; min-width: 0; cursor: pointer; }
 .plan-ex-name { font-size: 1rem; font-weight: 500; }
 .plan-ex-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
 .plan-ex-sub.logged { color: var(--green); }

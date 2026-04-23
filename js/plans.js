@@ -154,6 +154,7 @@ export function showPlanDetail(planId) {
       const subText = log ? `Last: ${log.setList.map(s => `${s.w}kg \u00d7 ${s.r}`).join(' / ')}` : found.groupName;
       el.innerHTML = `
         <span class="drag-handle">\u2807</span>
+        ${found.ex.gif ? `<img class="plan-ex-thumb" src="${found.ex.gif}" loading="lazy" />` : ''}
         <div class="plan-ex-info">
           <div class="plan-ex-name">${exName}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
