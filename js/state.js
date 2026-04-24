@@ -63,3 +63,30 @@ export const state = {
   _editingCustomIdx: null,
   _pendingDeleteCustomIdx: null,
 };
+
+export function resetTransientState() {
+  state.currentExerciseName = null;
+  state.currentPlanId = null;
+  state.currentMuscleKey = null;
+  state._planEditing = false;
+  state._pendingDeletePlanId = null;
+  state._pendingRemovePlanId = null;
+  state._pendingRemoveExName = null;
+  state._pendingDeleteMealId = null;
+  state._editingCustomIdx = null;
+  state._pendingDeleteCustomIdx = null;
+  state.nlCurrentMealId = null;
+  state.nlPickerIng = null;
+  state.nlPickerGrams = 100;
+  state.nlBrowseMode = false;
+  state.nlCustomPhotoBase64 = null;
+  state.bwSelDate = null;
+  state.bwCurrentPhoto = null;
+  state.exHistSelectedDate = null;
+  state.exLogSelectedDate = null;
+  if (state._drag) {
+    if (state._drag.ghost) state._drag.ghost.remove();
+    state._drag = null;
+  }
+  state._dragOrigItems = null;
+}

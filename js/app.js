@@ -1,7 +1,7 @@
 // ── RSR Fitness – Application Entry Point ──
 // Imports all modules, registers window globals for inline handlers, runs init.
 
-import { state } from './state.js';
+import { state, resetTransientState } from './state.js';
 import { migrateOldExLogs, getNLMeals, migrateMacroGoalsToMap } from './store.js';
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
@@ -26,6 +26,7 @@ function switchTab(tab) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
+  resetTransientState();
   state.currentTab = tab;
   document.getElementById('tabEx').classList.toggle('active', tab === 'exercises');
   document.getElementById('tabPlans').classList.toggle('active', tab === 'plans');
@@ -101,6 +102,8 @@ function handleBack() {
     renderNLMeals();
     renderMacroGoals();
   } else if (state.navContext === 'nl-picker') {
+    state.nlPickerIng = null;
+    state.nlPickerGrams = 100;
     const meal = getNLMeals().find(m => m.id === state.nlCurrentMealId);
     showView('nlMealView');
     setHeader(meal ? meal.name : 'Meal', true, '&#9998;', nlOpenRenameModal);
@@ -108,9 +111,11 @@ function handleBack() {
     state.navContext = 'nl-meal';
   } else if (state.navContext === 'ex-history') {
     state.currentExerciseName = null;
+    state.exHistSelectedDate = null;
     if (state.currentPlanId) showPlanDetail(state.currentPlanId);
     else switchTab('exercises');
   } else if (state.navContext === 'nl-browse') {
+    state.nlBrowseMode = false;
     showView('nutritionView');
     setHeader('Nutrition Lab', false);
     document.getElementById('fab').classList.remove('hidden');
