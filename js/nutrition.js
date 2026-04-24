@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml, resizeImage } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
@@ -1022,32 +1022,16 @@ export function confirmDeleteAllMealLogs() {
 // ── Nutrition Calendar ──
 
 export function renderNLCalendar() {
-  const today = new Date().toISOString().slice(0, 10);
   const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged');
   const mealDates = new Set(meals.map(m => m.createdAt));
 
   document.getElementById('nlCalMonthLbl').textContent = `${MONTHS[state.nlCalMon]} ${state.nlCalYear}`;
-
-  const firstDow = new Date(state.nlCalYear, state.nlCalMon, 1).getDay();
-  const daysInMon = new Date(state.nlCalYear, state.nlCalMon + 1, 0).getDate();
-
-
-  let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  for (let d = 1; d <= daysInMon; d++) {
-    const ds = `${state.nlCalYear}-${String(state.nlCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const cls = [
-      'bw-cal-day',
-      ds === today ? 'today' : '',
-      mealDates.has(ds) ? 'has-data' : '',
-      ds === state.nlSelectedDate ? 'selected' : '',
-    ].filter(Boolean).join(' ');
-    html += `<div class="${cls}" onclick="nlSelectDate('${ds}')">${d}</div>`;
-  }
-  const remain = 42 - (firstDow + daysInMon);
-  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  document.getElementById('nlCalGrid').innerHTML = html;
+  document.getElementById('nlCalGrid').innerHTML = renderCalendarGrid(state.nlCalYear, state.nlCalMon, {
+    hasData: ds => mealDates.has(ds),
+    selected: state.nlSelectedDate,
+    markFuture: false,
+    onClick: 'nlSelectDate',
+  });
 }
 
 export function nlPrevMonth() {

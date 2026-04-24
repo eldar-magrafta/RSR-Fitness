@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getExHist, saveExHist } from './store.js';
-import { MONTHS, exHistMaxWeight, initSheetSwipe } from './utils.js';
+import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
@@ -121,25 +121,12 @@ function renderExHistChart() {
 
 function renderExHistCal() {
   document.getElementById('exHistCalTitle').textContent = MONTHS[state.exHistCalMon] + ' ' + state.exHistCalYear;
-  const grid = document.getElementById('exHistCalGrid');
   const hist = getExHist(state.currentExerciseName);
-  const today = exHistToStr(new Date());
-  const firstDow = new Date(state.exHistCalYear, state.exHistCalMon, 1).getDay();
-  const daysInMonth = new Date(state.exHistCalYear, state.exHistCalMon + 1, 0).getDate();
-
-
-  let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  for (let d = 1; d <= daysInMonth; d++) {
-    const ds = `${state.exHistCalYear}-${String(state.exHistCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isFuture = ds > today;
-    const cls = ['bw-cal-day', isFuture ? 'future' : '', ds === today ? 'today' : '', hist[ds] ? 'has-data' : ''].filter(Boolean).join(' ');
-    html += `<div class="${cls}"${isFuture ? '' : ` onclick="openExHistEntry('${ds}')"`}>${d}</div>`;
-  }
-  const remain = 42 - (firstDow + daysInMonth);
-  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  grid.innerHTML = html;
+  document.getElementById('exHistCalGrid').innerHTML = renderCalendarGrid(state.exHistCalYear, state.exHistCalMon, {
+    hasData: ds => hist[ds],
+    disableFuture: true,
+    onClick: 'openExHistEntry',
+  });
 }
 
 export function exHistPrevMonth() {

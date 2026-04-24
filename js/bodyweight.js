@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getBWData, saveBWData, bwGetWeight, bwGetPhoto, saveBWEmpty } from './store.js';
-import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe } from './utils.js';
+import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
@@ -149,31 +149,12 @@ function renderBWChart() {
 
 export function renderBWCalendar() {
   const data = getBWData();
-  const today = dateToStr(new Date());
   document.getElementById('bwCalMonthLbl').textContent = `${MONTHS[state.bwCalMon]} ${state.bwCalYear}`;
-
-  const firstDow = new Date(state.bwCalYear, state.bwCalMon, 1).getDay();
-  const daysInMon = new Date(state.bwCalYear, state.bwCalMon + 1, 0).getDate();
-
-
-  let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDow; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  for (let d = 1; d <= daysInMon; d++) {
-    const ds = `${state.bwCalYear}-${String(state.bwCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isFuture = ds > today;
-    const cls = [
-      'bw-cal-day',
-      isFuture ? 'future' : '',
-      ds === today ? 'today' : '',
-      data[ds] ? 'has-data' : '',
-      ds === state.bwSelDate ? 'selected' : '',
-    ].filter(Boolean).join(' ');
-    html += `<div class="${cls}" onclick="openBWEntry('${ds}')">${d}</div>`;
-  }
-  const remain = 42 - (firstDow + daysInMon);
-  for (let i = 0; i < remain; i++) html += `<div class="bw-cal-day cal-empty"></div>`;
-  document.getElementById('bwCalGrid').innerHTML = html;
+  document.getElementById('bwCalGrid').innerHTML = renderCalendarGrid(state.bwCalYear, state.bwCalMon, {
+    hasData: ds => data[ds],
+    selected: state.bwSelDate,
+    onClick: 'openBWEntry',
+  });
 }
 
 export function openBWDeleteConfirm() { document.getElementById('bwConfirmOverlay').classList.add('open'); }

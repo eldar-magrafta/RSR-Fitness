@@ -78,6 +78,51 @@ export function resizeImage(file, maxSize, quality, cb) {
 export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
+/**
+ * Render a month calendar grid HTML.
+ * @param {number} year
+ * @param {number} month - 0-indexed
+ * @param {object} opts
+ * @param {function} opts.hasData - (dateStr) => truthy if day has data
+ * @param {string}   [opts.selected] - selected date string
+ * @param {boolean}  [opts.disableFuture] - disable clicks on future days
+ * @param {string}   opts.onClick - function name for onclick (receives dateStr)
+ * @param {function} [opts.badge] - (dateStr) => badge HTML string or ''
+ */
+export function renderCalendarGrid(year, month, opts) {
+  const today = dateToStr(new Date());
+  const firstDow = new Date(year, month, 1).getDay();
+  const daysInMon = new Date(year, month + 1, 0).getDate();
+
+  let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+    .map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
+
+  for (let i = 0; i < firstDow; i++)
+    html += '<div class="bw-cal-day cal-empty"></div>';
+
+  for (let d = 1; d <= daysInMon; d++) {
+    const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isFuture = ds > today;
+    const hasData = opts.hasData(ds);
+    const cls = ['bw-cal-day',
+      isFuture && opts.markFuture !== false ? 'future' : '',
+      ds === today ? 'today' : '',
+      hasData ? 'has-data' : '',
+      opts.selected && ds === opts.selected ? 'selected' : '',
+    ].filter(Boolean).join(' ');
+    const disabled = opts.disableFuture && isFuture;
+    const click = disabled ? '' : ` onclick="${opts.onClick}('${ds}')"`;
+    const extra = opts.badge ? opts.badge(ds) : '';
+    html += `<div class="${cls}"${click}>${d}${extra}</div>`;
+  }
+
+  const remain = 42 - (firstDow + daysInMon);
+  for (let i = 0; i < remain; i++)
+    html += '<div class="bw-cal-day cal-empty"></div>';
+
+  return html;
+}
+
 /** Get max weight from an exercise history entry (supports old {w,r} and new {sets:[]} formats) */
 export function exHistMaxWeight(entry) {
   if (entry.sets) return Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));

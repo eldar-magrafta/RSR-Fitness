@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getAllExHistByDate } from './store.js';
-import { MONTHS } from './utils.js';
+import { MONTHS, renderCalendarGrid } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 
 export function openExerciseLog() {
@@ -23,37 +23,17 @@ function renderExLogCal() {
     MONTHS[state.exLogCalMon] + ' ' + state.exLogCalYear;
 
   const allData = getAllExHistByDate();
-  const today = new Date().toISOString().slice(0, 10);
-  const firstDow = new Date(state.exLogCalYear, state.exLogCalMon, 1).getDay();
-  const daysInMonth = new Date(state.exLogCalYear, state.exLogCalMon + 1, 0).getDate();
 
-  let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-    .map(d => `<div class="bw-cal-dow">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDow; i++)
-    html += '<div class="bw-cal-day cal-empty"></div>';
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const ds = `${state.exLogCalYear}-${String(state.exLogCalMon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const isFuture = ds > today;
-    const hasData = !!allData[ds];
-    const isSelected = ds === state.exLogSelectedDate;
-    const cls = ['bw-cal-day',
-      isFuture ? 'future' : '',
-      ds === today ? 'today' : '',
-      hasData ? 'has-data' : '',
-      isSelected ? 'selected' : '',
-    ].filter(Boolean).join(' ');
-    const count = allData[ds] ? allData[ds].length : 0;
-    const badge = count > 0 ? `<span class="exlog-badge">${count}</span>` : '';
-    html += `<div class="${cls}"${isFuture ? '' : ` onclick="exLogSelectDate('${ds}')"`}>${d}${badge}</div>`;
-  }
-
-  const remain = 42 - (firstDow + daysInMonth);
-  for (let i = 0; i < remain; i++)
-    html += '<div class="bw-cal-day cal-empty"></div>';
-
-  document.getElementById('exLogCalGrid').innerHTML = html;
+  document.getElementById('exLogCalGrid').innerHTML = renderCalendarGrid(state.exLogCalYear, state.exLogCalMon, {
+    hasData: ds => !!allData[ds],
+    selected: state.exLogSelectedDate,
+    disableFuture: true,
+    onClick: 'exLogSelectDate',
+    badge: ds => {
+      const count = allData[ds] ? allData[ds].length : 0;
+      return count > 0 ? `<span class="exlog-badge">${count}</span>` : '';
+    },
+  });
 
   if (state.exLogSelectedDate) {
     renderExLogDayDetail(state.exLogSelectedDate, allData[state.exLogSelectedDate] || []);
