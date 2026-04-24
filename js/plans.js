@@ -72,16 +72,36 @@ export function createPlan() {
 
 
 /** Toggle between view mode and edit mode in plan detail */
+export function savePlanName() {
+  const input = document.getElementById('planNameEdit');
+  if (!input) return;
+  const name = input.value.trim().slice(0, 100);
+  if (!name || !state.currentPlanId) return;
+  const plans = getPlans();
+  const plan = plans.find(p => p.id === state.currentPlanId);
+  if (plan && plan.name !== name) {
+    plan.name = name;
+    savePlans(plans);
+  }
+}
+
 export function setPlanEditMode(editing) {
   state._planEditing = editing;
   const detail = document.getElementById('planDetailView');
   detail.classList.toggle('editing', editing);
+  const titleEl = document.getElementById('headerTitle');
   const btn = document.getElementById('headerAction');
   if (editing) {
+    const plan = getPlan(state.currentPlanId);
+    if (plan) {
+      titleEl.innerHTML = `<input id="planNameEdit" class="plan-name-edit" value="${escHtml(plan.name)}" maxlength="100" />`;
+    }
     btn.textContent = '\u2713  Done';
-    btn.onclick = () => { state._planEditing = false; showPlanDetail(state.currentPlanId); };
+    btn.onclick = () => { savePlanName(); state._planEditing = false; showPlanDetail(state.currentPlanId); };
     btn.classList.add('visible');
   } else {
+    const plan = getPlan(state.currentPlanId);
+    if (plan) titleEl.textContent = plan.name;
     btn.innerHTML = '&#9998;';
     btn.onclick = () => setPlanEditMode(true);
     btn.classList.add('visible');
