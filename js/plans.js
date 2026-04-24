@@ -34,7 +34,7 @@ export function renderPlans() {
         <span class="drag-handle plan-drag-handle">⠇</span>
         <div class="plan-card-info">
           <div class="plan-card-name">${escHtml(plan.name)}</div>
-          <div class="plan-card-meta"><i class="bi bi-activity"></i> ${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
+          <div class="plan-card-meta"><i class="bi bi-dumbbell"></i> ${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
         </div>
         <button class="plan-card-delete" title="Delete plan"><i class="bi bi-trash3"></i></button>`;
       card.querySelector('.plan-card-info').onclick = () => showPlanDetail(plan.id);
