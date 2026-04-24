@@ -6,6 +6,7 @@ import { state } from './state.js';
 import { getLog, getNotes, saveNotesData, deleteLastLog } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { getPR, renderPRBadge, recalcPR } from './prs.js';
+import { debounce } from './utils.js';
 
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
@@ -32,8 +33,7 @@ export function buildHome() {
   });
 }
 
-/** Global search across all exercises */
-export function globalExSearchHandler() {
+export const globalExSearchHandler = debounce(function() {
   const q = document.getElementById('globalExSearch').value.trim().toLowerCase();
   const resultsEl = document.getElementById('globalSearchResults');
   const gridEl = document.getElementById('muscleGrid');
@@ -66,7 +66,7 @@ export function globalExSearchHandler() {
   if (!resultsEl.children.length) {
     resultsEl.innerHTML = '<div class="ex-search-empty">No exercises found</div>';
   }
-}
+}, 150);
 
 /** Show exercise list for a muscle group */
 export function showExercises(key) {
@@ -101,13 +101,12 @@ function _renderGroupList(group, filter) {
   }
 }
 
-/** Filter within current muscle group */
-export function groupExSearchHandler() {
+export const groupExSearchHandler = debounce(function() {
   const group = exerciseData[state.currentMuscleKey];
   if (!group) return;
   const q = document.getElementById('groupExSearch').value.trim();
   _renderGroupList(group, q);
-}
+}, 150);
 
 /** Open the exercise detail modal */
 export function openModal(ex, muscleName, fromPlan = false) {

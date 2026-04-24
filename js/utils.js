@@ -1,5 +1,10 @@
 // ── Utility Functions ──
 
+export function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
 /** Escape a string for safe insertion into HTML */
 export function escHtml(str) {
   return String(str)

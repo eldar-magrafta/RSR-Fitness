@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog, debounce } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
@@ -305,6 +305,8 @@ export function renderNLPicker() {
   pickerList.innerHTML = html || '<div class="nl-chart-empty">No ingredients found.</div>';
   _resolveCloudImages(pickerList);
 }
+
+export const nlSearchPicker = debounce(renderNLPicker, 150);
 
 export function nlPickIngredient(name) {
   const ing = getAllIngs().find(i => i.name === name);
