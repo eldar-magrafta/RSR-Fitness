@@ -111,13 +111,13 @@
 
 /* Error message */
 .auth-error {
-  color: #ff6b6b;
+  color: var(--carbs);
   font-size: 0.82rem;
   min-height: 18px;
   margin-bottom: 8px;
 }
 .auth-error-reg {
-  color: #ff6b6b;
+  color: var(--carbs);
   font-size: 0.82rem;
   min-height: 18px;
   margin-bottom: 12px;

@@ -215,10 +215,10 @@ export function renderSummary() {
     const periodWord = s.range === 'week' ? 'this week' : 'this month';
     html += `<div class="summary-section">
       <div class="summary-section-title">Avg Daily Nutrition (${periodLabel} \u2022 ${s.daysWithMeals} day${s.daysWithMeals === 1 ? '' : 's'} logged)</div>
-      <div class="summary-nutr-row"><span style="color:var(--accent)">Calories</span><span class="summary-nutr-val">${s.avgCalories}</span></div>
-      <div class="summary-nutr-row"><span style="color:#4ecdc4">Protein</span><span class="summary-nutr-val">${s.avgProtein}g</span></div>
-      <div class="summary-nutr-row"><span style="color:#ff6b6b">Carbs</span><span class="summary-nutr-val">${s.avgCarbs}g</span></div>
-      <div class="summary-nutr-row"><span style="color:#ffd93d">Fat</span><span class="summary-nutr-val">${s.avgFat}g</span></div>`;
+      <div class="summary-nutr-row"><span class="color-accent">Calories</span><span class="summary-nutr-val">${s.avgCalories}</span></div>
+      <div class="summary-nutr-row"><span class="color-protein">Protein</span><span class="summary-nutr-val">${s.avgProtein}g</span></div>
+      <div class="summary-nutr-row"><span class="color-carbs">Carbs</span><span class="summary-nutr-val">${s.avgCarbs}g</span></div>
+      <div class="summary-nutr-row"><span class="color-fat">Fat</span><span class="summary-nutr-val">${s.avgFat}g</span></div>`;
     if (s.avgCalorieDiff !== null) {
       const diff = s.avgCalorieDiff;
       if (diff > 0) {

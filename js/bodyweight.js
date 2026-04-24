@@ -36,8 +36,8 @@ function renderBWStats() {
   const f = v => v != null ? v.toFixed(1) : '\u2014';
   document.getElementById('bwStats').innerHTML =
     `<div class="bw-stat"><div class="bw-stat-val">${f(current)}</div><div class="bw-stat-lbl">Current</div></div>
-     <div class="bw-stat"><div class="bw-stat-val" style="color:var(--green)">${f(min)}</div><div class="bw-stat-lbl">Min</div></div>
-     <div class="bw-stat"><div class="bw-stat-val" style="color:var(--accent)">${f(max)}</div><div class="bw-stat-lbl">Max</div></div>
+     <div class="bw-stat"><div class="bw-stat-val color-green">${f(min)}</div><div class="bw-stat-lbl">Min</div></div>
+     <div class="bw-stat"><div class="bw-stat-val color-accent">${f(max)}</div><div class="bw-stat-lbl">Max</div></div>
      <div class="bw-stat"><div class="bw-stat-val">${f(avg)}</div><div class="bw-stat-lbl">Avg</div></div>`;
 }
 

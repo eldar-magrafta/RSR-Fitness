@@ -52,7 +52,7 @@ function nlRenderPie(p, c, f) {
   const pPct = pCal / total, cPct = cCal / total, fPct = fCal / total;
   const r = 55, circ = 2 * Math.PI * r;
   let offset = 0;
-  const segs = [{ pct: pPct, col: '#4ecdc4', lbl: 'Protein' }, { pct: cPct, col: '#ff6b6b', lbl: 'Carbs' }, { pct: fPct, col: '#ffd93d', lbl: 'Fat' }];
+  const segs = [{ pct: pPct, col: 'var(--protein)', lbl: 'Protein' }, { pct: cPct, col: 'var(--carbs)', lbl: 'Carbs' }, { pct: fPct, col: 'var(--fat)', lbl: 'Fat' }];
   let circles = '';
   segs.forEach(s => { if (s.pct > 0) { circles += `<circle cx="70" cy="70" r="${r}" fill="none" stroke="${s.col}" stroke-width="22" stroke-dasharray="${s.pct * circ} ${circ}" stroke-dashoffset="${-offset * circ}"/>`; offset += s.pct; } });
   return `<svg class="nl-pie-svg" viewBox="0 0 140 140" width="130" height="130">${circles}</svg>
@@ -190,10 +190,10 @@ function renderNLMealDetail() {
 
   document.getElementById('nlMealChart').innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
   document.getElementById('nlTotals').innerHTML = `
-    <div class="nl-total-item"><div class="nl-total-val" style="color:var(--accent);">${t.cal}</div><div class="nl-total-label">Calories</div></div>
-    <div class="nl-total-item"><div class="nl-total-val" style="color:#4ecdc4;">${t.p}g</div><div class="nl-total-label">Protein</div></div>
-    <div class="nl-total-item"><div class="nl-total-val" style="color:#ff6b6b;">${t.c}g</div><div class="nl-total-label">Carbs</div></div>
-    <div class="nl-total-item"><div class="nl-total-val" style="color:#ffd93d;">${t.f}g</div><div class="nl-total-label">Fat</div></div>`;
+    <div class="nl-total-item"><div class="nl-total-val color-accent">${t.cal}</div><div class="nl-total-label">Calories</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-protein">${t.p}g</div><div class="nl-total-label">Protein</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-carbs">${t.c}g</div><div class="nl-total-label">Carbs</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-fat">${t.f}g</div><div class="nl-total-label">Fat</div></div>`;
   const ingList = document.getElementById('nlIngList');
   if (!meal.ingredients || meal.ingredients.length === 0) {
     ingList.innerHTML = '<div class="nl-chart-empty">No ingredients added yet.</div>';
@@ -748,9 +748,9 @@ export function renderMacroGoals() {
   const daily = nlCalcDailyTotals();
   const rows = [
     { name: 'Calories', cur: daily.cal, goal: goals.calories, color: '#FF0000', unit: '' },
-    { name: 'Protein', cur: daily.p, goal: goals.protein, color: '#4ecdc4', unit: 'g' },
-    { name: 'Carbs', cur: daily.c, goal: goals.carbs, color: '#ff6b6b', unit: 'g' },
-    { name: 'Fat', cur: daily.f, goal: goals.fat, color: '#ffd93d', unit: 'g' },
+    { name: 'Protein', cur: daily.p, goal: goals.protein, color: 'var(--protein)', unit: 'g' },
+    { name: 'Carbs', cur: daily.c, goal: goals.carbs, color: 'var(--carbs)', unit: 'g' },
+    { name: 'Fat', cur: daily.f, goal: goals.fat, color: 'var(--fat)', unit: 'g' },
   ];
   const d = new Date(viewDate + 'T00:00:00');
   const dateLabel = isToday ? "Today's Goals" : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });

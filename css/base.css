@@ -16,6 +16,9 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
   --border-med: rgba(255,255,255,0.12);
   --subtle-bg: rgba(255,255,255,0.06);
   --subtle-bg-hover: rgba(255,255,255,0.1);
+  --protein: #4ecdc4;
+  --carbs: #ff6b6b;
+  --fat: #ffd93d;
   --chart-label: rgba(255,255,255,0.3);
   --chart-grid: rgba(255,255,255,0.07);
   --safe-top: env(safe-area-inset-top);
@@ -220,3 +223,22 @@ body {
 .light .muscle-icon-wrap { background: #e8e8ef; }
 .light .theme-toggle { background: rgba(0,0,0,0.12); }
 .light .bw-cal-day:active { background: rgba(0,0,0,0.06) !important; }
+
+/* ── Utility Classes ── */
+.color-protein { color: var(--protein); }
+.color-carbs { color: var(--carbs); }
+.color-fat { color: var(--fat); }
+.color-accent { color: var(--accent); }
+.color-green { color: var(--green); }
+.color-muted { color: var(--muted); }
+.bg-protein { background: var(--protein); }
+.bg-carbs { background: var(--carbs); }
+.bg-fat { background: var(--fat); }
+.text-hint { font-size: 0.75rem; color: var(--muted); }
+.text-sub { font-size: 0.8rem; color: var(--muted); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.sheet-row { display: flex; align-items: center; justify-content: space-between; }
+.burger-divider { border-top: 1px solid var(--border); margin: 8px 0; }
+.burger-meta { padding: 8px 20px 4px; font-size: 0.75rem; color: var(--muted); }
+.burger-copyright { padding: 10px 20px 6px; font-size: 0.72rem; color: var(--muted); text-align: center; }

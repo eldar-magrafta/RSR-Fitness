@@ -90,6 +90,7 @@
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .yt-btn:active { opacity: 0.85; }
+.yt-btn-alt { background: rgba(78,205,196,0.12); border-color: rgba(78,205,196,0.3); color: var(--protein); }
 
 /* ── Create Plan / Title Modal Inputs ── */
 .plan-name-input {

@@ -60,15 +60,13 @@
             <span class="burger-item-icon">📥</span>
             <span class="burger-item-label">Export Data</span>
         </div>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);margin:8px 0;"></div>
-        <div style="padding:8px 20px 4px;font-size:0.75rem;color:var(--muted);" id="burgerUserEmail"></div>
+        <div class="burger-divider"></div>
+        <div class="burger-meta" id="burgerUserEmail"></div>
         <div class="burger-item" onclick="handleSignOut()">
             <span class="burger-item-icon">🚪</span>
             <span class="burger-item-label">Sign Out</span>
         </div>
-        <div style="padding:10px 20px 6px;font-size:0.72rem;color:var(--muted);text-align:center;">© 2026 Eldar
-            Magrafta
-        </div>
+        <div class="burger-copyright">© 2026 Eldar Magrafta</div>
     </div>
 
     <!-- ── Exercises Tab ── -->
@@ -276,7 +274,7 @@
             <div class="bw-sheet-handle"></div>
             <button class="sheet-close-btn" onclick="closeExHistEntry()">&times;</button>
             <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div class="sheet-row" style="margin-bottom:4px;">
                 <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
                 <button id="exHistBtnDelTop" onclick="openDeleteExHistConfirm()" class="plan-card-delete" style="display:none;" title="Delete entry"><i class="bi bi-trash3"></i></button>
             </div>
@@ -327,7 +325,7 @@
             </div>
             <div class="modal-tag" id="modalTag"></div>
             <div class="modal-desc" id="modalDesc"></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="sheet-row" style="margin-bottom:10px;">
                 <div class="section-label" style="margin-bottom:0;">Key Tips</div>
                 <img id="ytBtn" src="assets/icons/youtube-logo-icon.png" alt="Watch on YouTube"
                      style="height:28px;width:auto;cursor:pointer;opacity:0.85;transition:opacity 0.2s;"
@@ -363,7 +361,7 @@
                 <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">
                     0 / 250
                 </div>
-                <button class="yt-btn" style="background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.3);color:#4ecdc4;" onclick="openExHistory()">
+                <button class="yt-btn yt-btn-alt" onclick="openExHistory()">
                     📊&nbsp; Log & History
                 </button>
             </div>
@@ -524,13 +522,13 @@
             </div>
             <div class="macro-dist-info">
                 <div class="macro-dist-item">
-                    <span class="macro-dot" style="background:#4ecdc4;"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct" id="macroPctP">30%</span><span class="macro-dist-g" id="macroGramsP">150g</span>
+                    <span class="macro-dot bg-protein"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct" id="macroPctP">30%</span><span class="macro-dist-g" id="macroGramsP">150g</span>
                 </div>
                 <div class="macro-dist-item">
-                    <span class="macro-dot" style="background:#ff6b6b;"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct" id="macroPctC">40%</span><span class="macro-dist-g" id="macroGramsC">200g</span>
+                    <span class="macro-dot bg-carbs"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct" id="macroPctC">40%</span><span class="macro-dist-g" id="macroGramsC">200g</span>
                 </div>
                 <div class="macro-dist-item">
-                    <span class="macro-dot" style="background:#ffd93d;"></span><span class="macro-dist-name">Fat</span><span class="macro-dist-pct" id="macroPctF">30%</span><span class="macro-dist-g" id="macroGramsF">67g</span>
+                    <span class="macro-dot bg-fat"></span><span class="macro-dist-name">Fat</span><span class="macro-dist-pct" id="macroPctF">30%</span><span class="macro-dist-g" id="macroGramsF">67g</span>
                 </div>
             </div>
             <button class="create-btn" onclick="saveMacroGoalsFromModal()">Save Goals</button>
