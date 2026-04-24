@@ -105,6 +105,7 @@ function handleBack() {
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'nl-meal';
   } else if (state.navContext === 'ex-history') {
+    state.currentExerciseName = null;
     if (state.currentPlanId) showPlanDetail(state.currentPlanId);
     else switchTab('exercises');
   } else if (state.navContext === 'nl-browse') {

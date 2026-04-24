@@ -11,9 +11,11 @@ import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
 function exHistToStr(d) { return d.toISOString().slice(0, 10); }
 
 export function openExHistory() {
+  const exName = state.currentExerciseName;
   closeModal();
+  state.currentExerciseName = exName;
   showView('exHistoryView');
-  setHeader(state.currentExerciseName, true);
+  setHeader(exName, true);
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'ex-history';
   state.exHistRange = 0;
