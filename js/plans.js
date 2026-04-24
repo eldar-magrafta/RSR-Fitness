@@ -67,7 +67,6 @@ export function createPlan() {
   plans.push(newPlan);
   savePlans(plans);
   closeCreatePlan();
-  state._planJustCreated = true;
   showPlanDetail(newPlan.id);
 }
 
@@ -177,10 +176,11 @@ export function showPlanDetail(planId) {
   state.navContext = 'plan-detail';
 
   const wasEditing = state._planEditing;
-  const justCreated = state._planJustCreated;
-  state._planJustCreated = false;
   const isEmpty = plan.exercises.length === 0;
-  if (justCreated || wasEditing || isEmpty) {
+  if (isEmpty) {
+    setPlanEditMode(true);
+    setHeader(plan.name, true, null);
+  } else if (wasEditing) {
     setHeader(plan.name, true, null);
     setPlanEditMode(true);
   } else {

@@ -41,7 +41,6 @@ export const state = {
 
   // Plans editing
   _planEditing: false,
-  _planJustCreated: false,
   _pendingDeletePlanId: null,
 
   // Drag state (plans)
