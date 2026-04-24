@@ -293,9 +293,7 @@
             <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
                 <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
-                <button id="exHistBtnDelTop" onclick="deleteExHistEntry()" class="plan-card-delete" style="display:none;font-size:1rem;" title="Delete entry">
-                    🗑
-                </button>
+                <button id="exHistBtnDelTop" onclick="openDeleteExHistConfirm()" class="plan-card-delete" style="display:none;" title="Delete entry">✕</button>
             </div>
             <div style="margin-bottom:14px;">
                 <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Number of
@@ -312,7 +310,17 @@
             <div class="section-label">Notes</div>
             <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…" class="themed-textarea"></textarea>
             <button class="bw-btn-save" onclick="saveExHistEntry()">Save</button>
-            <button class="bw-btn-del" id="exHistBtnDel" onclick="deleteExHistEntry()">Delete Entry</button>
+            <button class="bw-btn-del" id="exHistBtnDel" onclick="openDeleteExHistConfirm()">Delete Entry</button>
+        </div>
+    </div>
+
+    <!-- Delete exercise history entry confirmation -->
+    <div class="confirm-overlay" id="deleteExHistConfirmOverlay" onclick="if(event.target===this)closeDeleteExHistConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete Entry?</div>
+            <div class="confirm-msg" id="deleteExHistConfirmMsg">This log entry will be permanently deleted.</div>
+            <button class="confirm-btn-del" onclick="confirmDeleteExHistEntry()">Delete</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteExHistConfirm()">Cancel</button>
         </div>
     </div>
 

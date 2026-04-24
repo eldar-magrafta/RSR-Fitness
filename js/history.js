@@ -245,12 +245,21 @@ export function saveExHistEntry() {
   renderExHistCal();
 }
 
-export function deleteExHistEntry() {
+export function openDeleteExHistConfirm() {
+  document.getElementById('deleteExHistConfirmOverlay').classList.add('open');
+}
+
+export function closeDeleteExHistConfirm() {
+  document.getElementById('deleteExHistConfirmOverlay').classList.remove('open');
+}
+
+export function confirmDeleteExHistEntry() {
   if (!state.currentExerciseName || !state.exHistSelectedDate) return;
   const hist = getExHist(state.currentExerciseName);
   delete hist[state.exHistSelectedDate];
   saveExHist(state.currentExerciseName, hist);
   recalcPR(state.currentExerciseName);
+  closeDeleteExHistConfirm();
   closeExHistEntry();
   renderExHistChart();
   renderExHistCal();
