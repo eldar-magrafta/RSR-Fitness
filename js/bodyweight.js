@@ -125,9 +125,12 @@ function renderBWChart() {
     <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     ${yLbls}${xLbls}${dots}`;
 
+  const clean = svg.cloneNode(true);
+  svg.parentNode.replaceChild(clean, svg);
+
   const tooltip = document.getElementById('bwTooltip');
   function showTip(clientX) {
-    const rect = svg.getBoundingClientRect();
+    const rect = clean.getBoundingClientRect();
     const relX = (clientX - rect.left) * (W / rect.width);
     let best = pts[0];
     pts.forEach(p => { if (Math.abs(p.x - relX) < Math.abs(best.x - relX)) best = p; });
@@ -137,9 +140,9 @@ function renderBWChart() {
     tooltip.style.left = `${Math.min(Math.max(pct, 5), 65)}%`;
     tooltip.classList.add('visible');
   }
-  svg.addEventListener('touchstart', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });
-  svg.addEventListener('touchmove', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });
-  svg.addEventListener('touchend', () => setTimeout(() => tooltip.classList.remove('visible'), 1400));
+  clean.addEventListener('touchstart', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });
+  clean.addEventListener('touchmove', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });
+  clean.addEventListener('touchend', () => setTimeout(() => tooltip.classList.remove('visible'), 1400));
 }
 
 // ── Calendar ──
