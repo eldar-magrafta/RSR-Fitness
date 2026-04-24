@@ -34,7 +34,7 @@ export function renderPlans() {
           <div class="plan-card-name">${escHtml(plan.name)}</div>
           <div class="plan-card-meta">${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
         </div>
-        <button class="plan-card-delete" title="Delete plan">\u2715</button>`;
+        <button class="plan-card-delete" title="Delete plan"><i class="bi bi-trash3"></i></button>`;
       card.querySelector('.plan-card-info').onclick = () => showPlanDetail(plan.id);
       card.querySelector('.plan-card-delete').onclick = (e) => {
         e.stopPropagation();
@@ -155,7 +155,7 @@ export function showPlanDetail(planId) {
         row.innerHTML = `
           <span class="drag-handle" style="padding:4px 8px 4px 0;font-size:1rem;">\u2807</span>
           <span class="plan-section-title-text">${escHtml(item.title)}</span>
-          <button class="plan-title-remove" title="Remove title">\u2715</button>`;
+          <button class="plan-title-remove" title="Remove title"><i class="bi bi-trash3"></i></button>`;
         row.querySelector('.plan-title-remove').onclick = () => {
           removeTitleFromPlan(planId, idx);
         };
@@ -178,7 +178,7 @@ export function showPlanDetail(planId) {
           <div class="plan-ex-name">${exName}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
         </div>
-        <button class="plan-ex-remove" title="Remove">\u2212</button>`;
+        <button class="plan-ex-remove" title="Remove"><i class="bi bi-trash3"></i></button>`;
       el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, true);
       el.querySelector('.plan-ex-remove').onclick = (e) => {
         e.stopPropagation();

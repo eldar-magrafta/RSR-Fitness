@@ -333,7 +333,7 @@ function bwRenderPhotoArea() {
     area.innerHTML = `
       <div class="bw-thumb-wrap">
         <img class="bw-thumb-img" src="${state.bwCurrentPhoto}" onclick="bwViewPhoto()" />
-        <button class="bw-thumb-remove" onclick="bwRemovePhoto()">\u2715</button>
+        <button class="bw-thumb-remove" onclick="bwRemovePhoto()"><i class="bi bi-trash3"></i></button>
       </div>`;
   } else if (state.bwCurrentPhoto === 'cloud') {
     // Photo exists remotely but couldn't be loaded (offline)

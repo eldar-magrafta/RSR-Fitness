@@ -129,7 +129,7 @@ export function renderNLMeals() {
     return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
       ${cardImg}<div class="nl-meal-card-body">
       <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span>${favBtn}</div>
-        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal">✕</button>
+        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal"><i class="bi bi-trash3"></i></button>
       </div>
       <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
       <div class="nl-meal-cals">🔥 ${t.cal} cal</div>
@@ -159,7 +159,7 @@ function renderNLMealDetail() {
   if (photoSection) {
     if (meal.type === 'saved' && meal.image) {
       const removeBtn = !isDefaultMeal
-        ? `<button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()">✕ Remove</button>`
+        ? `<button class="nl-detail-photo-remove" onclick="nlRemoveMealPhoto()"><i class="bi bi-trash3"></i> Remove</button>`
         : '';
       if (_isCloudMarker(meal.image)) {
         photoSection.innerHTML = `<div class="nl-detail-photo-wrap">
@@ -206,7 +206,7 @@ function renderNLMealDetail() {
           : `<img class="nl-ing-img" src="${ing.img}">`)
         : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
       return `<div class="nl-ing-card">
-        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})">✕</button></div>
+        <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})"><i class="bi bi-trash3"></i></button></div>
         <div class="nl-ing-controls">
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">−</button>
           <div class="nl-ing-grams">${ing.grams}g</div>
@@ -293,7 +293,7 @@ export function renderNLPicker() {
       const isCustom = cat === 'custom';
       const customIdx = isCustom ? getCustomIngs().findIndex(c => c.name === ing.name) : -1;
       const delBtn = isCustom && customIdx >= 0
-        ? `<button class="plan-card-delete" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete">✕</button>`
+        ? `<button class="plan-card-delete" onclick="event.stopPropagation();nlDeleteCustomConfirm(${customIdx})" title="Delete"><i class="bi bi-trash3"></i></button>`
         : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
@@ -565,7 +565,7 @@ function nlRenderCustomPhotoArea() {
     area.innerHTML = `
       <div class="bw-thumb-wrap">
         <img class="bw-thumb-img" src="${photo}" onclick="nlViewCustomPhoto()" />
-        <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()">✕</button>
+        <button class="bw-thumb-remove" onclick="nlRemoveCustomPhoto()"><i class="bi bi-trash3"></i></button>
       </div>`;
   } else if (photo === 'cloud') {
     area.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:10px 0;">📷 Photo saved (offline — connect to view)</div>';
