@@ -55,11 +55,10 @@ function renderExLogCal() {
 
   document.getElementById('exLogCalGrid').innerHTML = html;
 
-  if (state.exLogSelectedDate && allData[state.exLogSelectedDate]) {
-    renderExLogDayDetail(state.exLogSelectedDate, allData[state.exLogSelectedDate]);
+  if (state.exLogSelectedDate) {
+    renderExLogDayDetail(state.exLogSelectedDate, allData[state.exLogSelectedDate] || []);
   } else {
-    document.getElementById('exLogDayDetail').innerHTML =
-      '<div class="exlog-empty">Tap a day to see exercises</div>';
+    document.getElementById('exLogDayDetail').innerHTML = '';
   }
 }
 
@@ -70,9 +69,15 @@ function renderExLogDayDetail(dateStr, exercises) {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 
-  exercises.sort((a, b) => a.name.localeCompare(b.name));
-
   let html = `<div class="exlog-date-label">${label}</div>`;
+
+  if (exercises.length === 0) {
+    html += '<div class="exlog-empty">No exercises logged</div>';
+    container.innerHTML = html;
+    return;
+  }
+
+  exercises.sort((a, b) => a.name.localeCompare(b.name));
   html += `<div class="exlog-count">${exercises.length} exercise${exercises.length !== 1 ? 's' : ''}</div>`;
 
   exercises.forEach(({ name, entry }) => {

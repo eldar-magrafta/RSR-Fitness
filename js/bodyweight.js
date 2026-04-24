@@ -313,7 +313,15 @@ export async function saveBWEntry() {
   buildWeightView();
 }
 
-export function deleteBWEntry() {
+export function openDeleteBWConfirm() {
+  document.getElementById('deleteBWEntryOverlay').classList.add('open');
+}
+
+export function closeDeleteBWConfirm() {
+  document.getElementById('deleteBWEntryOverlay').classList.remove('open');
+}
+
+export function confirmDeleteBWEntry() {
   const data = getBWData();
   const dateStr = state.bwSelDate;
   const photo = bwGetPhoto(data[dateStr]);
@@ -321,6 +329,7 @@ export function deleteBWEntry() {
   delete data[dateStr];
   saveBWData(data);
   state.bwSelDate = null;
+  closeDeleteBWConfirm();
   closeBWEntry();
   buildWeightView();
 }

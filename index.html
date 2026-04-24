@@ -181,7 +181,17 @@
                 <div style="color: var(--muted); font-size: 0.9rem; margin-top: 8px;">Saving photo...</div>
             </div>
             <button class="bw-btn-save" id="bwBtnSave" onclick="saveBWEntry()">Save</button>
-            <button class="bw-btn-del" id="bwBtnDel" onclick="deleteBWEntry()">Delete Entry</button>
+            <button class="bw-btn-del" id="bwBtnDel" onclick="openDeleteBWConfirm()">Delete Entry</button>
+        </div>
+    </div>
+
+    <!-- Delete body weight entry confirmation -->
+    <div class="confirm-overlay" id="deleteBWEntryOverlay" onclick="if(event.target===this)closeDeleteBWConfirm()">
+        <div class="confirm-sheet">
+            <div class="confirm-title">Delete Entry?</div>
+            <div class="confirm-msg">This weight entry will be permanently deleted.</div>
+            <button class="confirm-btn-del" onclick="confirmDeleteBWEntry()">Delete</button>
+            <button class="confirm-btn-cancel" onclick="closeDeleteBWConfirm()">Cancel</button>
         </div>
     </div>
 
