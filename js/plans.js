@@ -178,7 +178,7 @@ export function showPlanDetail(planId) {
           <div class="plan-ex-name">${exName}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
         </div>
-        <button class="plan-ex-remove" title="Remove"><i class="bi bi-trash3"></i></button>`;
+        <button class="plan-ex-remove" title="Remove"><i class="bi bi-dash-circle"></i></button>`;
       el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, true);
       el.querySelector('.plan-ex-remove').onclick = (e) => {
         e.stopPropagation();
