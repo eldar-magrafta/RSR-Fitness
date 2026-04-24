@@ -4,6 +4,17 @@
 import { exerciseData } from '../data/exercises.js';
 import { getExHist, getPRs, savePRs } from './store.js';
 import { exHistMaxWeight } from './utils.js';
+import { showView, setHeader } from './navigation.js';
+import { state } from './state.js';
+
+function bestRepsAtWeight(entry, weight) {
+  if (entry.sets && entry.sets.length) {
+    let maxR = 0;
+    entry.sets.forEach(s => { if ((parseFloat(s.w) || 0) === weight) maxR = Math.max(maxR, parseInt(s.r) || 0); });
+    return maxR;
+  }
+  return parseInt(entry.r) || 0;
+}
 
 /** Rebuild the full PR cache from all exercise history. Call once at init. */
 export function rebuildAllPRs() {
@@ -17,14 +28,8 @@ export function rebuildAllPRs() {
         if (maxW > bestWeight) {
           bestWeight = maxW;
           bestDate = dateStr;
-          if (entry.sets && entry.sets.length) {
-            const topSet = entry.sets.reduce((a, b) => (parseFloat(b.w) || 0) > (parseFloat(a.w) || 0) ? b : a);
-            bestReps = parseInt(topSet.r) || 0;
-            bestSets = entry.sets.length;
-          } else {
-            bestReps = parseInt(entry.r) || 0;
-            bestSets = 1;
-          }
+          bestReps = bestRepsAtWeight(entry, maxW);
+          bestSets = entry.sets ? entry.sets.length : 1;
         }
       });
       if (bestWeight > 0 && bestDate) {
@@ -66,14 +71,8 @@ export function recalcPR(exerciseName) {
     if (maxW > bestWeight) {
       bestWeight = maxW;
       bestDate = dateStr;
-      if (entry.sets && entry.sets.length) {
-        const topSet = entry.sets.reduce((a, b) => (parseFloat(b.w) || 0) > (parseFloat(a.w) || 0) ? b : a);
-        bestReps = parseInt(topSet.r) || 0;
-        bestSets = entry.sets.length;
-      } else {
-        bestReps = parseInt(entry.r) || 0;
-        bestSets = 1;
-      }
+      bestReps = bestRepsAtWeight(entry, maxW);
+      bestSets = entry.sets ? entry.sets.length : 1;
     }
   });
   if (bestWeight > 0 && bestDate) {
@@ -100,4 +99,43 @@ export function showNewPRToast(exerciseName, weight) {
   toast.textContent = `New PR! ${exerciseName}: ${weight}kg`;
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+}
+
+/** Open the Personal Records view from the burger menu */
+export function openPRsView() {
+  showView('prsView');
+  setHeader('Personal Records', true);
+  document.getElementById('fab').classList.add('hidden');
+  state.navContext = 'prs';
+
+  const prs = getPRs();
+  const entries = Object.entries(prs)
+    .map(([name, pr]) => ({ name, ...pr }))
+    .sort((a, b) => b.weight - a.weight);
+
+  const container = document.getElementById('prsContent');
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="prs-empty">No personal records yet. Log exercises to track your PRs.</div>';
+    return;
+  }
+
+  let html = `<div class="prs-table">
+    <div class="prs-header">
+      <div class="prs-col-name">Exercise</div>
+      <div class="prs-col-weight">Weight</div>
+      <div class="prs-col-reps">Reps</div>
+    </div>`;
+
+  entries.forEach((pr, i) => {
+    const medal = i < 3 ? ['🥇','🥈','🥉'][i] : '';
+    html += `<div class="prs-row${i < 3 ? ' prs-top' : ''}">
+      <div class="prs-col-name">${medal ? medal + ' ' : ''}${pr.name}</div>
+      <div class="prs-col-weight">${pr.weight}<span class="prs-unit">kg</span></div>
+      <div class="prs-col-reps">${pr.reps}</div>
+    </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
 }

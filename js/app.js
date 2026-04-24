@@ -12,7 +12,7 @@ import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe } from './bodyweight.js';
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs } from './nutrition.js';
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
-import { rebuildAllPRs } from './prs.js';
+import { rebuildAllPRs, openPRsView } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
@@ -129,6 +129,10 @@ function handleBack() {
     state.currentTab = null;
     switchTab(tab);
   } else if (state.navContext === 'exercise-log') {
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
+  } else if (state.navContext === 'prs') {
     const tab = state.currentTab;
     state.currentTab = null;
     switchTab(tab);
@@ -263,6 +267,7 @@ window.exLogPrevMonth = exLogPrevMonth;
 window.exLogNextMonth = exLogNextMonth;
 window.exLogSelectDate = exLogSelectDate;
 window.openDeleteAllExerciseData = openDeleteAllExerciseData;
+window.openPRsView = openPRsView;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

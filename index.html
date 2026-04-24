@@ -56,6 +56,10 @@
             <span class="burger-item-icon">📅</span>
             <span class="burger-item-label">Exercise Log</span>
         </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openPRsView()">
+            <span class="burger-item-icon">🏆</span>
+            <span class="burger-item-label">Personal Records</span>
+        </div>
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
             <span class="burger-item-label">Export Data</span>
@@ -267,6 +271,11 @@
         </div>
         <div id="exLogDayDetail"></div>
         <button class="bw-delete-all-btn" onclick="openDeleteAllExerciseData()"><i class="bi bi-trash3"></i> Delete All Exercise Data</button>
+    </div>
+
+    <!-- ── Personal Records View ── -->
+    <div class="view" id="prsView">
+        <div id="prsContent"></div>
     </div>
 
     <!-- Exercise History Entry Sheet -->

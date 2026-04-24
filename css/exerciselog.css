@@ -40,3 +40,32 @@
 }
 #exerciseLogView .bw-cal-day.has-data::after { display: none; }
 #exerciseLogView .bw-cal-day.selected .exlog-badge { color: #fff; }
+
+/* ── Personal Records View ── */
+.prs-empty {
+  text-align: center; color: var(--muted); padding: 60px 20px;
+  font-size: 0.9rem;
+}
+.prs-table { padding: 8px 0; }
+.prs-header {
+  display: flex; padding: 8px 16px;
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--muted);
+}
+.prs-row {
+  display: flex; align-items: center;
+  padding: 12px 16px; margin: 0 0 6px;
+  background: var(--card); border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.prs-row.prs-top { border-color: rgba(233,69,96,0.25); }
+.prs-col-name { flex: 1; font-size: 0.9rem; font-weight: 600; }
+.prs-col-weight {
+  width: 72px; text-align: right; font-size: 0.95rem;
+  font-weight: 700; color: var(--accent);
+}
+.prs-col-reps {
+  width: 48px; text-align: right; font-size: 0.9rem;
+  font-weight: 600; color: var(--text-secondary);
+}
+.prs-unit { font-size: 0.72rem; font-weight: 500; opacity: 0.6; margin-left: 1px; }
