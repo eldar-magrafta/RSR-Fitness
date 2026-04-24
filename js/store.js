@@ -7,6 +7,18 @@ let _cloudSave = () => {};
 
 export function setCloudSaver(fn) { _cloudSave = fn; }
 
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      console.warn('localStorage quota exceeded for key:', key);
+    } else {
+      throw e;
+    }
+  }
+}
+
 // Debounce rapid writes to the same Firestore document (e.g. ingredient adjustments, notes)
 const _debounceMap = {};
 function _debouncedCloudSave(section, docId, value, delay = 900) {
@@ -21,7 +33,7 @@ export function getExHist(name) {
 }
 export function saveExHist(name, data) {
   const v = JSON.stringify(data);
-  localStorage.setItem('trainer_exhist_' + name, v);
+  safeSetItem('trainer_exhist_' + name, v);
   _cloudSave('exhist', encodeURIComponent(name), v);
 }
 
@@ -70,7 +82,7 @@ export function migrateOldExLogs() {
             const ds = parsed.toISOString().slice(0, 10);
             if (!existing[ds]) {
               existing[ds] = { w: old.weight, r: old.reps };
-              localStorage.setItem(histKey, JSON.stringify(existing));
+              safeSetItem(histKey, JSON.stringify(existing));
             }
           }
         }
@@ -86,7 +98,7 @@ export function getPlans() {
 }
 export function savePlans(plans) {
   const v = JSON.stringify(plans);
-  localStorage.setItem('trainer_plans', v);
+  safeSetItem('trainer_plans', v);
   _cloudSave('sections', 'plans', v);
 }
 export function getPlan(id) {
@@ -99,7 +111,7 @@ export function getNotes(name) {
 }
 export function saveNotesData(name, text) {
   const t = text.slice(0, 250);
-  localStorage.setItem('trainer_notes_' + name, t);
+  safeSetItem('trainer_notes_' + name, t);
   _debouncedCloudSave('notes', encodeURIComponent(name), t);
 }
 
@@ -109,7 +121,7 @@ export function getBWData() {
 }
 export function saveBWData(data) {
   const v = JSON.stringify(data);
-  localStorage.setItem('trainer_bw', v);
+  safeSetItem('trainer_bw', v);
   _cloudSave('sections', 'bodyweight', v);
 }
 
@@ -185,7 +197,7 @@ export function getNLMeals() {
 }
 export function saveNLMeals(m) {
   const v = JSON.stringify(m);
-  localStorage.setItem('trainer_meals', v);
+  safeSetItem('trainer_meals', v);
   _debouncedCloudSave('sections', 'meals', v);
 }
 
@@ -195,7 +207,7 @@ export function getPRs() {
 }
 export function savePRs(prs) {
   const v = JSON.stringify(prs);
-  localStorage.setItem('trainer_prs', v);
+  safeSetItem('trainer_prs', v);
   _cloudSave('sections', 'prs', v);
 }
 
@@ -215,7 +227,7 @@ export function getMacroGoalsMap() {
 }
 export function saveMacroGoalsMap(map) {
   const v = JSON.stringify(map);
-  localStorage.setItem('trainer_macro_goals_map', v);
+  safeSetItem('trainer_macro_goals_map', v);
   _cloudSave('sections', 'macrogoalsmap', v);
   // Invalidate cache when map changes
   _cachedGoalDates = null;
@@ -304,6 +316,6 @@ export function getCustomIngs() {
 }
 export function saveCustomIngs(c) {
   const v = JSON.stringify(c);
-  localStorage.setItem('trainer_custom_ings', v);
+  safeSetItem('trainer_custom_ings', v);
   _cloudSave('sections', 'customings', v);
 }
