@@ -201,12 +201,16 @@ export function autoSaveExNotes() {
   document.getElementById('modalNotesCount').textContent = `${document.getElementById('modalNotes').value.length} / 250`;
 }
 
+let _onModalClose = null;
+export function setOnModalClose(fn) { _onModalClose = fn; }
+
 /** Close the exercise detail modal */
-export function closeModal() {
+export function closeModal(skipCallback) {
   const modal = document.querySelector('#modalOverlay .modal');
   modal.style.transform = '';
   document.getElementById('modalOverlay').classList.remove('open');
   state.currentExerciseName = null;
+  if (!skipCallback && _onModalClose) _onModalClose();
 }
 
 export function handleOverlayClick(e) {

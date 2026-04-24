@@ -12,7 +12,7 @@ function exHistToStr(d) { return d.toISOString().slice(0, 10); }
 
 export function openExHistory() {
   const exName = state.currentExerciseName;
-  closeModal();
+  closeModal(true);
   state.currentExerciseName = exName;
   showView('exHistoryView');
   setHeader(exName, true);
