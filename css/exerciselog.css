@@ -31,3 +31,12 @@
   margin-top: 8px; font-size: 0.8rem; color: var(--muted);
   font-style: italic;
 }
+
+/* ── Calendar count badge ── */
+.exlog-badge {
+  position: absolute; bottom: 2px;
+  font-size: 0.52rem; font-weight: 700; line-height: 1;
+  color: var(--green);
+}
+#exerciseLogView .bw-cal-day.has-data::after { display: none; }
+#exerciseLogView .bw-cal-day.selected .exlog-badge { color: #fff; }

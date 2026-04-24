@@ -3,9 +3,10 @@
 .plan-card {
   background: var(--card); border-radius: 16px; padding: 20px;
   cursor: pointer; border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 8px;
   transition: transform 0.12s;
 }
+.plan-drag-handle { display: flex; }
 .plan-card:active { transform: scale(0.98); }
 .plan-card-info { flex: 1; cursor: pointer; }
 .plan-card-name { font-size: 1.15rem; font-weight: 700; }

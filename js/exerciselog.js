@@ -44,7 +44,9 @@ function renderExLogCal() {
       hasData ? 'has-data' : '',
       isSelected ? 'selected' : '',
     ].filter(Boolean).join(' ');
-    html += `<div class="${cls}"${isFuture ? '' : ` onclick="exLogSelectDate('${ds}')"`}>${d}</div>`;
+    const count = allData[ds] ? allData[ds].length : 0;
+    const badge = count > 0 ? `<span class="exlog-badge">${count}</span>` : '';
+    html += `<div class="${cls}"${isFuture ? '' : ` onclick="exLogSelectDate('${ds}')"`}>${d}${badge}</div>`;
   }
 
   const remain = 42 - (firstDow + daysInMonth);

@@ -25,11 +25,13 @@ export function renderPlans() {
   } else {
     container.innerHTML = '<div class="plans-list" id="plansList"></div>';
     const list = document.getElementById('plansList');
-    plans.forEach(plan => {
+    plans.forEach((plan, idx) => {
       const card = document.createElement('div');
       card.className = 'plan-card';
+      card.dataset.planIdx = idx;
       const exCount = plan.exercises.filter(i => typeof i === 'string').length;
       card.innerHTML = `
+        <span class="drag-handle plan-drag-handle">⠇</span>
         <div class="plan-card-info">
           <div class="plan-card-name">${escHtml(plan.name)}</div>
           <div class="plan-card-meta">${exCount === 0 ? 'No exercises yet' : exCount + ' exercise' + (exCount !== 1 ? 's' : '')}</div>
@@ -42,6 +44,7 @@ export function renderPlans() {
       };
       list.appendChild(card);
     });
+    [...list.children].forEach((child, i) => _initPlanDrag(child, i));
   }
 }
 
@@ -439,4 +442,73 @@ function _onDragEnd() {
   state._drag = null;
   state._dragOrigItems = null;
   showPlanDetail(state.currentPlanId);
+}
+
+// ── Plans List Drag-to-Reorder ──
+
+function _initPlanDrag(el, domIdx) {
+  const handle = el.querySelector('.drag-handle');
+  if (!handle) return;
+  handle.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    _startPlanDrag(e, domIdx);
+  }, { passive: false });
+}
+
+function _startPlanDrag(e, domIdx) {
+  if (state._drag) return;
+  state._dragOrigItems = getPlans();
+
+  const touch = e.touches[0];
+  const listEl = document.getElementById('plansList');
+  const el = [...listEl.children][domIdx];
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+
+  const ghost = el.cloneNode(true);
+  ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000;pointer-events:none;opacity:0.93;box-shadow:0 10px 40px rgba(0,0,0,0.6);transform:scale(1.03);border-radius:16px;transition:none;background:var(--card);`;
+  document.body.appendChild(ghost);
+  el.style.visibility = 'hidden';
+
+  state._drag = { el, ghost, listEl, offsetY: touch.clientY - rect.top };
+
+  document.addEventListener('touchmove', _onPlanDragMove, { passive: false });
+  document.addEventListener('touchend', _onPlanDragEnd, { once: true });
+}
+
+function _onPlanDragMove(e) {
+  e.preventDefault();
+  if (!state._drag) return;
+  const touch = e.touches[0];
+  const { ghost, el, offsetY, listEl } = state._drag;
+  ghost.style.top = (touch.clientY - offsetY) + 'px';
+
+  const siblings = [...listEl.children].filter(c => c !== el);
+  let insertBefore = null;
+  for (const sib of siblings) {
+    const r = sib.getBoundingClientRect();
+    if (touch.clientY < r.top + r.height / 2) { insertBefore = sib; break; }
+  }
+  if (insertBefore) listEl.insertBefore(el, insertBefore);
+  else listEl.appendChild(el);
+}
+
+function _onPlanDragEnd() {
+  document.removeEventListener('touchmove', _onPlanDragMove);
+  if (!state._drag) return;
+  const { el, ghost, listEl } = state._drag;
+  ghost.remove();
+  el.style.visibility = '';
+
+  const newOrder = [...listEl.children].map(child => {
+    const origIdx = parseInt(child.dataset.planIdx);
+    return state._dragOrigItems[origIdx];
+  }).filter(i => i !== undefined);
+
+  savePlans(newOrder);
+
+  state._drag = null;
+  state._dragOrigItems = null;
+  renderPlans();
 }
