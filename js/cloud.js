@@ -118,6 +118,14 @@ function _updateSyncIndicator() {
   el.title = _cloudError ? 'Cloud sync issue – changes saved locally' : 'Synced';
 }
 
+export async function deleteCollection(collectionName) {
+  if (!_uid || !db) return;
+  try {
+    const snaps = await getDocs(collection(db, 'users', _uid, collectionName));
+    await Promise.all(snaps.docs.map(d => deleteDoc(d.ref)));
+  } catch { /* ignore */ }
+}
+
 // ── Photo document helpers (each photo = its own Firestore doc) ──
 
 export async function savePhotoDoc(collectionName, docId, base64) {

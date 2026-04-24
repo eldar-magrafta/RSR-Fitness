@@ -14,7 +14,7 @@ import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
-import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate } from './exerciselog.js';
+import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -262,6 +262,7 @@ window.openExerciseLog = openExerciseLog;
 window.exLogPrevMonth = exLogPrevMonth;
 window.exLogNextMonth = exLogNextMonth;
 window.exLogSelectDate = exLogSelectDate;
+window.openDeleteAllExerciseData = openDeleteAllExerciseData;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

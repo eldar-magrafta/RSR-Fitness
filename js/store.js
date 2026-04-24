@@ -310,6 +310,18 @@ export function getAllExHistByDate() {
   return result;
 }
 
+// ── Clear All Exercise Data (history + notes + PRs) ──
+export function clearAllExerciseData() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('trainer_exhist_') || k.startsWith('trainer_notes_'))) keys.push(k);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  localStorage.removeItem('trainer_prs');
+  _cloudSave('sections', 'prs', '{}');
+}
+
 // ── Custom Ingredients ──
 export function getCustomIngs() {
   try { return JSON.parse(localStorage.getItem('trainer_custom_ings')) || []; } catch { return []; }

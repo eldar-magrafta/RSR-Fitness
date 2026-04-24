@@ -2,9 +2,10 @@
 // Calendar view showing ALL exercise history across all exercises.
 
 import { state } from './state.js';
-import { getAllExHistByDate } from './store.js';
-import { MONTHS, renderCalendarGrid } from './utils.js';
+import { getAllExHistByDate, clearAllExerciseData } from './store.js';
+import { MONTHS, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { showView, setHeader } from './navigation.js';
+import { deleteCollection } from './cloud.js';
 
 export function openExerciseLog() {
   showView('exerciseLogView');
@@ -99,4 +100,19 @@ export function exLogNextMonth() {
 export function exLogSelectDate(dateStr) {
   state.exLogSelectedDate = dateStr;
   renderExLogCal();
+}
+
+export function openDeleteAllExerciseData() {
+  openConfirmDialog({
+    title: 'Delete All Exercise Data?',
+    message: 'This will permanently remove all exercise logs, notes, and personal records for every exercise. This cannot be undone.',
+    confirmLabel: 'Yes, Delete Everything',
+    onConfirm: () => {
+      clearAllExerciseData();
+      deleteCollection('exhist');
+      deleteCollection('notes');
+      state.exLogSelectedDate = null;
+      renderExLogCal();
+    },
+  });
 }
