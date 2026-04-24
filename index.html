@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/bodyweight.css"/>
     <link rel="stylesheet" href="css/nutrition.css"/>
     <link rel="stylesheet" href="css/summary.css"/>
+    <link rel="stylesheet" href="css/exerciselog.css"/>
     <link rel="stylesheet" href="css/auth.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js"></script>
@@ -50,6 +51,10 @@
         <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
             <span class="burger-item-icon">📊</span>
             <span class="burger-item-label">Activity Summary</span>
+        </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openExerciseLog()">
+            <span class="burger-item-icon">📅</span>
+            <span class="burger-item-label">Exercise Log</span>
         </div>
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
@@ -284,6 +289,19 @@
     <!-- ── Summary View ── -->
     <div class="view" id="summaryView">
         <div id="summaryContent"></div>
+    </div>
+
+    <!-- ── Global Exercise Log View ── -->
+    <div class="view" id="exerciseLogView">
+        <div class="bw-cal-wrap">
+            <div class="bw-cal-header">
+                <button class="bw-cal-nav" onclick="exLogPrevMonth()">&#8249;</button>
+                <span class="bw-cal-title" id="exLogCalTitle"></span>
+                <button class="bw-cal-nav" onclick="exLogNextMonth()">&#8250;</button>
+            </div>
+            <div class="bw-cal-grid" id="exLogCalGrid"></div>
+        </div>
+        <div id="exLogDayDetail"></div>
     </div>
 
     <!-- Exercise History Entry Sheet -->

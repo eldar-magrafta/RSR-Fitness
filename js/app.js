@@ -13,6 +13,7 @@ import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlPickIngredie
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, closeDeleteExHistConfirm, confirmDeleteExHistEntry, initExHistSheetSwipe, openDeleteAllExHist, closeDeleteAllExHist, confirmDeleteAllExHist } from './history.js';
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
+import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate } from './exerciselog.js';
 import { exportData } from './export.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -118,6 +119,10 @@ function handleBack() {
     renderNLMeals();
     renderMacroGoals();
   } else if (state.navContext === 'summary') {
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
+  } else if (state.navContext === 'exercise-log') {
     const tab = state.currentTab;
     state.currentTab = null;
     switchTab(tab);
@@ -252,6 +257,12 @@ window.pickSavedMeal = pickSavedMeal;
 window.openSummary = openSummary;
 window.exportData = exportData;
 window.setSummaryRange = setSummaryRange;
+
+// Global Exercise Log
+window.openExerciseLog = openExerciseLog;
+window.exLogPrevMonth = exLogPrevMonth;
+window.exLogNextMonth = exLogNextMonth;
+window.exLogSelectDate = exLogSelectDate;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

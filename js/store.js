@@ -280,6 +280,24 @@ export function migrateMacroGoalsToMap() {
   if (Object.keys(map).length > 0) saveMacroGoalsMap(map);
 }
 
+// ── All Exercise History (aggregated by date) ──
+export function getAllExHistByDate() {
+  const result = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('trainer_exhist_')) continue;
+    const exName = key.slice('trainer_exhist_'.length);
+    try {
+      const hist = JSON.parse(localStorage.getItem(key)) || {};
+      for (const [dateStr, entry] of Object.entries(hist)) {
+        if (!result[dateStr]) result[dateStr] = [];
+        result[dateStr].push({ name: exName, entry });
+      }
+    } catch { /* skip corrupted */ }
+  }
+  return result;
+}
+
 // ── Custom Ingredients ──
 export function getCustomIngs() {
   try { return JSON.parse(localStorage.getItem('trainer_custom_ings')) || []; } catch { return []; }
