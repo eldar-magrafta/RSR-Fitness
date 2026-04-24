@@ -144,6 +144,62 @@ export function runConfirmDialog() {
   closeConfirmDialog();
 }
 
+/** Generic touch drag-to-reorder for list children with .drag-handle elements */
+let _dragState = null;
+
+export function initDragReorder(el, domIdx, opts) {
+  const handle = el.querySelector('.drag-handle');
+  if (!handle) return;
+  handle.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (_dragState) return;
+
+    const items = opts.getItems();
+    const listEl = document.getElementById(opts.listId);
+    const child = [...listEl.children][domIdx];
+    if (!child) return;
+    const rect = child.getBoundingClientRect();
+
+    const ghost = child.cloneNode(true);
+    ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000;pointer-events:none;opacity:0.93;box-shadow:0 10px 40px rgba(0,0,0,0.6);transform:scale(1.03);border-radius:14px;transition:none;background:var(--card);`;
+    document.body.appendChild(ghost);
+    child.style.visibility = 'hidden';
+
+    _dragState = { el: child, ghost, listEl, offsetY: e.touches[0].clientY - rect.top, origItems: items, dataAttr: opts.dataAttr };
+
+    document.addEventListener('touchmove', _dragMove, { passive: false });
+    document.addEventListener('touchend', () => {
+      document.removeEventListener('touchmove', _dragMove);
+      if (!_dragState) return;
+      _dragState.ghost.remove();
+      _dragState.el.style.visibility = '';
+      const newOrder = [..._dragState.listEl.children].map(c => {
+        const idx = parseInt(c.dataset[_dragState.dataAttr]);
+        return _dragState.origItems[idx];
+      }).filter(i => i !== undefined);
+      _dragState = null;
+      opts.onDrop(newOrder);
+    }, { once: true });
+  }, { passive: false });
+}
+
+function _dragMove(e) {
+  e.preventDefault();
+  if (!_dragState) return;
+  const touch = e.touches[0];
+  const { ghost, el, offsetY, listEl } = _dragState;
+  ghost.style.top = (touch.clientY - offsetY) + 'px';
+  const siblings = [...listEl.children].filter(c => c !== el);
+  let insertBefore = null;
+  for (const sib of siblings) {
+    const r = sib.getBoundingClientRect();
+    if (touch.clientY < r.top + r.height / 2) { insertBefore = sib; break; }
+  }
+  if (insertBefore) listEl.insertBefore(el, insertBefore);
+  else listEl.appendChild(el);
+}
+
 /** Get max weight from an exercise history entry (supports old {w,r} and new {sets:[]} formats) */
 export function exHistMaxWeight(entry) {
   if (entry.sets) return Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));

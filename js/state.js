@@ -47,10 +47,6 @@ export const state = {
   // Plans editing
   _planEditing: false,
 
-  // Drag state (plans)
-  _drag: null,
-  _dragOrigItems: null,
-
   // Custom ingredient editing
   _editingCustomIdx: null,
 };
@@ -70,9 +66,4 @@ export function resetTransientState() {
   state.bwCurrentPhoto = null;
   state.exHistSelectedDate = null;
   state.exLogSelectedDate = null;
-  if (state._drag) {
-    if (state._drag.ghost) state._drag.ghost.remove();
-    state._drag = null;
-  }
-  state._dragOrigItems = null;
 }

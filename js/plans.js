@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getPlans, savePlans, getPlan, getLog } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { openModal } from './exercises.js';
-import { escHtml, openConfirmDialog } from './utils.js';
+import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 
 // ── Plans List ──
 
@@ -44,7 +44,12 @@ export function renderPlans() {
       };
       list.appendChild(card);
     });
-    [...list.children].forEach((child, i) => _initPlanDrag(child, i));
+    [...list.children].forEach((child, i) => initDragReorder(child, i, {
+      listId: 'plansList',
+      dataAttr: 'planIdx',
+      getItems: getPlans,
+      onDrop: newOrder => { savePlans(newOrder); renderPlans(); },
+    }));
   }
 }
 
@@ -183,8 +188,17 @@ export function showPlanDetail(planId) {
     });
   }
 
-  // Init drag-to-reorder
-  [...list.children].forEach((child, i) => _initItemDrag(child, i));
+  [...list.children].forEach((child, i) => initDragReorder(child, i, {
+    listId: 'planDetailList',
+    dataAttr: 'planItemIdx',
+    getItems: () => [...getPlan(state.currentPlanId).exercises],
+    onDrop: newOrder => {
+      const plans = getPlans();
+      const plan = plans.find(p => p.id === state.currentPlanId);
+      if (plan) { plan.exercises = newOrder; savePlans(plans); }
+      showPlanDetail(state.currentPlanId);
+    },
+  }));
 
   showView('planDetailView');
   document.getElementById('fab').classList.add('hidden');
@@ -352,144 +366,3 @@ export function toggleExerciseInPlan(exName, groupKey) {
   });
 }
 
-// ── Drag-to-Reorder ──
-
-function _initItemDrag(el, domIdx) {
-  const handle = el.querySelector('.drag-handle');
-  if (!handle) return;
-  handle.addEventListener('touchstart', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    _startDrag(e, domIdx);
-  }, { passive: false });
-}
-
-function _startDrag(e, domIdx) {
-  if (state._drag) return;
-  const plan = getPlan(state.currentPlanId);
-  if (!plan) return;
-  state._dragOrigItems = [...plan.exercises];
-
-  const touch = e.touches[0];
-  const listEl = document.getElementById('planDetailList');
-  const el = [...listEl.children][domIdx];
-  if (!el) return;
-  const rect = el.getBoundingClientRect();
-
-  const ghost = el.cloneNode(true);
-  ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000;pointer-events:none;opacity:0.93;box-shadow:0 10px 40px rgba(0,0,0,0.6);transform:scale(1.03);border-radius:14px;transition:none;background:var(--card);`;
-  document.body.appendChild(ghost);
-  el.style.visibility = 'hidden';
-
-  state._drag = { el, ghost, listEl, offsetY: touch.clientY - rect.top };
-
-  document.addEventListener('touchmove', _onDragMove, { passive: false });
-  document.addEventListener('touchend', _onDragEnd, { once: true });
-}
-
-function _onDragMove(e) {
-  e.preventDefault();
-  if (!state._drag) return;
-  const touch = e.touches[0];
-  const { ghost, el, offsetY, listEl } = state._drag;
-  ghost.style.top = (touch.clientY - offsetY) + 'px';
-
-  const siblings = [...listEl.children].filter(c => c !== el);
-  let insertBefore = null;
-  for (const sib of siblings) {
-    const r = sib.getBoundingClientRect();
-    if (touch.clientY < r.top + r.height / 2) { insertBefore = sib; break; }
-  }
-  if (insertBefore) listEl.insertBefore(el, insertBefore);
-  else listEl.appendChild(el);
-}
-
-function _onDragEnd() {
-  document.removeEventListener('touchmove', _onDragMove);
-  if (!state._drag) return;
-  const { el, ghost, listEl } = state._drag;
-  ghost.remove();
-  el.style.visibility = '';
-
-  const newOrder = [...listEl.children].map(child => {
-    const origIdx = parseInt(child.dataset.planItemIdx);
-    return state._dragOrigItems[origIdx];
-  }).filter(i => i !== undefined);
-
-  const plans = getPlans();
-  const plan = plans.find(p => p.id === state.currentPlanId);
-  if (plan) { plan.exercises = newOrder; savePlans(plans); }
-
-  state._drag = null;
-  state._dragOrigItems = null;
-  showPlanDetail(state.currentPlanId);
-}
-
-// ── Plans List Drag-to-Reorder ──
-
-function _initPlanDrag(el, domIdx) {
-  const handle = el.querySelector('.drag-handle');
-  if (!handle) return;
-  handle.addEventListener('touchstart', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    _startPlanDrag(e, domIdx);
-  }, { passive: false });
-}
-
-function _startPlanDrag(e, domIdx) {
-  if (state._drag) return;
-  state._dragOrigItems = getPlans();
-
-  const touch = e.touches[0];
-  const listEl = document.getElementById('plansList');
-  const el = [...listEl.children][domIdx];
-  if (!el) return;
-  const rect = el.getBoundingClientRect();
-
-  const ghost = el.cloneNode(true);
-  ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:1000;pointer-events:none;opacity:0.93;box-shadow:0 10px 40px rgba(0,0,0,0.6);transform:scale(1.03);border-radius:16px;transition:none;background:var(--card);`;
-  document.body.appendChild(ghost);
-  el.style.visibility = 'hidden';
-
-  state._drag = { el, ghost, listEl, offsetY: touch.clientY - rect.top };
-
-  document.addEventListener('touchmove', _onPlanDragMove, { passive: false });
-  document.addEventListener('touchend', _onPlanDragEnd, { once: true });
-}
-
-function _onPlanDragMove(e) {
-  e.preventDefault();
-  if (!state._drag) return;
-  const touch = e.touches[0];
-  const { ghost, el, offsetY, listEl } = state._drag;
-  ghost.style.top = (touch.clientY - offsetY) + 'px';
-
-  const siblings = [...listEl.children].filter(c => c !== el);
-  let insertBefore = null;
-  for (const sib of siblings) {
-    const r = sib.getBoundingClientRect();
-    if (touch.clientY < r.top + r.height / 2) { insertBefore = sib; break; }
-  }
-  if (insertBefore) listEl.insertBefore(el, insertBefore);
-  else listEl.appendChild(el);
-}
-
-function _onPlanDragEnd() {
-  document.removeEventListener('touchmove', _onPlanDragMove);
-  if (!state._drag) return;
-  const { el, ghost, listEl } = state._drag;
-  ghost.remove();
-  el.style.visibility = '';
-
-  const newOrder = [...listEl.children].map(child => {
-    const origIdx = parseInt(child.dataset.planIdx);
-    return state._dragOrigItems[origIdx];
-  }).filter(i => i !== undefined);
-
-  savePlans(newOrder);
-
-  state._drag = null;
-  state._dragOrigItems = null;
-  renderPlans();
-}
