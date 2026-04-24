@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
@@ -405,28 +405,21 @@ export function nlCreateMeal() {
 export function openDeleteMealConfirm(mealId) {
   const meal = getNLMeals().find(m => m.id === mealId);
   if (!meal) return;
-  state._pendingDeleteMealId = mealId;
-  document.getElementById('deleteMealConfirmMsg').textContent =
-    `Delete "${meal.name}"? This cannot be undone.`;
-  document.getElementById('deleteMealConfirmOverlay').classList.add('open');
-}
-
-export function closeDeleteMealConfirm() {
-  document.getElementById('deleteMealConfirmOverlay').classList.remove('open');
-  state._pendingDeleteMealId = null;
-}
-
-export function confirmDeleteMeal() {
-  if (!state._pendingDeleteMealId) return;
-  const meal = getNLMeals().find(m => m.id === state._pendingDeleteMealId);
-  if (meal && meal.image && _isCloudMarker(meal.image)) {
-    deletePhoto('meal-photos', _cloudDocId(meal.image));
-  }
-  saveNLMeals(getNLMeals().filter(m => m.id !== state._pendingDeleteMealId));
-  closeDeleteMealConfirm();
-  renderNLCalendar();
-  renderNLMeals();
-  renderMacroGoals();
+  openConfirmDialog({
+    title: 'Delete Meal?',
+    message: `Delete "${meal.name}"? This cannot be undone.`,
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      const m = getNLMeals().find(x => x.id === mealId);
+      if (m && m.image && _isCloudMarker(m.image)) {
+        deletePhoto('meal-photos', _cloudDocId(m.image));
+      }
+      saveNLMeals(getNLMeals().filter(x => x.id !== mealId));
+      renderNLCalendar();
+      renderNLMeals();
+      renderMacroGoals();
+    },
+  });
 }
 
 export function nlOpenRenameModal() {
@@ -693,24 +686,17 @@ export async function nlSaveCustom() {
 export function nlDeleteCustomConfirm(idx) {
   const customs = getCustomIngs();
   if (idx < 0 || idx >= customs.length) return;
-  state._pendingDeleteCustomIdx = idx;
-  document.getElementById('deleteCustomConfirmMsg').textContent =
-    `Delete "${customs[idx].name}"? This cannot be undone.`;
-  document.getElementById('deleteCustomConfirmOverlay').classList.add('open');
-}
-
-export function closeDeleteCustomConfirm() {
-  document.getElementById('deleteCustomConfirmOverlay').classList.remove('open');
-  state._pendingDeleteCustomIdx = null;
-}
-
-export function confirmDeleteCustom() {
-  if (state._pendingDeleteCustomIdx === null) return;
-  const customs = getCustomIngs();
-  customs.splice(state._pendingDeleteCustomIdx, 1);
-  saveCustomIngs(customs);
-  closeDeleteCustomConfirm();
-  renderNLPicker();
+  openConfirmDialog({
+    title: 'Delete Ingredient?',
+    message: `Delete "${customs[idx].name}"? This cannot be undone.`,
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      const c = getCustomIngs();
+      c.splice(idx, 1);
+      saveCustomIngs(c);
+      renderNLPicker();
+    },
+  });
 }
 
 // ── Macro Goals ──
@@ -1003,20 +989,18 @@ export function pickSavedMeal(id) {
 // ── Delete All Meal Logs ──
 
 export function openDeleteAllMealLogs() {
-  document.getElementById('deleteAllMealLogsOverlay').classList.add('open');
-}
-
-export function closeDeleteAllMealLogs() {
-  document.getElementById('deleteAllMealLogsOverlay').classList.remove('open');
-}
-
-export function confirmDeleteAllMealLogs() {
-  const meals = getNLMeals().filter(m => m.type === 'saved');
-  saveNLMeals(meals);
-  closeDeleteAllMealLogs();
-  renderNLCalendar();
-  renderNLMeals();
-  renderMacroGoals();
+  openConfirmDialog({
+    title: 'Delete All Meal Logs?',
+    message: 'This will permanently remove every logged meal. Your saved meals and custom ingredients will not be affected. This cannot be undone.',
+    confirmLabel: 'Yes, Delete Everything',
+    onConfirm: () => {
+      const meals = getNLMeals().filter(m => m.type === 'saved');
+      saveNLMeals(meals);
+      renderNLCalendar();
+      renderNLMeals();
+      renderMacroGoals();
+    },
+  });
 }
 
 // ── Nutrition Calendar ──

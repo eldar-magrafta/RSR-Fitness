@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getBWData, saveBWData, bwGetWeight, bwGetPhoto, saveBWEmpty } from './store.js';
-import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid } from './utils.js';
+import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
@@ -157,19 +157,22 @@ export function renderBWCalendar() {
   });
 }
 
-export function openBWDeleteConfirm() { document.getElementById('bwConfirmOverlay').classList.add('open'); }
-export function closeBWDeleteConfirm() { document.getElementById('bwConfirmOverlay').classList.remove('open'); }
-export function confirmDeleteAllBW() {
-  // Delete all photo docs from Firestore in background
-  const data = getBWData();
-  Object.entries(data).forEach(([dateStr, val]) => {
-    if (bwGetPhoto(val) === 'cloud') deletePhoto('bw-photos', dateStr);
+export function openBWDeleteConfirm() {
+  openConfirmDialog({
+    title: 'Delete All Weight Data?',
+    message: 'This will permanently remove every weight entry and progress photo you\'ve logged. This cannot be undone.',
+    confirmLabel: 'Yes, Delete Everything',
+    onConfirm: () => {
+      const data = getBWData();
+      Object.entries(data).forEach(([dateStr, val]) => {
+        if (bwGetPhoto(val) === 'cloud') deletePhoto('bw-photos', dateStr);
+      });
+      saveBWEmpty();
+      state.bwSelDate = null;
+      state.bwCurrentPhoto = null;
+      buildWeightView();
+    },
   });
-  saveBWEmpty();
-  state.bwSelDate = null;
-  state.bwCurrentPhoto = null;
-  closeBWDeleteConfirm();
-  buildWeightView();
 }
 
 export function bwPrevMonth() {
@@ -298,24 +301,22 @@ export async function saveBWEntry() {
 }
 
 export function openDeleteBWConfirm() {
-  document.getElementById('deleteBWEntryOverlay').classList.add('open');
-}
-
-export function closeDeleteBWConfirm() {
-  document.getElementById('deleteBWEntryOverlay').classList.remove('open');
-}
-
-export function confirmDeleteBWEntry() {
-  const data = getBWData();
-  const dateStr = state.bwSelDate;
-  const photo = bwGetPhoto(data[dateStr]);
-  if (photo === 'cloud') deletePhoto('bw-photos', dateStr);
-  delete data[dateStr];
-  saveBWData(data);
-  state.bwSelDate = null;
-  closeDeleteBWConfirm();
-  closeBWEntry();
-  buildWeightView();
+  openConfirmDialog({
+    title: 'Delete Entry?',
+    message: 'This weight entry will be permanently deleted.',
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      const data = getBWData();
+      const dateStr = state.bwSelDate;
+      const photo = bwGetPhoto(data[dateStr]);
+      if (photo === 'cloud') deletePhoto('bw-photos', dateStr);
+      delete data[dateStr];
+      saveBWData(data);
+      state.bwSelDate = null;
+      closeBWEntry();
+      buildWeightView();
+    },
+  });
 }
 
 // ── Photo Functions ──

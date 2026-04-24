@@ -7,10 +7,11 @@ import { initFirebase, onAuthChange, loadFromCloud, signOutUser } from './cloud.
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler } from './exercises.js';
-import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, closeDeletePlanConfirm, confirmDeletePlan, showPlanDetail, openRemoveExConfirm, closeRemoveExConfirm, confirmRemoveEx, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
-import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, closeDeleteBWConfirm, confirmDeleteBWEntry, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, closeBWDeleteConfirm, confirmDeleteAllBW, initBWSheetSwipe } from './bodyweight.js';
-import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, closeDeleteMealConfirm, confirmDeleteMeal, nlToggleFav, nlDuplicateMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, closeDeleteCustomConfirm, confirmDeleteCustom, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs, closeDeleteAllMealLogs, confirmDeleteAllMealLogs } from './nutrition.js';
-import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, closeDeleteExHistConfirm, confirmDeleteExHistEntry, initExHistSheetSwipe, openDeleteAllExHist, closeDeleteAllExHist, confirmDeleteAllExHist } from './history.js';
+import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
+import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
+import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe } from './bodyweight.js';
+import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs } from './nutrition.js';
+import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
 import { rebuildAllPRs } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate } from './exerciselog.js';
@@ -155,6 +156,10 @@ window.openExHistory = openExHistory;
 window.globalExSearchHandler = globalExSearchHandler;
 window.groupExSearchHandler = groupExSearchHandler;
 
+// Shared confirm dialog
+window.closeConfirmDialog = closeConfirmDialog;
+window.runConfirmDialog = runConfirmDialog;
+
 // Plans
 window.renderPlans = renderPlans;
 window.openCreatePlan = openCreatePlan;
@@ -163,16 +168,12 @@ window.handleCreateOverlayClick = handleCreateOverlayClick;
 window.createPlan = createPlan;
 window.setPlanEditMode = setPlanEditMode;
 window.openDeletePlanConfirm = openDeletePlanConfirm;
-window.closeDeletePlanConfirm = closeDeletePlanConfirm;
-window.confirmDeletePlan = confirmDeletePlan;
 window.showPlanDetail = showPlanDetail;
 window.showExercisePicker = showExercisePicker;
 window.togglePickerGroup = togglePickerGroup;
 window.toggleExerciseInPlan = toggleExerciseInPlan;
 window.previewExercise = previewExercise;
 window.openRemoveExConfirm = openRemoveExConfirm;
-window.closeRemoveExConfirm = closeRemoveExConfirm;
-window.confirmRemoveEx = confirmRemoveEx;
 window.openAddTitle = openAddTitle;
 window.closeAddTitle = closeAddTitle;
 window.handleTitleOverlayClick = handleTitleOverlayClick;
@@ -188,15 +189,11 @@ window.closeBWEntry = closeBWEntry;
 window.handleBWOverlay = handleBWOverlay;
 window.saveBWEntry = saveBWEntry;
 window.openDeleteBWConfirm = openDeleteBWConfirm;
-window.closeDeleteBWConfirm = closeDeleteBWConfirm;
-window.confirmDeleteBWEntry = confirmDeleteBWEntry;
 window.bwOnFileSelect = bwOnFileSelect;
 window.bwRemovePhoto = bwRemovePhoto;
 window.bwViewPhoto = bwViewPhoto;
 window.closeBWViewer = closeBWViewer;
 window.openBWDeleteConfirm = openBWDeleteConfirm;
-window.closeBWDeleteConfirm = closeBWDeleteConfirm;
-window.confirmDeleteAllBW = confirmDeleteAllBW;
 
 // Nutrition
 window.renderNLMeals = renderNLMeals;
@@ -212,8 +209,6 @@ window.nlOpenCreateModal = nlOpenCreateModal;
 window.nlCloseCreate = nlCloseCreate;
 window.nlCreateMeal = nlCreateMeal;
 window.openDeleteMealConfirm = openDeleteMealConfirm;
-window.closeDeleteMealConfirm = closeDeleteMealConfirm;
-window.confirmDeleteMeal = confirmDeleteMeal;
 window.nlToggleFav = nlToggleFav;
 window.nlDuplicateMeal = nlDuplicateMeal;
 window.nlUploadMealPhoto = nlUploadMealPhoto;
@@ -231,14 +226,10 @@ window.nlViewCustomPhoto = nlViewCustomPhoto;
 window.nlUpdateCustomCal = nlUpdateCustomCal;
 window.nlSaveCustom = nlSaveCustom;
 window.nlDeleteCustomConfirm = nlDeleteCustomConfirm;
-window.closeDeleteCustomConfirm = closeDeleteCustomConfirm;
-window.confirmDeleteCustom = confirmDeleteCustom;
 window.nlOpenRenameModal = nlOpenRenameModal;
 window.nlCloseRename = nlCloseRename;
 window.nlSaveRename = nlSaveRename;
 window.openDeleteAllMealLogs = openDeleteAllMealLogs;
-window.closeDeleteAllMealLogs = closeDeleteAllMealLogs;
-window.confirmDeleteAllMealLogs = confirmDeleteAllMealLogs;
 window.nlAdjustIng = nlAdjustIng;
 window.nlRemoveIng = nlRemoveIng;
 window.nlAutoSaveNotes = nlAutoSaveNotes;
@@ -281,11 +272,7 @@ window.openExHistEntry = openExHistEntry;
 window.closeExHistEntry = closeExHistEntry;
 window.saveExHistEntry = saveExHistEntry;
 window.openDeleteExHistConfirm = openDeleteExHistConfirm;
-window.closeDeleteExHistConfirm = closeDeleteExHistConfirm;
-window.confirmDeleteExHistEntry = confirmDeleteExHistEntry;
 window.openDeleteAllExHist = openDeleteAllExHist;
-window.closeDeleteAllExHist = closeDeleteAllExHist;
-window.confirmDeleteAllExHist = confirmDeleteAllExHist;
 
 // ═══════════════════════════════════════════
 // Burger Menu & Theme

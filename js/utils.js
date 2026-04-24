@@ -123,6 +123,27 @@ export function renderCalendarGrid(year, month, opts) {
   return html;
 }
 
+/** Shared confirmation dialog – replaces 9 near-identical confirm overlays */
+let _confirmCallback = null;
+
+export function openConfirmDialog({ title, message, confirmLabel, onConfirm }) {
+  document.getElementById('confirmDialogTitle').textContent = title;
+  document.getElementById('confirmDialogMsg').textContent = message;
+  document.getElementById('confirmDialogBtn').textContent = confirmLabel || 'Delete';
+  _confirmCallback = onConfirm;
+  document.getElementById('confirmDialogOverlay').classList.add('open');
+}
+
+export function closeConfirmDialog() {
+  document.getElementById('confirmDialogOverlay').classList.remove('open');
+  _confirmCallback = null;
+}
+
+export function runConfirmDialog() {
+  if (_confirmCallback) _confirmCallback();
+  closeConfirmDialog();
+}
+
 /** Get max weight from an exercise history entry (supports old {w,r} and new {sets:[]} formats) */
 export function exHistMaxWeight(entry) {
   if (entry.sets) return Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));

@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getExHist, saveExHist } from './store.js';
-import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid } from './utils.js';
+import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
@@ -233,40 +233,34 @@ export function saveExHistEntry() {
 }
 
 export function openDeleteExHistConfirm() {
-  document.getElementById('deleteExHistConfirmOverlay').classList.add('open');
+  openConfirmDialog({
+    title: 'Delete Entry?',
+    message: 'This log entry will be permanently deleted.',
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      if (!state.currentExerciseName || !state.exHistSelectedDate) return;
+      const hist = getExHist(state.currentExerciseName);
+      delete hist[state.exHistSelectedDate];
+      saveExHist(state.currentExerciseName, hist);
+      recalcPR(state.currentExerciseName);
+      closeExHistEntry();
+      renderExHistChart();
+      renderExHistCal();
+    },
+  });
 }
-
-export function closeDeleteExHistConfirm() {
-  document.getElementById('deleteExHistConfirmOverlay').classList.remove('open');
-}
-
-export function confirmDeleteExHistEntry() {
-  if (!state.currentExerciseName || !state.exHistSelectedDate) return;
-  const hist = getExHist(state.currentExerciseName);
-  delete hist[state.exHistSelectedDate];
-  saveExHist(state.currentExerciseName, hist);
-  recalcPR(state.currentExerciseName);
-  closeDeleteExHistConfirm();
-  closeExHistEntry();
-  renderExHistChart();
-  renderExHistCal();
-}
-
-// ── Delete All History for current exercise ──
 
 export function openDeleteAllExHist() {
-  document.getElementById('exHistDeleteAllOverlay').classList.add('open');
-}
-
-export function closeDeleteAllExHist() {
-  document.getElementById('exHistDeleteAllOverlay').classList.remove('open');
-}
-
-export function confirmDeleteAllExHist() {
-  if (!state.currentExerciseName) return;
-  saveExHist(state.currentExerciseName, {});
-  recalcPR(state.currentExerciseName);
-  closeDeleteAllExHist();
-  renderExHistChart();
-  renderExHistCal();
+  openConfirmDialog({
+    title: 'Delete All History?',
+    message: 'This will permanently remove every logged entry for this exercise. This cannot be undone.',
+    confirmLabel: 'Yes, Delete Everything',
+    onConfirm: () => {
+      if (!state.currentExerciseName) return;
+      saveExHist(state.currentExerciseName, {});
+      recalcPR(state.currentExerciseName);
+      renderExHistChart();
+      renderExHistCal();
+    },
+  });
 }

@@ -46,22 +46,13 @@ export const state = {
 
   // Plans editing
   _planEditing: false,
-  _pendingDeletePlanId: null,
 
   // Drag state (plans)
   _drag: null,
   _dragOrigItems: null,
 
-  // Remove exercise confirmation
-  _pendingRemovePlanId: null,
-  _pendingRemoveExName: null,
-
-  // Delete meal confirmation
-  _pendingDeleteMealId: null,
-
   // Custom ingredient editing
   _editingCustomIdx: null,
-  _pendingDeleteCustomIdx: null,
 };
 
 export function resetTransientState() {
@@ -69,12 +60,7 @@ export function resetTransientState() {
   state.currentPlanId = null;
   state.currentMuscleKey = null;
   state._planEditing = false;
-  state._pendingDeletePlanId = null;
-  state._pendingRemovePlanId = null;
-  state._pendingRemoveExName = null;
-  state._pendingDeleteMealId = null;
   state._editingCustomIdx = null;
-  state._pendingDeleteCustomIdx = null;
   state.nlCurrentMealId = null;
   state.nlPickerIng = null;
   state.nlPickerGrams = 100;

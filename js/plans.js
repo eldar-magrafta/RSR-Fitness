@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getPlans, savePlans, getPlan, getLog } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { openModal } from './exercises.js';
-import { escHtml } from './utils.js';
+import { escHtml, openConfirmDialog } from './utils.js';
 
 // ── Plans List ──
 
@@ -111,25 +111,17 @@ export function setPlanEditMode(editing) {
   }
 }
 
-/** Open delete-plan confirmation from the plans list card */
 export function openDeletePlanConfirm(planId, planName) {
-  state._pendingDeletePlanId = planId;
-  document.getElementById('deletePlanConfirmMsg').textContent =
-    `Delete "${planName}"? This cannot be undone.`;
-  document.getElementById('deletePlanConfirmOverlay').classList.add('open');
-}
-
-export function closeDeletePlanConfirm() {
-  document.getElementById('deletePlanConfirmOverlay').classList.remove('open');
-  state._pendingDeletePlanId = null;
-}
-
-export function confirmDeletePlan() {
-  if (!state._pendingDeletePlanId) return;
-  const plans = getPlans().filter(p => p.id !== state._pendingDeletePlanId);
-  savePlans(plans);
-  closeDeletePlanConfirm();
-  renderPlans();
+  openConfirmDialog({
+    title: 'Delete Plan?',
+    message: `Delete "${planName}"? This cannot be undone.`,
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      const plans = getPlans().filter(p => p.id !== planId);
+      savePlans(plans);
+      renderPlans();
+    },
+  });
 }
 
 // ── Plan Detail ──
@@ -215,23 +207,12 @@ export function showPlanDetail(planId) {
 // ── Remove Exercise Confirmation ──
 
 export function openRemoveExConfirm(planId, exName) {
-  state._pendingRemovePlanId = planId;
-  state._pendingRemoveExName = exName;
-  document.getElementById('removeExConfirmMsg').textContent =
-    `Remove "${exName}" from this plan?`;
-  document.getElementById('removeExConfirmOverlay').classList.add('open');
-}
-
-export function closeRemoveExConfirm() {
-  document.getElementById('removeExConfirmOverlay').classList.remove('open');
-  state._pendingRemovePlanId = null;
-  state._pendingRemoveExName = null;
-}
-
-export function confirmRemoveEx() {
-  if (state._pendingRemovePlanId && state._pendingRemoveExName)
-    removeExerciseFromPlan(state._pendingRemovePlanId, state._pendingRemoveExName);
-  closeRemoveExConfirm();
+  openConfirmDialog({
+    title: 'Remove Exercise?',
+    message: `Remove "${exName}" from this plan?`,
+    confirmLabel: 'Remove',
+    onConfirm: () => removeExerciseFromPlan(planId, exName),
+  });
 }
 
 function removeExerciseFromPlan(planId, exName) {
