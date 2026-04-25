@@ -154,6 +154,7 @@ export function renderBWCalendar() {
     hasData: ds => data[ds],
     selected: state.bwSelDate,
     onClick: 'openBWEntry',
+    badge: ds => data[ds] && bwGetPhoto(data[ds]) ? '<span class="bw-cal-photo">📷</span>' : '',
   });
 }
 

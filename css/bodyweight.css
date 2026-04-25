@@ -32,6 +32,8 @@
 .bw-cal-day.selected { background: var(--accent) !important; color: #fff !important; font-weight: 700; }
 .bw-cal-day.selected.has-data::after { background: #fff; }
 .bw-cal-day.future { color: var(--text-faint); cursor: default; pointer-events: none; }
+.bw-cal-photo { position: absolute; bottom: 1px; font-size: 0.5rem; line-height: 1; }
+.bw-cal-day:has(.bw-cal-photo)::after { display: none; }
 
 /* ── Delete All Button ── */
 .bw-delete-all-btn { width: 100%; background: none; border: 1px solid rgba(233,69,96,0.25); color: rgba(233,69,96,0.6); padding: 14px; border-radius: 16px; font-size: 0.9rem; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 24px; }
