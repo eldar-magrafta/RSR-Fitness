@@ -60,6 +60,10 @@
             <span class="burger-item-icon">🏆</span>
             <span class="burger-item-label">Personal Records</span>
         </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openGallery()">
+            <span class="burger-item-icon">📸</span>
+            <span class="burger-item-label">Progress Photos</span>
+        </div>
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
             <span class="burger-item-label">Export Data</span>
@@ -276,6 +280,11 @@
     <!-- ── Personal Records View ── -->
     <div class="view" id="prsView">
         <div id="prsContent"></div>
+    </div>
+
+    <!-- ── Progress Photos Gallery ── -->
+    <div class="view" id="galleryView">
+        <div id="galleryContent"></div>
     </div>
 
     <!-- Exercise History Entry Sheet -->

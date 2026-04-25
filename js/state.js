@@ -8,7 +8,7 @@ export const state = {
   currentMuscleKey: null,
   currentPlanId: null,
   currentExerciseName: null,
-  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'|'summary'|'exercise-log'|'prs'
+  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'|'summary'|'exercise-log'|'prs'|'gallery'
 
   // Body Weight
   bwCalYear: new Date().getFullYear(),

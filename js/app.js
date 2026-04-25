@@ -16,6 +16,7 @@ import { rebuildAllPRs, openPRsView } from './prs.js';
 import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
+import { openGallery } from './gallery.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -133,6 +134,10 @@ function handleBack() {
     state.currentTab = null;
     switchTab(tab);
   } else if (state.navContext === 'prs') {
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
+  } else if (state.navContext === 'gallery') {
     const tab = state.currentTab;
     state.currentTab = null;
     switchTab(tab);
@@ -268,6 +273,7 @@ window.exLogNextMonth = exLogNextMonth;
 window.exLogSelectDate = exLogSelectDate;
 window.openDeleteAllExerciseData = openDeleteAllExerciseData;
 window.openPRsView = openPRsView;
+window.openGallery = openGallery;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

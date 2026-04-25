@@ -1,7 +1,7 @@
 /* ── Body Weight Stats ── */
 .bw-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
 .bw-stat { background: var(--card); border-radius: 14px; padding: 12px 6px; text-align: center; }
-.bw-stat-val { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.bw-stat-val { font-size: 1.05rem; font-weight: 700; }
 .bw-stat-lbl { font-size: 0.6rem; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
 
 /* ── Chart (shared by BW and Exercise History) ── */
