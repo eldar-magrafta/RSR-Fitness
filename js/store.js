@@ -132,7 +132,13 @@ export function saveBWEmpty() {
 
 // Backward-compat helpers (old entries are plain numbers, new are {w,p} objects)
 export function bwGetWeight(val) { return typeof val === 'object' && val ? Number(val.w) : Number(val); }
-export function bwGetPhoto(val) { return typeof val === 'object' && val ? (val.p || null) : null; }
+// Returns array of photo markers (e.g. ['cloud','cloud']) or empty array
+export function bwGetPhotos(val) {
+  if (typeof val !== 'object' || !val || !val.p) return [];
+  if (Array.isArray(val.p)) return val.p;
+  return [val.p]; // migrate old single-string format
+}
+export function bwHasPhoto(val) { return bwGetPhotos(val).length > 0; }
 
 // ── Nutrition Lab Meals ──
 const DEFAULT_MEALS = [

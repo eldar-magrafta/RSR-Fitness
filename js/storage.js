@@ -3,7 +3,7 @@
 // IndexedDB caches photos locally for offline use and reduced Firestore reads.
 
 import { savePhotoDoc, deletePhotoDoc, loadPhotoDoc, loadAllPhotoDocs } from './cloud.js';
-import { getBWData, saveBWData, bwGetPhoto, bwGetWeight, getNLMeals, saveNLMeals } from './store.js';
+import { getBWData, saveBWData, bwGetPhotos, bwGetWeight, getNLMeals, saveNLMeals } from './store.js';
 
 // ── Helpers ──
 
@@ -83,14 +83,23 @@ export async function migratePhotosToStorage(uid) {
   const bwData = getBWData();
 
   for (const [dateStr, val] of Object.entries(bwData)) {
-    const photo = bwGetPhoto(val);
-    if (!photo || !isBase64(photo) || migrated['bw:' + dateStr]) continue;
-    try {
-      await savePhoto('bw-photos', dateStr, photo);
-      bwData[dateStr] = { w: bwGetWeight(val), p: 'cloud' };
-      migrated['bw:' + dateStr] = true;
+    const photos = bwGetPhotos(val);
+    if (photos.length === 0) continue;
+    const markers = [...photos];
+    let entryChanged = false;
+    for (let i = 0; i < photos.length; i++) {
+      if (!isBase64(photos[i]) || migrated['bw:' + dateStr + '_' + i]) continue;
+      try {
+        await savePhoto('bw-photos', dateStr + '_' + i, photos[i]);
+        markers[i] = 'cloud';
+        migrated['bw:' + dateStr + '_' + i] = true;
+        entryChanged = true;
+      } catch { /* leave as-is, retry next login */ }
+    }
+    if (entryChanged) {
+      bwData[dateStr] = { w: bwGetWeight(val), p: markers.length === 1 ? markers : markers };
       changed = true;
-    } catch { /* leave as-is, retry next login */ }
+    }
   }
 
   if (changed) saveBWData(bwData);

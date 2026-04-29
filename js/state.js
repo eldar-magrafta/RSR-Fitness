@@ -15,7 +15,7 @@ export const state = {
   bwCalMon: new Date().getMonth(),
   bwRange: 30,
   bwSelDate: null,
-  bwCurrentPhoto: null,
+  bwCurrentPhotos: [],
 
   // Nutrition Lab
   nlViewMode: 'today',  // 'today' | 'saved'
@@ -63,7 +63,7 @@ export function resetTransientState() {
   state.nlBrowseMode = false;
   state.nlCustomPhotoBase64 = null;
   state.bwSelDate = null;
-  state.bwCurrentPhoto = null;
+  state.bwCurrentPhotos = [];
   state.exHistSelectedDate = null;
   state.exLogSelectedDate = null;
 }

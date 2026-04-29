@@ -2,7 +2,7 @@
 // Timeline view of all body weight progress photos.
 
 import { state } from './state.js';
-import { getBWData, bwGetWeight, bwGetPhoto } from './store.js';
+import { getBWData, bwGetWeight, bwGetPhotos, bwHasPhoto } from './store.js';
 import { loadPhoto } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { fmtDateLabel } from './utils.js';
@@ -20,7 +20,7 @@ async function renderGallery() {
   const data = getBWData();
 
   const photoDates = Object.entries(data)
-    .filter(([, val]) => bwGetPhoto(val))
+    .filter(([, val]) => bwHasPhoto(val))
     .sort(([a], [b]) => b.localeCompare(a));
 
   if (photoDates.length === 0) {
@@ -28,50 +28,64 @@ async function renderGallery() {
     return;
   }
 
-  container.innerHTML = '<div class="gallery-grid" id="galleryGrid"></div>';
-  const grid = document.getElementById('galleryGrid');
-
+  let html = '';
   for (const [dateStr, val] of photoDates) {
     const weight = bwGetWeight(val);
-    const card = document.createElement('div');
-    card.className = 'gallery-card';
+    const photos = bwGetPhotos(val);
+    html += `<div class="gallery-group">
+      <div class="gallery-group-header">
+        <span class="gallery-date">${fmtDateLabel(dateStr)}</span>
+        ${weight ? `<span class="gallery-weight">${weight.toFixed(1)} kg</span>` : ''}
+      </div>
+      <div class="gallery-group-photos" id="gallery-${dateStr}"></div>
+    </div>`;
+  }
+  container.innerHTML = html;
 
-    const img = document.createElement('img');
-    img.className = 'gallery-img';
-    img.alt = dateStr;
+  // Load photos asynchronously
+  for (const [dateStr, val] of photoDates) {
+    const photos = bwGetPhotos(val);
+    const row = document.getElementById('gallery-' + dateStr);
 
-    const info = document.createElement('div');
-    info.className = 'gallery-info';
-    info.innerHTML = `<div class="gallery-date">${fmtDateLabel(dateStr)}</div>` +
-      (weight ? `<div class="gallery-weight">${weight.toFixed(1)} kg</div>` : '');
+    photos.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'gallery-card';
+      const img = document.createElement('img');
+      img.className = 'gallery-img';
+      img.alt = `${dateStr} #${i + 1}`;
+      card.appendChild(img);
+      row.appendChild(card);
 
-    card.appendChild(img);
-    card.appendChild(info);
-    grid.appendChild(card);
+      card.onclick = () => {
+        if (!img.src || img.dataset.loading) return;
+        document.getElementById('bwViewerImg').src = img.src;
+        document.getElementById('bwViewer').classList.add('open');
+      };
 
-    card.onclick = () => {
-      if (!img.src || img.dataset.loading) return;
-      document.getElementById('bwViewerImg').src = img.src;
-      document.getElementById('bwViewer').classList.add('open');
-    };
-
-    const photo = bwGetPhoto(val);
-    if (photo === 'cloud') {
-      img.dataset.loading = '1';
-      img.style.opacity = '0.3';
-      loadPhoto('bw-photos', dateStr).then(base64 => {
-        delete img.dataset.loading;
-        img.style.opacity = '';
-        if (base64) {
-          img.src = base64;
-        } else {
-          img.src = '';
-          card.classList.add('gallery-offline');
-          info.innerHTML += '<div class="gallery-offline-msg">Offline</div>';
-        }
-      });
-    } else {
-      img.src = photo;
-    }
+      if (p === 'cloud') {
+        img.dataset.loading = '1';
+        img.style.opacity = '0.3';
+        loadPhoto('bw-photos', dateStr + '_' + i).then(base64 => {
+          if (base64) {
+            delete img.dataset.loading;
+            img.style.opacity = '';
+            img.src = base64;
+          } else if (i === 0) {
+            return loadPhoto('bw-photos', dateStr).then(legacy => {
+              delete img.dataset.loading;
+              img.style.opacity = '';
+              if (legacy) img.src = legacy;
+              else card.classList.add('gallery-offline');
+            });
+          } else {
+            delete img.dataset.loading;
+            img.style.opacity = '';
+            card.classList.add('gallery-offline');
+          }
+        });
+      } else if (p) {
+        img.src = p;
+      }
+    });
   }
 }
