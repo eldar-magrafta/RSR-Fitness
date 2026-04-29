@@ -81,12 +81,12 @@
   padding: 4px 0; margin-bottom: 8px;
 }
 .gallery-group-photos {
-  display: flex; gap: 8px; flex-wrap: wrap;
+  display: flex; gap: 8px;
 }
 .gallery-card {
   background: var(--card); border-radius: 14px; overflow: hidden;
   border: 1px solid var(--border); cursor: pointer;
-  width: calc(50% - 4px);
+  flex: 1; min-width: 0;
 }
 .gallery-card:active { opacity: 0.85; }
 .gallery-img {
