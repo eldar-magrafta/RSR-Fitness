@@ -305,7 +305,7 @@ function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
-  if (metaTheme) metaTheme.content = isLight ? '#f2f2f7' : '#0f0f1a';
+  if (metaTheme) metaTheme.content = isLight ? '#eef1fa' : '#060611';
 }
 
 function applyStoredTheme() {
@@ -313,7 +313,7 @@ function applyStoredTheme() {
   if (stored === 'light') {
     document.documentElement.classList.add('light');
     const metaTheme = document.querySelector('meta[name="theme-color"]');
-    if (metaTheme) metaTheme.content = '#f2f2f7';
+    if (metaTheme) metaTheme.content = '#eef1fa';
   }
 }
 

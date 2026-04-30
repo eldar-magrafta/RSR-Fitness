@@ -1,64 +1,68 @@
 /* ── Summary View ── */
 .summary-range-row { display:flex; gap:8px; margin-bottom:12px; }
 .summary-range-btn {
-  flex:1; background:var(--subtle-bg); border:1px solid var(--border-med);
-  color:var(--text-secondary); border-radius:10px; padding:10px;
-  font-size:0.9rem; font-weight:600; cursor:pointer; font-family:inherit;
+  flex:1; background:var(--subtle-bg); border:1px solid var(--border);
+  color:var(--text-secondary); border-radius:12px; padding:10px;
+  font-size:0.9rem; font-weight:700; cursor:pointer; font-family:inherit;
   transition:all 0.2s;
 }
 .summary-range-btn.active {
-  background:rgba(233,69,96,0.15); border-color:rgba(233,69,96,0.3);
-  color:var(--accent);
+  background:rgba(0,229,255,0.1); border-color:rgba(0,229,255,0.25);
+  color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.08);
 }
 .summary-top-row { display:flex; gap:12px; margin-bottom:16px; align-items:stretch; }
 .summary-stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
 .summary-stat-card {
-  background:var(--card); border-radius:16px;
+  background:var(--card); border-radius:18px;
   padding:18px 12px; border:1px solid var(--border); text-align:center;
-  flex-shrink:0;
+  flex-shrink:0; position:relative; overflow:hidden;
+}
+.summary-stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--accent), var(--accent2)); opacity:0.5;
 }
 .summary-bw-chart {
-  flex:1; min-width:0; background:var(--card); border-radius:16px;
+  flex:1; min-width:0; background:var(--card); border-radius:18px;
   border:1px solid var(--border); padding:8px 6px; display:flex;
   align-items:center; justify-content:center; overflow:hidden;
 }
 .summary-stat-val { font-size:1.6rem; font-weight:800; color:var(--accent); }
 .summary-stat-lbl {
   font-size:0.72rem; color:var(--muted); margin-top:4px;
-  text-transform:uppercase; letter-spacing:0.5px;
+  text-transform:uppercase; letter-spacing:0.5px; font-weight:600;
 }
 .summary-section {
-  background:var(--card); border-radius:16px;
+  background:var(--card); border-radius:18px;
   padding:16px; border:1px solid var(--border); margin-bottom:14px;
 }
 .summary-section-title {
-  font-size:0.78rem; font-weight:700; text-transform:uppercase;
-  letter-spacing:1px; color:var(--muted); margin-bottom:12px;
+  font-size:0.78rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:1px; color:var(--accent); margin-bottom:12px;
 }
 .summary-ex-item {
   display:flex; justify-content:space-between; align-items:center;
   padding:8px 0; border-bottom:1px solid var(--border);
 }
 .summary-ex-item:last-child { border-bottom:none; }
-.summary-ex-name { font-size:0.9rem; font-weight:600; }
+.summary-ex-name { font-size:0.9rem; font-weight:700; }
 .summary-ex-vol { font-size:0.85rem; color:var(--muted); }
 .summary-weight-row {
   display:flex; justify-content:space-between; align-items:center;
   font-size:0.95rem;
 }
-.summary-weight-delta { font-weight:700; font-size:1.1rem; }
+.summary-weight-delta { font-weight:800; font-size:1.1rem; }
 .summary-weight-delta.down { color:var(--green); }
-.summary-weight-delta.up { color:var(--accent); }
+.summary-weight-delta.up { color:var(--carbs); }
 .summary-nutr-row {
   display:flex; justify-content:space-between;
   padding:6px 0; font-size:0.9rem;
 }
-.summary-nutr-val { font-weight:700; }
+.summary-nutr-val { font-weight:800; }
 .summary-cal-balance {
-  margin-top:10px; padding:10px 12px; border-radius:10px;
+  margin-top:10px; padding:10px 12px; border-radius:12px;
   font-size:0.85rem; font-weight:600; line-height:1.4;
   background:var(--subtle-bg); border:1px solid var(--border);
   color:var(--text-secondary);
 }
-.summary-cal-balance.deficit { color:var(--green); border-color:rgba(78,205,196,0.35); background:rgba(78,205,196,0.08); }
-.summary-cal-balance.surplus { color:var(--accent); border-color:rgba(233,69,96,0.35); background:rgba(233,69,96,0.08); }
+.summary-cal-balance.deficit { color:var(--green); border-color:rgba(0,232,123,0.25); background:rgba(0,232,123,0.06); }
+.summary-cal-balance.surplus { color:var(--carbs); border-color:rgba(255,61,113,0.25); background:rgba(255,61,113,0.06); }
