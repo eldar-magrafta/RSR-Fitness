@@ -1177,8 +1177,7 @@ function _showBarcodeResult(product) {
       <div><span class="val">${product.cal}</span><span class="lbl">Calories</span></div>
     </div>
     <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g</div>
-    <button class="nl-confirm-btn" onclick="nlUseBarcodeProduct()">Use This Product</button>
-    <button class="nl-add-ing-btn" style="margin-top:10px;" onclick="nlSaveBarcodeAsCustom()">Save as Custom Ingredient</button>
+    <button class="nl-confirm-btn" onclick="nlSaveBarcodeAsCustom()">Add to Foods List</button>
   `;
   document.getElementById('barcodeResultOverlay').classList.add('open');
   setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
@@ -1208,31 +1207,6 @@ export function nlCloseBarcodeResult() {
   state._barcodeProduct = null;
 }
 
-export function nlUseBarcodeProduct() {
-  const product = state._barcodeProduct;
-  if (!product) return;
-  const ing = {
-    name: product.brand ? `${product.name} (${product.brand})` : product.name,
-    cat: 'other',
-    p: product.p,
-    c: product.c,
-    f: product.f,
-    cal: product.cal,
-  };
-  nlCloseBarcodeResult();
-  state.nlPickerIng = ing;
-  state.nlPickerGrams = 100;
-  const header = document.getElementById('nlAmountHeader');
-  header.innerHTML = `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div><div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
-  document.getElementById('nlGramDisplay').textContent = '100g';
-  document.getElementById('nlAddToMealBtn').style.display = '';
-  const editBtn = document.getElementById('nlAmountEditBtn');
-  if (editBtn) editBtn.style.display = 'none';
-  nlUpdateAmountPreview();
-  document.getElementById('nlAmountOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('nlAmountSheet').style.transform = 'translateY(0)', 10);
-}
-
 export function nlSaveBarcodeAsCustom() {
   const product = state._barcodeProduct;
   if (!product) return;
@@ -1240,7 +1214,12 @@ export function nlSaveBarcodeAsCustom() {
   const name = product.brand ? `${product.name} (${product.brand})` : product.name;
   if (customs.some(c => c.name === name)) {
     nlCloseBarcodeResult();
-    nlPickIngredient(name);
+    const toast = document.createElement('div');
+    toast.className = 'pr-toast';
+    toast.style.background = 'linear-gradient(135deg, var(--accent), var(--accent2))';
+    toast.textContent = `"${name}" already exists`;
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
     return;
   }
   customs.push({ name, cat: 'custom', p: product.p, c: product.c, f: product.f, cal: product.cal });
@@ -1249,9 +1228,8 @@ export function nlSaveBarcodeAsCustom() {
   const toast = document.createElement('div');
   toast.className = 'pr-toast';
   toast.style.background = 'linear-gradient(135deg, var(--green), #00c9a7)';
-  toast.textContent = `Saved "${name}" to Custom`;
+  toast.textContent = `Added "${name}" to Foods List`;
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
   renderNLPicker();
-  nlPickIngredient(name);
 }
