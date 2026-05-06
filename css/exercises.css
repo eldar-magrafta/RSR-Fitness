@@ -17,6 +17,11 @@
   position: relative; width: 100%; aspect-ratio: 1;
   margin-bottom: 8px; border-radius: 14px; overflow: hidden;
   background: #000;
+  box-shadow: 0 0 0 rgba(0,229,255,0);
+  transition: box-shadow 0.3s;
+}
+.muscle-card:active .muscle-icon-wrap {
+  box-shadow: 0 0 20px rgba(0,229,255,0.25), 0 0 40px rgba(139,92,246,0.15);
 }
 .muscle-icon-wrap img {
   position: absolute; top: 0; left: 0;
