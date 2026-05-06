@@ -1074,3 +1074,158 @@ export function nlSelectDate(dateStr) {
   renderNLMeals();
   renderMacroGoals();
 }
+
+// ── Barcode Scanner ──
+
+let _barcodeScanner = null;
+
+export function nlOpenBarcodeScanner() {
+  const overlay = document.getElementById('barcodeOverlay');
+  overlay.classList.add('open');
+  document.getElementById('barcodeLoading').classList.remove('visible');
+
+  _barcodeScanner = new Html5Qrcode('barcodeReader');
+  _barcodeScanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 280, height: 120 } },
+    decodedText => _onBarcodeScanned(decodedText),
+    () => {}
+  ).catch(() => {
+    nlCloseBarcodeScanner();
+    alert('Could not access camera. Please ensure camera permissions are granted.');
+  });
+}
+
+export function nlCloseBarcodeScanner() {
+  if (_barcodeScanner) {
+    _barcodeScanner.stop().catch(() => {});
+    _barcodeScanner.clear();
+    _barcodeScanner = null;
+  }
+  document.getElementById('barcodeOverlay').classList.remove('open');
+}
+
+async function _onBarcodeScanned(barcode) {
+  if (_barcodeScanner) _barcodeScanner.stop().catch(() => {});
+  document.getElementById('barcodeLoading').classList.add('visible');
+
+  try {
+    const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,nutriments`);
+    const data = await resp.json();
+
+    if (data.status === 0 || !data.product) {
+      _showBarcodeNotFound(barcode);
+      return;
+    }
+
+    const product = data.product;
+    const n = product.nutriments || {};
+    const result = {
+      name: product.product_name || 'Unknown Product',
+      brand: product.brands || '',
+      p: Math.round((n.proteins_100g || 0) * 10) / 10,
+      c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
+      f: Math.round((n.fat_100g || 0) * 10) / 10,
+      cal: Math.round(n['energy-kcal_100g'] || (n.energy_100g ? n.energy_100g / 4.184 : 0)),
+    };
+
+    nlCloseBarcodeScanner();
+    _showBarcodeResult(result);
+  } catch {
+    nlCloseBarcodeScanner();
+    alert('Network error. Please check your connection and try again.');
+  }
+}
+
+function _showBarcodeResult(product) {
+  state._barcodeProduct = product;
+  const content = document.getElementById('barcodeResultContent');
+  content.innerHTML = `
+    <div class="barcode-product-name">${escHtml(product.name)}</div>
+    ${product.brand ? `<div class="barcode-product-brand">${escHtml(product.brand)}</div>` : ''}
+    <div class="barcode-product-macros">
+      <div><span class="val color-protein">${product.p}g</span><span class="lbl">Protein</span></div>
+      <div><span class="val color-carbs">${product.c}g</span><span class="lbl">Carbs</span></div>
+      <div><span class="val color-fat">${product.f}g</span><span class="lbl">Fat</span></div>
+      <div><span class="val">${product.cal}</span><span class="lbl">Calories</span></div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g</div>
+    <button class="nl-confirm-btn" onclick="nlUseBarcodeProduct()">Use This Product</button>
+    <button class="nl-add-ing-btn" style="margin-top:10px;" onclick="nlSaveBarcodeAsCustom()">Save as Custom Ingredient</button>
+  `;
+  document.getElementById('barcodeResultOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
+}
+
+function _showBarcodeNotFound(barcode) {
+  nlCloseBarcodeScanner();
+  state._barcodeProduct = null;
+  const content = document.getElementById('barcodeResultContent');
+  content.innerHTML = `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🔍</div>
+      <div style="font-weight:700;font-size:1.05rem;margin-bottom:8px;">Product Not Found</div>
+      <div style="color:var(--muted);font-size:0.88rem;margin-bottom:20px;">
+        Barcode <b>${escHtml(barcode)}</b> was not found in the database.
+      </div>
+      <button class="nl-add-ing-btn" onclick="nlCloseBarcodeResult();nlOpenCustomModal()">Create Custom Ingredient</button>
+      <button class="nl-add-ing-btn" style="margin-top:8px;background:none;border-color:var(--border);" onclick="nlCloseBarcodeResult();nlOpenBarcodeScanner()">Scan Again</button>
+    </div>
+  `;
+  document.getElementById('barcodeResultOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
+}
+
+export function nlCloseBarcodeResult() {
+  document.getElementById('barcodeResultSheet').style.transform = '';
+  document.getElementById('barcodeResultOverlay').classList.remove('open');
+  state._barcodeProduct = null;
+}
+
+export function nlUseBarcodeProduct() {
+  const product = state._barcodeProduct;
+  if (!product) return;
+  const ing = {
+    name: product.brand ? `${product.name} (${product.brand})` : product.name,
+    cat: 'other',
+    p: product.p,
+    c: product.c,
+    f: product.f,
+    cal: product.cal,
+  };
+  nlCloseBarcodeResult();
+  state.nlPickerIng = ing;
+  state.nlPickerGrams = 100;
+  const header = document.getElementById('nlAmountHeader');
+  header.innerHTML = `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div><div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
+  document.getElementById('nlGramDisplay').textContent = '100g';
+  document.getElementById('nlAddToMealBtn').style.display = '';
+  const editBtn = document.getElementById('nlAmountEditBtn');
+  if (editBtn) editBtn.style.display = 'none';
+  nlUpdateAmountPreview();
+  document.getElementById('nlAmountOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('nlAmountSheet').style.transform = 'translateY(0)', 10);
+}
+
+export function nlSaveBarcodeAsCustom() {
+  const product = state._barcodeProduct;
+  if (!product) return;
+  const customs = getCustomIngs();
+  const name = product.brand ? `${product.name} (${product.brand})` : product.name;
+  if (customs.some(c => c.name === name)) {
+    nlCloseBarcodeResult();
+    nlPickIngredient(name);
+    return;
+  }
+  customs.push({ name, cat: 'custom', p: product.p, c: product.c, f: product.f, cal: product.cal });
+  saveCustomIngs(customs);
+  nlCloseBarcodeResult();
+  const toast = document.createElement('div');
+  toast.className = 'pr-toast';
+  toast.style.background = 'linear-gradient(135deg, var(--green), #00c9a7)';
+  toast.textContent = `Saved "${name}" to Custom`;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+  renderNLPicker();
+  nlPickIngredient(name);
+}

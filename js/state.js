@@ -49,6 +49,9 @@ export const state = {
 
   // Custom ingredient editing
   _editingCustomIdx: null,
+
+  // Barcode scanner
+  _barcodeProduct: null,
 };
 
 export function resetTransientState() {
@@ -66,4 +69,5 @@ export function resetTransientState() {
   state.bwCurrentPhotos = [];
   state.exHistSelectedDate = null;
   state.exLogSelectedDate = null;
+  state._barcodeProduct = null;
 }
