@@ -17,7 +17,7 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
   --border-med: rgba(0,229,255,0.13);
   --subtle-bg: rgba(0,229,255,0.05);
   --subtle-bg-hover: rgba(0,229,255,0.1);
-  --protein: #00e5ff;
+  --protein: #69D158;
   --carbs: #ff3d71;
   --fat: #ffc107;
   --chart-label: rgba(238,240,255,0.3);
@@ -278,6 +278,7 @@ body {
 .color-carbs { color: var(--carbs); }
 .color-fat { color: var(--fat); }
 .color-accent { color: var(--accent); }
+.color-red { color: #e94560; }
 .color-green { color: var(--green); }
 .color-muted { color: var(--muted); }
 .bg-protein { background: var(--protein); }

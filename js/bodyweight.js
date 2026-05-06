@@ -37,7 +37,7 @@ function renderBWStats() {
   document.getElementById('bwStats').innerHTML =
     `<div class="bw-stat"><div class="bw-stat-val">${f(current)}</div><div class="bw-stat-lbl">Current</div></div>
      <div class="bw-stat"><div class="bw-stat-val color-green">${f(min)}</div><div class="bw-stat-lbl">Min</div></div>
-     <div class="bw-stat"><div class="bw-stat-val color-accent">${f(max)}</div><div class="bw-stat-lbl">Max</div></div>
+     <div class="bw-stat"><div class="bw-stat-val color-red">${f(max)}</div><div class="bw-stat-lbl">Max</div></div>
      <div class="bw-stat"><div class="bw-stat-val">${f(avg)}</div><div class="bw-stat-lbl">Avg</div></div>`;
 }
 
