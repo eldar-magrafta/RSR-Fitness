@@ -1108,20 +1108,16 @@ export function nlCloseBarcodeScanner() {
 async function _fetchProductData(barcode) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
-  const opts = {
-    signal: controller.signal,
-    headers: { 'User-Agent': 'RSRFitness/1.0 (https://eldar-magrafta.github.io/RSR-Fitness)' }
-  };
 
   try {
     const resp = await fetch(
-      `https://world.openfoodfacts.net/api/v2/product/${barcode}?fields=product_name,brands,nutriments`,
-      opts
+      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
+      { signal: controller.signal }
     );
     clearTimeout(timeout);
     if (!resp.ok) return null;
     const data = await resp.json();
-    if (!data.product) return null;
+    if (data.status === 0 || !data.product) return null;
     const p = data.product;
     const n = p.nutriments || {};
     return {
@@ -1135,7 +1131,7 @@ async function _fetchProductData(barcode) {
   } catch (e) {
     clearTimeout(timeout);
     if (e.name === 'AbortError') throw e;
-    return null;
+    throw e;
   }
 }
 
