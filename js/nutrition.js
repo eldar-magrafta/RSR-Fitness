@@ -1105,12 +1105,22 @@ export function nlCloseBarcodeScanner() {
   document.getElementById('barcodeOverlay').classList.remove('open');
 }
 
+let _barcodeBusy = false;
+
 async function _onBarcodeScanned(barcode) {
+  if (_barcodeBusy) return;
+  _barcodeBusy = true;
   if (_barcodeScanner) _barcodeScanner.stop().catch(() => {});
   document.getElementById('barcodeLoading').classList.add('visible');
 
   try {
-    const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,nutriments`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const resp = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,nutriments`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeout);
     const data = await resp.json();
 
     if (data.status === 0 || !data.product) {
@@ -1131,9 +1141,15 @@ async function _onBarcodeScanned(barcode) {
 
     nlCloseBarcodeScanner();
     _showBarcodeResult(result);
-  } catch {
+  } catch (err) {
     nlCloseBarcodeScanner();
-    alert('Network error. Please check your connection and try again.');
+    if (err.name === 'AbortError') {
+      alert('Request timed out. The product database may be slow — please try again.');
+    } else {
+      alert('Network error. Please check your connection and try again.');
+    }
+  } finally {
+    _barcodeBusy = false;
   }
 }
 
