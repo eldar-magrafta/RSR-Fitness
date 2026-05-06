@@ -1105,6 +1105,40 @@ export function nlCloseBarcodeScanner() {
   document.getElementById('barcodeOverlay').classList.remove('open');
 }
 
+async function _fetchProductData(barcode) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  const opts = {
+    signal: controller.signal,
+    headers: { 'User-Agent': 'RSRFitness/1.0 (https://eldar-magrafta.github.io/RSR-Fitness)' }
+  };
+
+  try {
+    const resp = await fetch(
+      `https://world.openfoodfacts.net/api/v2/product/${barcode}?fields=product_name,brands,nutriments`,
+      opts
+    );
+    clearTimeout(timeout);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!data.product) return null;
+    const p = data.product;
+    const n = p.nutriments || {};
+    return {
+      name: p.product_name || 'Unknown Product',
+      brand: p.brands || '',
+      p: Math.round((n.proteins_100g || 0) * 10) / 10,
+      c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
+      f: Math.round((n.fat_100g || 0) * 10) / 10,
+      cal: Math.round(n['energy-kcal_100g'] || (n.energy_100g ? n.energy_100g / 4.184 : 0)),
+    };
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') throw e;
+    return null;
+  }
+}
+
 let _barcodeBusy = false;
 
 async function _onBarcodeScanned(barcode) {
@@ -1114,37 +1148,17 @@ async function _onBarcodeScanned(barcode) {
   document.getElementById('barcodeLoading').classList.add('visible');
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    const resp = await fetch(
-      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-      { signal: controller.signal }
-    );
-    clearTimeout(timeout);
-    const data = await resp.json();
-
-    if (data.status === 0 || !data.product) {
+    const result = await _fetchProductData(barcode);
+    if (!result) {
       _showBarcodeNotFound(barcode);
       return;
     }
-
-    const product = data.product;
-    const n = product.nutriments || {};
-    const result = {
-      name: product.product_name || 'Unknown Product',
-      brand: product.brands || '',
-      p: Math.round((n.proteins_100g || 0) * 10) / 10,
-      c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
-      f: Math.round((n.fat_100g || 0) * 10) / 10,
-      cal: Math.round(n['energy-kcal_100g'] || (n.energy_100g ? n.energy_100g / 4.184 : 0)),
-    };
-
     nlCloseBarcodeScanner();
     _showBarcodeResult(result);
   } catch (err) {
     nlCloseBarcodeScanner();
     if (err.name === 'AbortError') {
-      alert('Request timed out. The product database may be slow — please try again.');
+      alert('Request timed out. Please try again.');
     } else {
       alert('Network error. Please check your connection and try again.');
     }
