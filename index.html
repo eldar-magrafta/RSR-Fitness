@@ -27,7 +27,6 @@
     <link rel="stylesheet" href="css/auth.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.mini.min.js" integrity="sha384-NG/W3xvO3ynQEcDQYIOcZTXRtwUs83cLv1FIl9PuqWPDuNhsMRF6wutlNLFwlb71" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <div id="appRoot" style="display:none;">
@@ -226,7 +225,10 @@
     </div>
     <div class="view" id="nlPickerView">
         <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="nlSearchPicker()">
-        <button class="nl-scan-btn" onclick="nlOpenBarcodeScanner()"><i class="bi bi-upc-scan"></i> Scan Barcode</button>
+        <div class="nl-barcode-row">
+            <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">
+            <button class="nl-barcode-search-btn" onclick="nlSearchBarcode()"><i class="bi bi-search"></i></button>
+        </div>
         <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCustomModal()">＋ Create Custom
             Ingredient
         </button>
@@ -581,20 +583,6 @@
             <button class="sheet-close-btn" onclick="closeSavedMealPicker()">&times;</button>
             <div class="bw-sheet-title">Choose a Saved Meal</div>
             <div id="nlSavedPickerList" style="max-height:60vh;overflow-y:auto;"></div>
-        </div>
-    </div>
-
-    <!-- Barcode Scanner Overlay -->
-    <div class="barcode-overlay" id="barcodeOverlay">
-        <div class="barcode-header">
-            <button class="barcode-close-btn" onclick="nlCloseBarcodeScanner()">✕</button>
-            <span class="barcode-title">Scan Barcode</span>
-        </div>
-        <div id="barcodeReader"></div>
-        <div class="barcode-hint">Point camera at a barcode on the product packaging</div>
-        <div class="barcode-loading" id="barcodeLoading">
-            <div class="bw-spinner"></div>
-            <div>Looking up product…</div>
         </div>
     </div>
 

@@ -1137,11 +1137,12 @@ async function _fetchProductData(barcode) {
 
 let _barcodeBusy = false;
 
-async function _onBarcodeScanned(barcode) {
-  if (_barcodeBusy) return;
+export async function nlSearchBarcode() {
+  const input = document.getElementById('nlBarcodeInput');
+  const barcode = input.value.trim();
+  if (!barcode || _barcodeBusy) return;
   _barcodeBusy = true;
-  if (_barcodeScanner) _barcodeScanner.stop().catch(() => {});
-  document.getElementById('barcodeLoading').classList.add('visible');
+  input.disabled = true;
 
   try {
     const result = await _fetchProductData(barcode);
@@ -1149,10 +1150,9 @@ async function _onBarcodeScanned(barcode) {
       _showBarcodeNotFound(barcode);
       return;
     }
-    nlCloseBarcodeScanner();
     _showBarcodeResult(result);
+    input.value = '';
   } catch (err) {
-    nlCloseBarcodeScanner();
     if (err.name === 'AbortError') {
       alert('Request timed out. Please try again.');
     } else {
@@ -1160,6 +1160,7 @@ async function _onBarcodeScanned(barcode) {
     }
   } finally {
     _barcodeBusy = false;
+    input.disabled = false;
   }
 }
 
@@ -1184,7 +1185,6 @@ function _showBarcodeResult(product) {
 }
 
 function _showBarcodeNotFound(barcode) {
-  nlCloseBarcodeScanner();
   state._barcodeProduct = null;
   const content = document.getElementById('barcodeResultContent');
   content.innerHTML = `
@@ -1195,7 +1195,7 @@ function _showBarcodeNotFound(barcode) {
         Barcode <b>${escHtml(barcode)}</b> was not found in the database.
       </div>
       <button class="nl-add-ing-btn" onclick="nlCloseBarcodeResult();nlOpenCustomModal()">Create Custom Ingredient</button>
-      <button class="nl-add-ing-btn" style="margin-top:8px;background:none;border-color:var(--border);" onclick="nlCloseBarcodeResult();nlOpenBarcodeScanner()">Scan Again</button>
+      <button class="nl-add-ing-btn" style="margin-top:8px;background:none;border-color:var(--border);" onclick="nlCloseBarcodeResult()">Close</button>
     </div>
   `;
   document.getElementById('barcodeResultOverlay').classList.add('open');
