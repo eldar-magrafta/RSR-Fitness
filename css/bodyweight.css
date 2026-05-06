@@ -1,5 +1,11 @@
 /* ── Body Weight Stats ── */
-.bw-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.bw-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; position: relative; padding-bottom: 18px; }
+.bw-stats::after {
+  content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  opacity: 0.3;
+}
 .bw-stat {
   background: var(--card); border-radius: 16px; padding: 12px 6px; text-align: center;
   border: 1px solid var(--border);
@@ -12,6 +18,12 @@
   background: var(--card); border-radius: 20px; padding: 16px 8px 10px;
   margin-bottom: 22px; position: relative; overflow: visible;
   border: 1px solid var(--border);
+}
+.bw-chart-wrap::after {
+  content: ''; position: absolute; bottom: -12px; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  opacity: 0.3;
 }
 .bw-chart-header { padding: 0 8px 12px; display: flex; justify-content: space-between; align-items: center; }
 .bw-chart-title { font-size: 0.9rem; font-weight: 800; }
