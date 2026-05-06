@@ -1115,9 +1115,9 @@ async function _onBarcodeScanned(barcode) {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const resp = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,nutriments`,
+      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
       { signal: controller.signal }
     );
     clearTimeout(timeout);
