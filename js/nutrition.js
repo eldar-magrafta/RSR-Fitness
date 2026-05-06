@@ -880,6 +880,39 @@ export function closeMacroGoalsModal() {
   document.getElementById('macroGoalsOverlay').classList.remove('open');
 }
 
+export function initMacroGoalsSwipe() {
+  const overlay = document.getElementById('macroGoalsOverlay');
+  const modal = document.getElementById('macroGoalsModal');
+  let _md = null;
+  modal.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    const rect = modal.getBoundingClientRect();
+    if (touch.clientY - rect.top > 72) return;
+    _md = { startY: touch.clientY };
+  }, { passive: true });
+  modal.addEventListener('touchmove', e => {
+    if (!_md) return;
+    const dy = Math.max(0, e.touches[0].clientY - _md.startY);
+    e.preventDefault();
+    modal.style.transition = 'none';
+    modal.style.transform = `translateY(${dy}px)`;
+    overlay.style.background = `rgba(0,0,0,${Math.max(0.05, 0.6 - dy / 350)})`;
+  }, { passive: false });
+  modal.addEventListener('touchend', e => {
+    if (!_md) return;
+    const dy = e.changedTouches[0].clientY - _md.startY;
+    modal.style.transition = '';
+    overlay.style.background = '';
+    if (dy > 110) {
+      modal.style.transform = 'translateY(110%)';
+      setTimeout(() => { modal.style.transform = ''; closeMacroGoalsModal(); }, 240);
+    } else {
+      modal.style.transform = '';
+    }
+    _md = null;
+  });
+}
+
 export function saveMacroGoalsFromModal() {
   const cal = parseInt(document.getElementById('goalCalInput').value) || 0;
   if (!cal) return;
