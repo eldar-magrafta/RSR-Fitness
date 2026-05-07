@@ -132,6 +132,9 @@ body {
 .burger-item:active { color: var(--accent); }
 .burger-item-icon { font-size: 1.3rem; }
 .burger-item-label { flex: 1; font-size: 1rem; font-weight: 500; }
+.burger-item-danger .burger-item-label { color: var(--carbs); font-size: 0.92rem; }
+.burger-item-danger .burger-item-icon { font-size: 1.1rem; }
+.burger-item-danger:active { color: var(--carbs); }
 .theme-emoji { font-size: 1.3rem; }
 
 /* ── Theme Toggle Switch ── */
