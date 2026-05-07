@@ -52,6 +52,7 @@ export const state = {
 
   // Barcode scanner
   _barcodeProduct: null,
+  _barcodePhotoBase64: null,
 };
 
 export function resetTransientState() {
@@ -70,4 +71,5 @@ export function resetTransientState() {
   state.exHistSelectedDate = null;
   state.exLogSelectedDate = null;
   state._barcodeProduct = null;
+  state._barcodePhotoBase64 = null;
 }

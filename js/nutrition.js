@@ -1183,6 +1183,7 @@ export async function nlSearchBarcode() {
 
 function _showBarcodeResult(product) {
   state._barcodeProduct = product;
+  state._barcodePhotoBase64 = null;
   const content = document.getElementById('barcodeResultContent');
   const brandDisplay = product.brand ? `${product.name} (${product.brand})` : product.name;
   content.innerHTML = `
@@ -1212,11 +1213,36 @@ function _showBarcodeResult(product) {
         <input id="barcodeEditCal" type="number" step="1" value="${product.cal}">
       </div>
     </div>
+    <div class="nl-custom-photo-area">
+      <input type="file" id="barcodePhotoInput" accept="image/*" style="display:none" onchange="nlBarcodePhotoSelected(this)">
+      <div id="barcodePhotoArea">
+        <button class="nl-custom-photo-btn" onclick="document.getElementById('barcodePhotoInput').click()">📷 Add Photo (optional)</button>
+      </div>
+    </div>
     <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g — edit if needed</div>
     <button class="nl-confirm-btn" onclick="nlSaveBarcodeAsCustom()">Add to Foods List</button>
   `;
   document.getElementById('barcodeResultOverlay').classList.add('open');
   setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
+}
+
+export function nlBarcodePhotoSelected(input) {
+  if (!input.files || !input.files[0]) return;
+  resizeImage(input.files[0], 700, 0.72, base64 => {
+    state._barcodePhotoBase64 = base64;
+    const area = document.getElementById('barcodePhotoArea');
+    area.innerHTML = `
+      <img src="${base64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:14px;margin-bottom:8px;">
+      <button class="nl-custom-photo-btn" onclick="nlRemoveBarcodePhoto()">Remove Photo</button>
+    `;
+  });
+}
+
+export function nlRemoveBarcodePhoto() {
+  state._barcodePhotoBase64 = null;
+  document.getElementById('barcodePhotoInput').value = '';
+  document.getElementById('barcodePhotoArea').innerHTML =
+    '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'barcodePhotoInput\').click()">📷 Add Photo (optional)</button>';
 }
 
 function _showBarcodeNotFound(barcode) {
@@ -1241,9 +1267,10 @@ export function nlCloseBarcodeResult() {
   document.getElementById('barcodeResultSheet').style.transform = '';
   document.getElementById('barcodeResultOverlay').classList.remove('open');
   state._barcodeProduct = null;
+  state._barcodePhotoBase64 = null;
 }
 
-export function nlSaveBarcodeAsCustom() {
+export async function nlSaveBarcodeAsCustom() {
   const name = (document.getElementById('barcodeEditName').value || '').trim();
   const p = parseFloat(document.getElementById('barcodeEditP').value) || 0;
   const c = parseFloat(document.getElementById('barcodeEditC').value) || 0;
@@ -1261,8 +1288,19 @@ export function nlSaveBarcodeAsCustom() {
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
     return;
   }
-  customs.push({ name, cat: 'custom', p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal });
+  const ingData = { name, cat: 'custom', p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal };
+  if (state._barcodePhotoBase64) {
+    const docId = 'cing_' + Date.now();
+    try {
+      await savePhoto('custom-ing-photos', docId, state._barcodePhotoBase64);
+      ingData.img = 'cloud:' + docId;
+    } catch {
+      ingData.img = state._barcodePhotoBase64;
+    }
+  }
+  customs.push(ingData);
   saveCustomIngs(customs);
+  state._barcodePhotoBase64 = null;
   nlCloseBarcodeResult();
   const toast = document.createElement('div');
   toast.className = 'pr-toast';
