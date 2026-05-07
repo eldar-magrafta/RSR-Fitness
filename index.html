@@ -170,7 +170,10 @@
             <div class="bw-sheet-handle"></div>
             <button class="sheet-close-btn" onclick="closeBWEntry()">&times;</button>
             <div class="bw-sheet-dateLbl" id="bwSheetDate"></div>
-            <div class="bw-sheet-title">Log Body Weight</div>
+            <div class="sheet-row" style="margin-bottom:4px;">
+                <div class="bw-sheet-title" style="margin-bottom:0;">Log Body Weight</div>
+                <button id="bwBtnDelTop" onclick="openDeleteBWConfirm()" class="plan-card-delete" style="display:none;" title="Delete entry"><i class="bi bi-trash3"></i></button>
+            </div>
             <div class="bw-input-row">
                 <input type="number" id="bwInput" placeholder="0.0" inputmode="decimal" step="0.1"/>
                 <span class="bw-unit">kg</span>
@@ -187,7 +190,6 @@
                 <div style="color: var(--muted); font-size: 0.9rem; margin-top: 8px;">Saving photo...</div>
             </div>
             <button class="bw-btn-save" id="bwBtnSave" onclick="saveBWEntry()">Save</button>
-            <button class="bw-btn-del" id="bwBtnDel" onclick="openDeleteBWConfirm()">Delete Entry</button>
         </div>
     </div>
 

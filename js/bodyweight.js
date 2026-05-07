@@ -203,7 +203,7 @@ export function openBWEntry(dateStr) {
 
   document.getElementById('bwSheetDate').textContent = fmtDateLabel(dateStr);
   document.getElementById('bwInput').value = w || '';
-  document.getElementById('bwBtnDel').classList.toggle('visible', !!existing);
+  document.getElementById('bwBtnDelTop').style.display = existing ? '' : 'none';
 
   // Load photos — resolve cloud markers to base64
   state.bwCurrentPhotos = photos.map(() => null);
@@ -276,7 +276,7 @@ export async function saveBWEntry() {
   }
 
   const saveBtn = document.getElementById('bwBtnSave');
-  const deleteBtn = document.getElementById('bwBtnDel');
+  const deleteBtn = document.getElementById('bwBtnDelTop');
   const spinner = document.getElementById('bwSaveSpinner');
   const photos = state.bwCurrentPhotos.filter(Boolean);
   const hasNewPhotos = photos.some(p => isBase64(p));
