@@ -1167,16 +1167,35 @@ export async function nlSearchBarcode() {
 function _showBarcodeResult(product) {
   state._barcodeProduct = product;
   const content = document.getElementById('barcodeResultContent');
+  const brandDisplay = product.brand ? `${product.name} (${product.brand})` : product.name;
   content.innerHTML = `
-    <div class="barcode-product-name">${escHtml(product.name)}</div>
-    ${product.brand ? `<div class="barcode-product-brand">${escHtml(product.brand)}</div>` : ''}
-    <div class="barcode-product-macros">
-      <div><span class="val color-protein">${product.p}g</span><span class="lbl">Protein</span></div>
-      <div><span class="val color-carbs">${product.c}g</span><span class="lbl">Carbs</span></div>
-      <div><span class="val color-fat">${product.f}g</span><span class="lbl">Fat</span></div>
-      <div><span class="val">${product.cal}</span><span class="lbl">Calories</span></div>
+    <div class="nl-custom-row">
+      <div class="nl-custom-field" style="flex:1;">
+        <label>Name</label>
+        <input id="barcodeEditName" type="text" value="${escHtml(brandDisplay)}">
+      </div>
     </div>
-    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g</div>
+    <div class="nl-custom-row">
+      <div class="nl-custom-field">
+        <label>Protein (g)</label>
+        <input id="barcodeEditP" type="number" step="0.1" value="${product.p}">
+      </div>
+      <div class="nl-custom-field">
+        <label>Carbs (g)</label>
+        <input id="barcodeEditC" type="number" step="0.1" value="${product.c}">
+      </div>
+    </div>
+    <div class="nl-custom-row">
+      <div class="nl-custom-field">
+        <label>Fat (g)</label>
+        <input id="barcodeEditF" type="number" step="0.1" value="${product.f}">
+      </div>
+      <div class="nl-custom-field">
+        <label>Calories</label>
+        <input id="barcodeEditCal" type="number" step="1" value="${product.cal}">
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g — edit if needed</div>
     <button class="nl-confirm-btn" onclick="nlSaveBarcodeAsCustom()">Add to Foods List</button>
   `;
   document.getElementById('barcodeResultOverlay').classList.add('open');
@@ -1208,11 +1227,14 @@ export function nlCloseBarcodeResult() {
 }
 
 export function nlSaveBarcodeAsCustom() {
-  const product = state._barcodeProduct;
-  if (!product) return;
+  const name = (document.getElementById('barcodeEditName').value || '').trim();
+  const p = parseFloat(document.getElementById('barcodeEditP').value) || 0;
+  const c = parseFloat(document.getElementById('barcodeEditC').value) || 0;
+  const f = parseFloat(document.getElementById('barcodeEditF').value) || 0;
+  const cal = Math.round(parseFloat(document.getElementById('barcodeEditCal').value) || 0);
+  if (!name) { document.getElementById('barcodeEditName').focus(); return; }
   const customs = getCustomIngs();
-  const name = product.brand ? `${product.name} (${product.brand})` : product.name;
-  if (customs.some(c => c.name === name)) {
+  if (customs.some(x => x.name === name)) {
     nlCloseBarcodeResult();
     const toast = document.createElement('div');
     toast.className = 'pr-toast';
@@ -1222,7 +1244,7 @@ export function nlSaveBarcodeAsCustom() {
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
     return;
   }
-  customs.push({ name, cat: 'custom', p: product.p, c: product.c, f: product.f, cal: product.cal });
+  customs.push({ name, cat: 'custom', p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal });
   saveCustomIngs(customs);
   nlCloseBarcodeResult();
   const toast = document.createElement('div');
