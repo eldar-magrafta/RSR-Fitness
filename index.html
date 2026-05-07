@@ -71,22 +71,9 @@
             <span class="burger-item-icon">📥</span>
             <span class="burger-item-label">Export Data</span>
         </div>
-        <div class="burger-header" style="margin-top:8px;">Clear Data</div>
-        <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();openDeleteAllExerciseData()">
+        <div class="burger-item" onclick="showClearDataMenu()">
             <span class="burger-item-icon">🗑️</span>
-            <span class="burger-item-label">Exercise Data</span>
-        </div>
-        <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();openDeleteAllExHist()">
-            <span class="burger-item-icon">🗑️</span>
-            <span class="burger-item-label">Exercise History</span>
-        </div>
-        <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();openDeleteAllMealLogs()">
-            <span class="burger-item-icon">🗑️</span>
-            <span class="burger-item-label">Meal Logs</span>
-        </div>
-        <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();openBWDeleteConfirm()">
-            <span class="burger-item-icon">🗑️</span>
-            <span class="burger-item-label">Weight Data</span>
+            <span class="burger-item-label">Clear Data</span>
         </div>
         <div class="burger-divider"></div>
         <div class="burger-meta" id="burgerUserEmail"></div>
@@ -95,6 +82,22 @@
             <span class="burger-item-label">Sign Out</span>
         </div>
         <div class="burger-copyright">© 2026 Eldar Magrafta</div>
+        <div class="burger-sub-panel" id="clearDataPanel">
+            <div class="burger-sub-back" onclick="hideClearDataMenu()">← Back</div>
+            <div class="burger-header">Clear Data</div>
+            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllExerciseData()">
+                <span class="burger-item-icon">🏋️</span>
+                <span class="burger-item-label">Exercise Data</span>
+            </div>
+            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllMealLogs()">
+                <span class="burger-item-icon">🍽️</span>
+                <span class="burger-item-label">Meal Logs</span>
+            </div>
+            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openBWDeleteConfirm()">
+                <span class="burger-item-icon">⚖️</span>
+                <span class="burger-item-label">Weight Data</span>
+            </div>
+        </div>
     </div>
 
     <!-- ── Exercises Tab ── -->

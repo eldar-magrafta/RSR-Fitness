@@ -305,6 +305,15 @@ function toggleBurgerMenu() {
 function closeBurgerMenu() {
   document.getElementById('burgerOverlay').classList.remove('open');
   document.getElementById('burgerMenu').classList.remove('open');
+  document.getElementById('clearDataPanel').classList.remove('open');
+}
+
+function showClearDataMenu() {
+  document.getElementById('clearDataPanel').classList.add('open');
+}
+
+function hideClearDataMenu() {
+  document.getElementById('clearDataPanel').classList.remove('open');
 }
 
 function toggleTheme() {
@@ -326,6 +335,8 @@ function applyStoredTheme() {
 window.toggleBurgerMenu = toggleBurgerMenu;
 window.closeBurgerMenu = closeBurgerMenu;
 window.toggleTheme = toggleTheme;
+window.showClearDataMenu = showClearDataMenu;
+window.hideClearDataMenu = hideClearDataMenu;
 
 // ═══════════════════════════════════════════
 // Auth UI (delegated to auth.js)
