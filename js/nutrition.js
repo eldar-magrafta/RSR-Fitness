@@ -1138,7 +1138,7 @@ async function _fetchProductData(barcode) {
     const p = data.product;
     const n = p.nutriments || {};
     return {
-      name: p.product_name || 'Unknown Product',
+      name: p.product_name || p.product_name_en || p.product_name_he || p.product_name_fr || 'Unknown Product',
       brand: p.brands || '',
       p: Math.round((n.proteins_100g || 0) * 10) / 10,
       c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
