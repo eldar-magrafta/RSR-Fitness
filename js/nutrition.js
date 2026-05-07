@@ -1092,10 +1092,12 @@ export function nlSelectDate(dateStr) {
   renderMacroGoals();
 }
 
-// ── Barcode Scanner (QuaggaJS2 – works on iOS Safari) ──
+// ── Barcode Scanner (html5-qrcode / ZXing engine – accurate on iOS) ──
+
+let _html5QrCode = null;
 
 export function nlOpenBarcodeScanner() {
-  if (typeof Quagga === 'undefined') {
+  if (typeof Html5Qrcode === 'undefined') {
     alert('Scanner not loaded. Please use "Type Code" instead.');
     return;
   }
@@ -1104,36 +1106,40 @@ export function nlOpenBarcodeScanner() {
   overlay.classList.add('open');
   status.textContent = 'Starting camera…';
 
-  Quagga.init({
-    inputStream: {
-      type: 'LiveStream',
-      target: document.getElementById('barcodeScannerVideo'),
-      constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+  _html5QrCode = new Html5Qrcode('barcodeScannerReader');
+  _html5QrCode.start(
+    { facingMode: 'environment' },
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 100 },
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E
+      ]
     },
-    decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
-    locate: true
-  }, (err) => {
-    if (err) {
+    (decodedText) => {
       nlCloseBarcodeScanner();
-      alert('Could not start scanner. Please ensure camera permissions are granted.');
-      return;
-    }
-    Quagga.start();
+      document.getElementById('nlBarcodeInput').value = decodedText;
+      document.getElementById('nlBarcodeRow').style.display = '';
+      nlSearchBarcode();
+    },
+    () => {}
+  ).then(() => {
     status.textContent = 'Point camera at barcode…';
-  });
-
-  Quagga.onDetected((result) => {
-    const code = result.codeResult.code;
+  }).catch(() => {
     nlCloseBarcodeScanner();
-    document.getElementById('nlBarcodeInput').value = code;
-    document.getElementById('nlBarcodeRow').style.display = '';
-    nlSearchBarcode();
+    alert('Could not access camera. Please ensure camera permissions are granted.');
   });
 }
 
 export function nlCloseBarcodeScanner() {
-  try { Quagga.stop(); } catch {}
-  try { Quagga.offDetected(); } catch {}
+  if (_html5QrCode) {
+    _html5QrCode.stop().catch(() => {});
+    _html5QrCode.clear();
+    _html5QrCode = null;
+  }
   document.getElementById('barcodeScannerOverlay').classList.remove('open');
 }
 

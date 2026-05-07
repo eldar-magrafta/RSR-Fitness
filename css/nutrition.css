@@ -390,16 +390,10 @@
   font-size:1.8rem; cursor:pointer; padding:0 8px; line-height:1;
 }
 .barcode-scanner-viewport {
-  position:absolute; inset:0; width:100%; height:100%; overflow:hidden;
+  position:absolute; inset:0; width:100%; height:100%;
 }
 .barcode-scanner-viewport video {
-  width:100%; height:100%; object-fit:cover;
-}
-.barcode-scanner-viewport canvas { display:none; }
-.barcode-scanner-guide {
-  position:relative; z-index:1;
-  width:260px; height:160px; border:2px solid var(--accent);
-  border-radius:16px; box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
+  width:100% !important; height:100% !important; object-fit:cover !important;
 }
 .barcode-scanner-status {
   position:absolute; bottom:80px; left:0; right:0;
