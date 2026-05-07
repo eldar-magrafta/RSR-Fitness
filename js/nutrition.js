@@ -1092,7 +1092,20 @@ export function nlSelectDate(dateStr) {
   renderMacroGoals();
 }
 
-// ── Barcode Scanner (photo-based – works reliably on iOS) ──
+// ── Barcode Scanner (photo-based with BarcodeDetector + WASM polyfill) ──
+
+let _barcodeDetectorClass = null;
+
+async function _getBarcodeDetector() {
+  if (_barcodeDetectorClass) return _barcodeDetectorClass;
+  if ('BarcodeDetector' in window) {
+    _barcodeDetectorClass = window.BarcodeDetector;
+    return _barcodeDetectorClass;
+  }
+  const mod = await import('https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/es/ponyfill.min.js');
+  _barcodeDetectorClass = mod.BarcodeDetector;
+  return _barcodeDetectorClass;
+}
 
 export function nlOpenBarcodeScanner() {
   document.getElementById('barcodeScanFileInput').click();
@@ -1100,21 +1113,21 @@ export function nlOpenBarcodeScanner() {
 
 export async function nlBarcodeScanFile(input) {
   if (!input.files || !input.files[0]) return;
-  if (typeof Html5Qrcode === 'undefined') {
-    alert('Scanner not loaded. Please use "Type Code" instead.');
-    return;
-  }
   const file = input.files[0];
   input.value = '';
   try {
-    const scanner = new Html5Qrcode('barcodeScanTemp');
-    const code = await scanner.scanFile(file, false);
-    scanner.clear();
+    const BDClass = await _getBarcodeDetector();
+    const detector = new BDClass({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+    const bitmap = await createImageBitmap(file);
+    const results = await detector.detect(bitmap);
+    bitmap.close();
+    if (!results.length) throw new Error('none');
+    const code = results[0].rawValue;
     document.getElementById('nlBarcodeInput').value = code;
     document.getElementById('nlBarcodeRow').style.display = '';
     nlSearchBarcode();
   } catch {
-    alert('Could not read barcode from photo. Try again with the barcode clearly visible and in focus.');
+    alert('Could not read barcode from photo. Make sure the barcode is clearly visible and in focus.');
   }
 }
 
