@@ -326,6 +326,18 @@
 }
 .macro-set-btn:active { background:var(--subtle-bg-hover); border-color:var(--accent); }
 
+/* ── Create Choice Row ── */
+.nl-create-choice-row {
+  display:flex; gap:10px; margin-bottom:14px;
+}
+.nl-create-choice-btn {
+  flex:1; background:var(--card); border:1px solid var(--border-med);
+  color:var(--text); padding:14px 10px; border-radius:14px;
+  font-size:0.88rem; font-weight:600; font-family:inherit;
+  cursor:pointer; text-align:center; transition:all 0.15s;
+}
+.nl-create-choice-btn:active { border-color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.08); }
+
 /* ── Barcode Input ── */
 .nl-barcode-row {
   display:flex; gap:8px; margin-bottom:10px;

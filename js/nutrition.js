@@ -268,6 +268,8 @@ export function nlShowPicker() {
   showView('nlPickerView');
   setHeader('Add Ingredient', true);
   document.getElementById('nlSearchInput').value = '';
+  document.getElementById('nlCreateChoiceRow').style.display = 'none';
+  document.getElementById('nlBarcodeRow').style.display = 'none';
   state.navContext = 'nl-picker';
   renderNLPicker();
 }
@@ -567,6 +569,20 @@ function nlRenderCustomPhotoArea() {
   } else {
     area.innerHTML = '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'nlCustomPhotoInput\').click()">📷 Add Photo (optional)</button>';
   }
+}
+
+export function nlOpenCreateChoice() {
+  document.getElementById('nlCreateChoiceRow').style.display = '';
+}
+
+export function nlCloseCreateChoice() {
+  document.getElementById('nlCreateChoiceRow').style.display = 'none';
+  document.getElementById('nlBarcodeRow').style.display = 'none';
+}
+
+export function nlShowBarcodeInput() {
+  document.getElementById('nlBarcodeRow').style.display = '';
+  document.getElementById('nlBarcodeInput').focus();
 }
 
 export function nlOpenCustomModal(editIdx) {

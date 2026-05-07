@@ -203,7 +203,7 @@
             <button class="nl-sort-btn" onclick="nlSetSort('protein',this)">Protein</button>
             <button class="nl-sort-btn nl-fav-btn" onclick="nlToggleFavFilter(this)">★</button>
         </div>
-        <button class="nl-browse-btn" onclick="nlBrowseFoods()" style="display:none">🔍 Browse All Foods</button>
+        <button class="nl-browse-btn" onclick="nlBrowseFoods()" style="display:none">🔍 Browse All Ingredients</button>
         <div id="nlMealList"></div>
         <button class="bw-delete-all-btn" id="nlDeleteAllLogsBtn" onclick="openDeleteAllMealLogs()"><i class="bi bi-trash3"></i> Delete All Meal Logs</button>
     </div>
@@ -225,13 +225,15 @@
     </div>
     <div class="view" id="nlPickerView">
         <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="nlSearchPicker()">
-        <div class="nl-barcode-row">
+        <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCreateChoice()">＋ Create Custom Ingredient</button>
+        <div id="nlCreateChoiceRow" class="nl-create-choice-row" style="display:none;">
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenCustomModal()">✏️ Enter Manually</button>
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlShowBarcodeInput()">📦 Via Barcode</button>
+        </div>
+        <div id="nlBarcodeRow" class="nl-barcode-row" style="display:none;">
             <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">
             <button class="nl-barcode-search-btn" onclick="nlSearchBarcode()"><i class="bi bi-search"></i></button>
         </div>
-        <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCustomModal()">＋ Create Custom
-            Ingredient
-        </button>
         <div id="nlPickerList"></div>
     </div>
 
