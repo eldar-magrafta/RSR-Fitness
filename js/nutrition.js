@@ -1092,56 +1092,48 @@ export function nlSelectDate(dateStr) {
   renderMacroGoals();
 }
 
-// ── Barcode Scanner ──
+// ── Barcode Scanner (QuaggaJS2 – works on iOS Safari) ──
 
-let _scannerStream = null;
-let _scannerInterval = null;
-
-export async function nlOpenBarcodeScanner() {
-  if (!('BarcodeDetector' in window)) {
-    alert('Barcode scanning is not supported on this device/browser. Please use "Type Code" instead.');
+export function nlOpenBarcodeScanner() {
+  if (typeof Quagga === 'undefined') {
+    alert('Scanner not loaded. Please use "Type Code" instead.');
     return;
   }
   const overlay = document.getElementById('barcodeScannerOverlay');
-  const video = document.getElementById('barcodeScannerVideo');
   const status = document.getElementById('barcodeScannerStatus');
   overlay.classList.add('open');
   status.textContent = 'Starting camera…';
 
-  try {
-    _scannerStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    video.srcObject = _scannerStream;
-    await video.play();
+  Quagga.init({
+    inputStream: {
+      type: 'LiveStream',
+      target: document.getElementById('barcodeScannerVideo'),
+      constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    },
+    decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
+    locate: true
+  }, (err) => {
+    if (err) {
+      nlCloseBarcodeScanner();
+      alert('Could not start scanner. Please ensure camera permissions are granted.');
+      return;
+    }
+    Quagga.start();
     status.textContent = 'Point camera at barcode…';
+  });
 
-    const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'] });
-    _scannerInterval = setInterval(async () => {
-      if (video.readyState < 2) return;
-      try {
-        const barcodes = await detector.detect(video);
-        if (barcodes.length > 0) {
-          const code = barcodes[0].rawValue;
-          status.textContent = `Found: ${code}`;
-          nlCloseBarcodeScanner();
-          document.getElementById('nlBarcodeInput').value = code;
-          document.getElementById('nlBarcodeRow').style.display = '';
-          nlSearchBarcode();
-        }
-      } catch {}
-    }, 200);
-  } catch {
+  Quagga.onDetected((result) => {
+    const code = result.codeResult.code;
     nlCloseBarcodeScanner();
-    alert('Could not access camera. Please ensure camera permissions are granted.');
-  }
+    document.getElementById('nlBarcodeInput').value = code;
+    document.getElementById('nlBarcodeRow').style.display = '';
+    nlSearchBarcode();
+  });
 }
 
 export function nlCloseBarcodeScanner() {
-  if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
-  if (_scannerStream) { _scannerStream.getTracks().forEach(t => t.stop()); _scannerStream = null; }
-  const video = document.getElementById('barcodeScannerVideo');
-  if (video) { video.srcObject = null; }
+  try { Quagga.stop(); } catch {}
+  try { Quagga.offDetected(); } catch {}
   document.getElementById('barcodeScannerOverlay').classList.remove('open');
 }
 
