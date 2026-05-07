@@ -573,6 +573,7 @@ function nlRenderCustomPhotoArea() {
 
 export function nlOpenCreateChoice() {
   document.getElementById('nlCreateChoiceRow').style.display = '';
+  document.getElementById('nlBarcodeRow').style.display = 'none';
 }
 
 export function nlCloseCreateChoice() {
