@@ -1094,32 +1094,55 @@ export function nlSelectDate(dateStr) {
 
 // ── Barcode Scanner ──
 
-let _barcodeScanner = null;
+let _scannerStream = null;
+let _scannerInterval = null;
 
-export function nlOpenBarcodeScanner() {
-  const overlay = document.getElementById('barcodeOverlay');
+export async function nlOpenBarcodeScanner() {
+  if (!('BarcodeDetector' in window)) {
+    alert('Barcode scanning is not supported on this device/browser. Please use "Type Code" instead.');
+    return;
+  }
+  const overlay = document.getElementById('barcodeScannerOverlay');
+  const video = document.getElementById('barcodeScannerVideo');
+  const status = document.getElementById('barcodeScannerStatus');
   overlay.classList.add('open');
-  document.getElementById('barcodeLoading').classList.remove('visible');
+  status.textContent = 'Starting camera…';
 
-  _barcodeScanner = new Html5Qrcode('barcodeReader');
-  _barcodeScanner.start(
-    { facingMode: 'environment' },
-    { fps: 10, qrbox: { width: 280, height: 120 } },
-    decodedText => _onBarcodeScanned(decodedText),
-    () => {}
-  ).catch(() => {
+  try {
+    _scannerStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = _scannerStream;
+    await video.play();
+    status.textContent = 'Point camera at barcode…';
+
+    const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39'] });
+    _scannerInterval = setInterval(async () => {
+      if (video.readyState < 2) return;
+      try {
+        const barcodes = await detector.detect(video);
+        if (barcodes.length > 0) {
+          const code = barcodes[0].rawValue;
+          status.textContent = `Found: ${code}`;
+          nlCloseBarcodeScanner();
+          document.getElementById('nlBarcodeInput').value = code;
+          document.getElementById('nlBarcodeRow').style.display = '';
+          nlSearchBarcode();
+        }
+      } catch {}
+    }, 200);
+  } catch {
     nlCloseBarcodeScanner();
     alert('Could not access camera. Please ensure camera permissions are granted.');
-  });
+  }
 }
 
 export function nlCloseBarcodeScanner() {
-  if (_barcodeScanner) {
-    _barcodeScanner.stop().catch(() => {});
-    _barcodeScanner.clear();
-    _barcodeScanner = null;
-  }
-  document.getElementById('barcodeOverlay').classList.remove('open');
+  if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
+  if (_scannerStream) { _scannerStream.getTracks().forEach(t => t.stop()); _scannerStream = null; }
+  const video = document.getElementById('barcodeScannerVideo');
+  if (video) { video.srcObject = null; }
+  document.getElementById('barcodeScannerOverlay').classList.remove('open');
 }
 
 async function _fetchProductData(barcode) {

@@ -247,8 +247,9 @@
         <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="nlSearchPicker()">
         <button class="nl-add-ing-btn" style="margin-bottom:14px;" onclick="nlOpenCreateChoice()">＋ Create Custom Ingredient</button>
         <div id="nlCreateChoiceRow" class="nl-create-choice-row" style="display:none;">
-            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenCustomModal()">✏️ Enter Manually</button>
-            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlShowBarcodeInput()">📦 Via Barcode</button>
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenCustomModal()">✏️ Manual</button>
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlShowBarcodeInput()">📦 Type Code</button>
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenBarcodeScanner()">📷 Scan</button>
         </div>
         <div id="nlBarcodeRow" class="nl-barcode-row" style="display:none;">
             <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">
@@ -613,6 +614,17 @@
             <button class="sheet-close-btn" onclick="nlCloseBarcodeResult()">&times;</button>
             <div id="barcodeResultContent"></div>
         </div>
+    </div>
+
+    <!-- Barcode Scanner Overlay -->
+    <div class="barcode-scanner-overlay" id="barcodeScannerOverlay">
+        <div class="barcode-scanner-header">
+            <button class="barcode-scanner-close" onclick="nlCloseBarcodeScanner()">&times;</button>
+            <span>Scan Barcode</span>
+        </div>
+        <video id="barcodeScannerVideo" autoplay playsinline></video>
+        <div class="barcode-scanner-guide"></div>
+        <div class="barcode-scanner-status" id="barcodeScannerStatus">Point camera at barcode…</div>
     </div>
 
     <!-- App Entry Point -->
