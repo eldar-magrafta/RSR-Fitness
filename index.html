@@ -250,7 +250,7 @@
         <div id="nlCreateChoiceRow" class="nl-create-choice-row" style="display:none;">
             <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenCustomModal()">✏️ Manual</button>
             <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlShowBarcodeInput()">📦 Type Code</button>
-            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenBarcodeScanner()">📷 Scan</button>
+            <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenBarcodeScanner()">📷 Photo</button>
         </div>
         <div id="nlBarcodeRow" class="nl-barcode-row" style="display:none;">
             <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">
@@ -617,15 +617,9 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Overlay -->
-    <div class="barcode-scanner-overlay" id="barcodeScannerOverlay">
-        <div class="barcode-scanner-header">
-            <button class="barcode-scanner-close" onclick="nlCloseBarcodeScanner()">&times;</button>
-            <span>Scan Barcode</span>
-        </div>
-        <div id="barcodeScannerReader" class="barcode-scanner-viewport"></div>
-        <div class="barcode-scanner-status" id="barcodeScannerStatus">Point camera at barcode…</div>
-    </div>
+    <!-- Barcode scan from photo -->
+    <input type="file" id="barcodeScanFileInput" accept="image/*" capture="environment" style="display:none" onchange="nlBarcodeScanFile(this)">
+    <div id="barcodeScanTemp" style="display:none;"></div>
 
     <!-- App Entry Point -->
     <script type="module" src="js/app.js"></script>

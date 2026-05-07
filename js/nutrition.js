@@ -1092,56 +1092,33 @@ export function nlSelectDate(dateStr) {
   renderMacroGoals();
 }
 
-// ── Barcode Scanner (html5-qrcode / ZXing engine – accurate on iOS) ──
-
-let _html5QrCode = null;
+// ── Barcode Scanner (photo-based – works reliably on iOS) ──
 
 export function nlOpenBarcodeScanner() {
+  document.getElementById('barcodeScanFileInput').click();
+}
+
+export async function nlBarcodeScanFile(input) {
+  if (!input.files || !input.files[0]) return;
   if (typeof Html5Qrcode === 'undefined') {
     alert('Scanner not loaded. Please use "Type Code" instead.');
     return;
   }
-  const overlay = document.getElementById('barcodeScannerOverlay');
-  const status = document.getElementById('barcodeScannerStatus');
-  overlay.classList.add('open');
-  status.textContent = 'Starting camera…';
-
-  _html5QrCode = new Html5Qrcode('barcodeScannerReader');
-  _html5QrCode.start(
-    { facingMode: 'environment' },
-    {
-      fps: 10,
-      qrbox: { width: 250, height: 100 },
-      formatsToSupport: [
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E
-      ]
-    },
-    (decodedText) => {
-      nlCloseBarcodeScanner();
-      document.getElementById('nlBarcodeInput').value = decodedText;
-      document.getElementById('nlBarcodeRow').style.display = '';
-      nlSearchBarcode();
-    },
-    () => {}
-  ).then(() => {
-    status.textContent = 'Point camera at barcode…';
-  }).catch(() => {
-    nlCloseBarcodeScanner();
-    alert('Could not access camera. Please ensure camera permissions are granted.');
-  });
-}
-
-export function nlCloseBarcodeScanner() {
-  if (_html5QrCode) {
-    _html5QrCode.stop().catch(() => {});
-    _html5QrCode.clear();
-    _html5QrCode = null;
+  const file = input.files[0];
+  input.value = '';
+  try {
+    const scanner = new Html5Qrcode('barcodeScanTemp');
+    const code = await scanner.scanFile(file, false);
+    scanner.clear();
+    document.getElementById('nlBarcodeInput').value = code;
+    document.getElementById('nlBarcodeRow').style.display = '';
+    nlSearchBarcode();
+  } catch {
+    alert('Could not read barcode from photo. Try again with the barcode clearly visible and in focus.');
   }
-  document.getElementById('barcodeScannerOverlay').classList.remove('open');
 }
+
+export function nlCloseBarcodeScanner() {}
 
 async function _fetchProductData(barcode) {
   const controller = new AbortController();
