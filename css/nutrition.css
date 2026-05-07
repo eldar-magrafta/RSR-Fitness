@@ -327,8 +327,15 @@
 .macro-set-btn:active { background:var(--subtle-bg-hover); border-color:var(--accent); }
 
 /* ── Create Choice Row ── */
+.nl-create-wrap {
+  background:var(--card); border:1px solid var(--border); border-radius:18px;
+  padding:14px; margin-bottom:14px;
+}
+.nl-create-wrap .nl-add-ing-btn { margin-bottom:0; }
+.nl-create-wrap .nl-create-choice-row { margin-top:12px; margin-bottom:0; }
+.nl-create-wrap .nl-barcode-row { margin-top:12px; margin-bottom:0; }
 .nl-create-choice-row {
-  display:flex; gap:10px; margin-bottom:14px;
+  display:flex; gap:10px;
 }
 .nl-create-choice-btn {
   flex:1; background:var(--card); border:1px solid var(--border-med);
