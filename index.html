@@ -249,8 +249,8 @@
             <button class="nl-add-ing-btn" onclick="nlToggleCreateChoice()">＋ Create Custom Ingredient</button>
             <div id="nlCreateChoiceRow" class="nl-create-choice-row" style="display:none;">
                 <button class="nl-create-choice-btn" onclick="nlOpenCustomModal()"><i class="bi bi-pencil-square"></i> Manual</button>
-                <button class="nl-create-choice-btn" onclick="nlShowBarcodeInput()"><i class="bi bi-keyboard"></i> Type Code</button>
-                <button class="nl-create-choice-btn" onclick="nlOpenBarcodeScanner()"><i class="bi bi-upc-scan"></i> Photo</button>
+                <button class="nl-create-choice-btn" onclick="nlShowBarcodeInput()"><i class="bi bi-keyboard"></i> Type Barcode</button>
+                <button class="nl-create-choice-btn" onclick="nlOpenBarcodeScanner()"><i class="bi bi-upc-scan"></i> Scan Barcode</button>
             </div>
             <div id="nlBarcodeRow" class="nl-barcode-row" style="display:none;">
                 <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">
