@@ -246,11 +246,11 @@
     <div class="view" id="nlPickerView">
         <input class="nl-search" type="text" id="nlSearchInput" placeholder="Search ingredients…" oninput="nlSearchPicker()">
         <div class="nl-create-wrap">
-            <button class="nl-add-ing-btn" onclick="nlOpenCreateChoice()">＋ Create Custom Ingredient</button>
+            <button class="nl-add-ing-btn" onclick="nlToggleCreateChoice()">＋ Create Custom Ingredient</button>
             <div id="nlCreateChoiceRow" class="nl-create-choice-row" style="display:none;">
-                <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenCustomModal()">✏️ Manual</button>
-                <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlShowBarcodeInput()">📦 Type Code</button>
-                <button class="nl-create-choice-btn" onclick="nlCloseCreateChoice();nlOpenBarcodeScanner()">📷 Photo</button>
+                <button class="nl-create-choice-btn" onclick="nlOpenCustomModal()">✏️ Manual</button>
+                <button class="nl-create-choice-btn" onclick="nlShowBarcodeInput()">📦 Type Code</button>
+                <button class="nl-create-choice-btn" onclick="nlOpenBarcodeScanner()">📷 Photo</button>
             </div>
             <div id="nlBarcodeRow" class="nl-barcode-row" style="display:none;">
                 <input class="nl-barcode-input" type="text" id="nlBarcodeInput" inputmode="numeric" placeholder="Enter barcode…" onkeydown="if(event.key==='Enter')nlSearchBarcode()">

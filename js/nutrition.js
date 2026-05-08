@@ -571,9 +571,11 @@ function nlRenderCustomPhotoArea() {
   }
 }
 
-export function nlOpenCreateChoice() {
-  document.getElementById('nlCreateChoiceRow').style.display = '';
-  document.getElementById('nlBarcodeRow').style.display = 'none';
+export function nlToggleCreateChoice() {
+  const row = document.getElementById('nlCreateChoiceRow');
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : '';
+  if (isOpen) document.getElementById('nlBarcodeRow').style.display = 'none';
 }
 
 export function nlCloseCreateChoice() {
