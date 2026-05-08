@@ -1109,8 +1109,58 @@ async function _getBarcodeDetector() {
   return _barcodeDetectorClass;
 }
 
-export function nlOpenBarcodeScanner() {
-  document.getElementById('barcodeScanFileInput').click();
+let _scannerStream = null;
+let _scannerInterval = null;
+
+export async function nlOpenBarcodeScanner() {
+  const overlay = document.getElementById('barcodeScannerOverlay');
+  const video = document.getElementById('barcodeScannerVideo');
+  overlay.classList.add('open');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    _scannerStream = stream;
+    video.srcObject = stream;
+    await video.play();
+    _startScanLoop();
+  } catch {
+    overlay.classList.remove('open');
+    alert('Could not access camera. Please check permissions.');
+  }
+}
+
+async function _startScanLoop() {
+  const BDClass = await _getBarcodeDetector();
+  const detector = new BDClass({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+  const video = document.getElementById('barcodeScannerVideo');
+  const canvas = document.getElementById('barcodeScannerCanvas');
+  const ctx = canvas.getContext('2d');
+
+  _scannerInterval = setInterval(async () => {
+    if (video.readyState < 2) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    try {
+      const results = await detector.detect(canvas);
+      if (results.length) {
+        const code = results[0].rawValue;
+        nlCloseBarcodeScanner();
+        document.getElementById('nlBarcodeInput').value = code;
+        document.getElementById('nlBarcodeRow').style.display = '';
+        nlSearchBarcode();
+      }
+    } catch {}
+  }, 400);
+}
+
+export function nlCloseBarcodeScanner() {
+  if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
+  if (_scannerStream) { _scannerStream.getTracks().forEach(t => t.stop()); _scannerStream = null; }
+  const video = document.getElementById('barcodeScannerVideo');
+  video.srcObject = null;
+  document.getElementById('barcodeScannerOverlay').classList.remove('open');
 }
 
 export async function nlBarcodeScanFile(input) {
@@ -1132,8 +1182,6 @@ export async function nlBarcodeScanFile(input) {
     alert('Could not read barcode from photo. Make sure the barcode is clearly visible and in focus.');
   }
 }
-
-export function nlCloseBarcodeScanner() {}
 
 async function _fetchProductData(barcode) {
   const controller = new AbortController();

@@ -627,6 +627,28 @@
     <!-- Barcode scan from photo -->
     <input type="file" id="barcodeScanFileInput" accept="image/*" capture="environment" style="display:none" onchange="nlBarcodeScanFile(this)">
 
+    <!-- Live Barcode Scanner Overlay -->
+    <div class="barcode-scanner-overlay" id="barcodeScannerOverlay">
+        <div class="barcode-scanner-header">
+            <span>Scan Barcode</span>
+            <button class="barcode-scanner-close" onclick="nlCloseBarcodeScanner()">&times;</button>
+        </div>
+        <div class="barcode-scanner-viewport">
+            <video id="barcodeScannerVideo" autoplay playsinline></video>
+            <div class="barcode-scanner-mask">
+                <div class="barcode-scanner-window">
+                    <div class="barcode-corner tl"></div>
+                    <div class="barcode-corner tr"></div>
+                    <div class="barcode-corner bl"></div>
+                    <div class="barcode-corner br"></div>
+                    <div class="barcode-scan-line"></div>
+                </div>
+            </div>
+        </div>
+        <div class="barcode-scanner-hint">Align the barcode within the frame</div>
+        <canvas id="barcodeScannerCanvas" style="display:none;"></canvas>
+    </div>
+
     <!-- App Entry Point -->
     <script type="module" src="js/app.js"></script>
 </div><!-- /#appRoot -->
