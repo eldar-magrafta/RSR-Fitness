@@ -2,8 +2,8 @@
 // Imports all modules, registers window globals for inline handlers, runs init.
 
 import { state, resetTransientState } from './state.js';
-import { migrateOldExLogs, getNLMeals, migrateMacroGoalsToMap } from './store.js';
-import { initFirebase, onAuthChange, loadFromCloud, signOutUser } from './cloud.js';
+import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clearAllExerciseData as clearExData, saveBWEmpty } from './store.js';
+import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollection } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler } from './exercises.js';
@@ -321,6 +321,29 @@ function hideClearDataMenu() {
   document.getElementById('clearDataPanel').classList.remove('open');
 }
 
+function openClearAllData() {
+  openConfirmDialog({
+    title: 'Delete ALL Data?',
+    message: 'This will permanently remove all exercise data, meal logs, and weight entries including photos. This cannot be undone.',
+    confirmLabel: 'Yes, Delete Everything',
+    onConfirm: () => {
+      clearExData();
+      deleteCollection('exhist');
+      deleteCollection('notes');
+      const meals = getNLMeals().filter(m => m.type === 'saved');
+      saveNLMeals(meals);
+      saveBWEmpty();
+      state.exLogSelectedDate = null;
+      state.bwSelDate = null;
+      state.bwCurrentPhotos = [];
+      renderNLCalendar();
+      renderNLMeals();
+      renderMacroGoals();
+      buildWeightView();
+    },
+  });
+}
+
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
@@ -342,6 +365,7 @@ window.closeBurgerMenu = closeBurgerMenu;
 window.toggleTheme = toggleTheme;
 window.showClearDataMenu = showClearDataMenu;
 window.hideClearDataMenu = hideClearDataMenu;
+window.openClearAllData = openClearAllData;
 
 // ═══════════════════════════════════════════
 // Auth UI (delegated to auth.js)
