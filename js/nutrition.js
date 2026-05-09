@@ -187,6 +187,11 @@ function renderNLMealDetail() {
       photoBtn.style.display = 'none';
     }
   }
+  // Save as Meal button (only for logged meals with ingredients)
+  const saveAsBtn = document.getElementById('nlSaveAsMealBtn');
+  if (saveAsBtn) {
+    saveAsBtn.style.display = (meal.type === 'logged' && meal.ingredients && meal.ingredients.length > 0) ? '' : 'none';
+  }
 
   document.getElementById('nlMealChart').innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
   document.getElementById('nlTotals').innerHTML = `
@@ -462,6 +467,25 @@ export function nlDuplicateMeal() {
   const dup = { id: 'meal_' + Date.now(), name: meal.name + ' (copy)', type: meal.type || 'logged', ingredients: meal.ingredients.map(i => ({ ...i })), notes: meal.notes, favorite: false, createdAt: new Date().toISOString().slice(0, 10) };
   if (meal.image) dup.image = meal.image;
   meals.push(dup); saveNLMeals(meals); nlShowMeal(dup.id);
+}
+
+export function nlSaveAsSavedMeal() {
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal || meal.type !== 'logged') return;
+  const saved = {
+    id: 'meal_' + Date.now(),
+    name: meal.name,
+    type: 'saved',
+    ingredients: meal.ingredients.map(i => ({ ...i })),
+    notes: meal.notes || '',
+    favorite: false,
+    createdAt: new Date().toISOString().slice(0, 10)
+  };
+  if (meal.image) saved.image = meal.image;
+  meals.push(saved);
+  saveNLMeals(meals);
+  const btn = document.getElementById('nlSaveAsMealBtn');
+  if (btn) { btn.innerHTML = '<i class="bi bi-bookmark-check"></i>&nbsp;Saved!'; setTimeout(() => { btn.innerHTML = '<i class="bi bi-bookmark-plus"></i>&nbsp;Save as Meal'; }, 1500); }
 }
 
 export function nlCopySummary() {
