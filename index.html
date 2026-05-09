@@ -611,7 +611,8 @@
             <div class="bw-sheet-handle"></div>
             <button class="sheet-close-btn" onclick="closeSavedMealPicker()">&times;</button>
             <div class="bw-sheet-title">Choose a Saved Meal</div>
-            <div id="nlSavedPickerList" style="max-height:60vh;overflow-y:auto;"></div>
+            <input class="nl-search" type="text" id="nlSavedMealSearch" placeholder="Search saved meals…" oninput="nlFilterSavedMeals()">
+            <div id="nlSavedPickerList" style="max-height:55vh;overflow-y:auto;"></div>
         </div>
     </div>
 

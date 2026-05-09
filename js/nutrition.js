@@ -1010,6 +1010,17 @@ export function openSavedMealPicker() {
 export function closeSavedMealPicker() {
   document.getElementById('nlSavedPickerSheet').style.transform = '';
   document.getElementById('nlSavedPickerOverlay').classList.remove('open');
+  document.getElementById('nlSavedMealSearch').value = '';
+}
+
+export function nlFilterSavedMeals() {
+  const q = document.getElementById('nlSavedMealSearch').value.trim().toLowerCase();
+  const cards = document.querySelectorAll('#nlSavedPickerList .nl-meal-card');
+  cards.forEach(card => {
+    const name = card.querySelector('.nl-meal-name');
+    const match = !q || (name && name.textContent.toLowerCase().includes(q));
+    card.style.display = match ? '' : 'none';
+  });
 }
 
 export function pickSavedMeal(id) {
