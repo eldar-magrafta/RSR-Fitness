@@ -134,20 +134,28 @@ export async function deleteCollection(collectionName) {
 
 export async function savePhotoDoc(collectionName, docId, base64) {
   if (!_uid || !db) return;
+  _photoCache[`${collectionName}/${docId}`] = base64;
   try { await setDoc(doc(db, 'users', _uid, collectionName, docId), { value: base64 }); }
   catch { /* offline — will be synced via migration on next login */ }
 }
 
+const _photoCache = {};
+
 export async function loadPhotoDoc(collectionName, docId) {
   if (!_uid || !db) return null;
+  const key = `${collectionName}/${docId}`;
+  if (_photoCache[key] !== undefined) return _photoCache[key];
   try {
     const snap = await getDoc(doc(db, 'users', _uid, collectionName, docId));
-    return snap.exists() ? snap.data().value : null;
+    const val = snap.exists() ? snap.data().value : null;
+    _photoCache[key] = val;
+    return val;
   } catch { return null; }
 }
 
 export async function deletePhotoDoc(collectionName, docId) {
   if (!_uid || !db) return;
+  delete _photoCache[`${collectionName}/${docId}`];
   try { await deleteDoc(doc(db, 'users', _uid, collectionName, docId)); }
   catch { /* ignore */ }
 }
