@@ -69,11 +69,27 @@ export const globalExSearchHandler = debounce(function() {
         const isCustom = groupCustoms.includes(ex);
         const item = document.createElement('div');
         item.className = 'exercise-item';
-        const thumbSrc = ex.gif && !ex.gif.startsWith('cloud:') ? ex.gif : '';
+        const thumbSrc = ex.thumb || ex.gif || '';
+        const isCloudThumb = thumbSrc.startsWith('cloud:');
+        const showThumb = thumbSrc && !isCloudThumb;
         item.innerHTML = `
-          ${thumbSrc ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+          ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
           <div class="ex-item-info"><span class="ex-name">${ex.name}</span>${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}<span class="ex-search-group">${group.name}</span></div>
           <span class="arrow">\u203a</span>`;
+        if (isCloudThumb) {
+          const parts = thumbSrc.slice(6).split('/');
+          loadPhotoDoc(parts[0], parts[1]).then(data => {
+            if (data) {
+              const ph = item.querySelector('.ex-thumb-placeholder');
+              if (ph) {
+                const img = document.createElement('img');
+                img.className = 'ex-thumb';
+                img.src = data;
+                ph.replaceWith(img);
+              }
+            }
+          });
+        }
         item.onclick = () => openModal(ex, group.name);
         resultsEl.appendChild(item);
       }

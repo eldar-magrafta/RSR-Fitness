@@ -132,14 +132,14 @@ export async function deleteCollection(collectionName) {
 
 // ── Photo document helpers (each photo = its own Firestore doc) ──
 
+const _photoCache = {};
+
 export async function savePhotoDoc(collectionName, docId, base64) {
   if (!_uid || !db) return;
   _photoCache[`${collectionName}/${docId}`] = base64;
   try { await setDoc(doc(db, 'users', _uid, collectionName, docId), { value: base64 }); }
   catch { /* offline — will be synced via migration on next login */ }
 }
-
-const _photoCache = {};
 
 export async function loadPhotoDoc(collectionName, docId) {
   if (!_uid || !db) return null;
