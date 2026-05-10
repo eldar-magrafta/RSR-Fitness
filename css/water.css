@@ -48,18 +48,18 @@
 
 .water-target-section {
   background:var(--card); border:1px solid var(--border-med);
-  border-radius:18px; padding:18px; width:100%;
+  border-radius:18px; padding:12px 18px; width:100%;
 }
 .water-section-label {
   font-size:0.82rem; font-weight:700; color:var(--text-secondary);
-  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;
+  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;
   text-align:center;
 }
 .water-target-row {
   display:flex; align-items:center; justify-content:center; gap:16px;
 }
 .water-target-btn {
-  width:44px; height:44px; border-radius:12px;
+  width:40px; height:40px; border-radius:12px;
   background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
   color:var(--accent); font-size:1.3rem; font-weight:700;
   cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -79,7 +79,7 @@
 
 .water-bottle-section {
   background:var(--card); border:1px solid var(--border-med);
-  border-radius:18px; padding:18px; width:100%; margin-top:12px;
+  border-radius:18px; padding:12px 18px; width:100%; margin-top:12px;
 }
 
 /* ── Water Celebration Animation ── */
