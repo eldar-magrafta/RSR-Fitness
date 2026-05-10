@@ -145,6 +145,12 @@ export function saveWeightGoal(kg) {
   }
 }
 
+// ── User Theme ──
+export function saveUserTheme(name) {
+  safeSetItem('trainer_user_theme', name);
+  _cloudSave('sections', 'usertheme', name);
+}
+
 // ── User Height ──
 export function getUserHeight() {
   const v = localStorage.getItem('trainer_user_height');

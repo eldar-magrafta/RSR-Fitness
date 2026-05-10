@@ -2,7 +2,7 @@
 // Imports all modules, registers window globals for inline handlers, runs init.
 
 import { state, resetTransientState } from './state.js';
-import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clearAllExerciseData as clearExData, saveBWEmpty } from './store.js';
+import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clearAllExerciseData as clearExData, saveBWEmpty, saveUserTheme } from './store.js';
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollection } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
@@ -391,19 +391,23 @@ function openClearAllData() {
 const THEME_CLASSES = ['light', 'theme-crimson', 'theme-golden', 'theme-ultraviolet'];
 const THEME_META = { dark: '#060611', light: '#eef1fa', crimson: '#0b0608', golden: '#0a0804', ultraviolet: '#08061a' };
 
-function setTheme(name) {
+function setTheme(name, skipSync) {
   THEME_CLASSES.forEach(c => document.documentElement.classList.remove(c));
   if (name === 'light') document.documentElement.classList.add('light');
   else if (name !== 'dark') document.documentElement.classList.add('theme-' + name);
-  localStorage.setItem('theme', name);
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = THEME_META[name] || THEME_META.dark;
   updateThemeSwatches(name);
+  if (!skipSync) saveUserTheme(name);
 }
 
 function applyStoredTheme() {
-  const stored = localStorage.getItem('theme') || 'dark';
-  setTheme(stored);
+  let stored = localStorage.getItem('trainer_user_theme');
+  if (!stored) {
+    const old = localStorage.getItem('theme');
+    if (old) { stored = old; localStorage.removeItem('theme'); }
+  }
+  setTheme(stored || 'dark', true);
 }
 
 function updateThemeSwatches(active) {
@@ -454,6 +458,9 @@ if ('serviceWorker' in navigator) {
   // Auto-reload when a new Service Worker takes over (new code deployed)
   navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
 }
+
+// Apply theme early to prevent flash
+applyStoredTheme();
 
 // Register swipe dismissals once — before Firebase, so they never accumulate
 initModalSwipe();

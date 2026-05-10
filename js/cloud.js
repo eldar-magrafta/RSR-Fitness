@@ -21,6 +21,7 @@ const SECTION_MAP = {
   customings:    'trainer_custom_ings',
   weightgoal:    'trainer_weight_goal',
   userheight:    'trainer_user_height',
+  usertheme:     'trainer_user_theme',
 };
 
 let db, auth;
