@@ -655,7 +655,7 @@ export function nlCloseCustom() {
 
 export function nlCustomPhotoSelected(input) {
   if (!input.files || !input.files[0]) return;
-  resizeImage(input.files[0], 700, 0.72, base64 => {
+  resizeImage(input.files[0], 1200, 0.92, base64 => {
     state.nlCustomPhotoBase64 = base64;
     nlRenderCustomPhotoArea();
   });
@@ -1324,7 +1324,7 @@ function _showBarcodeResult(product) {
 
 export function nlBarcodePhotoSelected(input) {
   if (!input.files || !input.files[0]) return;
-  resizeImage(input.files[0], 700, 0.72, base64 => {
+  resizeImage(input.files[0], 1200, 0.92, base64 => {
     state._barcodePhotoBase64 = base64;
     const area = document.getElementById('barcodePhotoArea');
     area.innerHTML = `

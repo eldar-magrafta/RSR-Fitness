@@ -378,7 +378,7 @@ export function bwOnFileSelect(e) {
   if (!file) return;
   e.target.value = '';
   if (state.bwCurrentPhotos.length >= 3) return;
-  resizeImage(file, 700, 0.72, base64 => {
+  resizeImage(file, 1200, 0.92, base64 => {
     state.bwCurrentPhotos.push(base64);
     bwRenderPhotoArea();
   });

@@ -60,19 +60,25 @@ export function fmtDateLabel(dateStr) {
 
 /** Resize an image file (File object) and return base64 JPEG via callback */
 export function resizeImage(file, maxSize, quality, cb) {
+  const MAX_BASE64 = 720000;
   const reader = new FileReader();
   reader.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      const MAX = maxSize;
       let w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
-      else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+      if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+      else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      cb(canvas.toDataURL('image/jpeg', quality));
+      let q = quality;
+      let result = canvas.toDataURL('image/jpeg', q);
+      while (result.length > MAX_BASE64 && q > 0.5) {
+        q -= 0.05;
+        result = canvas.toDataURL('image/jpeg', q);
+      }
+      cb(result);
     };
     img.src = ev.target.result;
   };
