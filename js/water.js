@@ -6,6 +6,7 @@ import { showView, setHeader } from './navigation.js';
 const STORAGE_KEY_TARGET = 'trainer_water_target';
 const STORAGE_KEY_INTAKE = 'trainer_water_intake';
 const STORAGE_KEY_DATE = 'trainer_water_date';
+const STORAGE_KEY_BOTTLE = 'trainer_water_bottle';
 
 function getTarget() {
   return parseFloat(localStorage.getItem(STORAGE_KEY_TARGET)) || 2.5;
@@ -13,6 +14,14 @@ function getTarget() {
 
 function setTarget(liters) {
   localStorage.setItem(STORAGE_KEY_TARGET, liters.toString());
+}
+
+function getBottleSize() {
+  return parseInt(localStorage.getItem(STORAGE_KEY_BOTTLE)) || 600;
+}
+
+function setBottleSize(ml) {
+  localStorage.setItem(STORAGE_KEY_BOTTLE, ml.toString());
 }
 
 function getTodayKey() {
@@ -46,6 +55,8 @@ export function renderWaterView() {
   const target = getTarget();
   const intake = getIntake();
   const pct = Math.min(100, Math.round((intake / target) * 100));
+  const bottleMl = getBottleSize();
+  const bottleLabel = bottleMl >= 1000 ? `+${(bottleMl / 1000).toFixed(bottleMl % 1000 === 0 ? 0 : 1)}L` : `+${bottleMl}ml`;
   const container = document.getElementById('waterContent');
 
   container.innerHTML = `
@@ -66,7 +77,8 @@ export function renderWaterView() {
       <button class="water-quick-btn" onclick="waterAdd(0.15)">+150ml</button>
       <button class="water-quick-btn" onclick="waterAdd(0.25)">+250ml</button>
       <button class="water-quick-btn" onclick="waterAdd(0.5)">+500ml</button>
-      <button class="water-quick-btn water-quick-btn-custom" onclick="waterAdd(1)">+1L</button>
+      <button class="water-quick-btn" onclick="waterAdd(1)">+1L</button>
+      <button class="water-quick-btn water-quick-btn-bottle" onclick="waterAddBottle()"><i class="bi bi-cup-straw"></i> ${bottleLabel}</button>
     </div>
     <div class="water-undo-row">
       <button class="water-undo-btn" onclick="waterUndo()"><i class="bi bi-arrow-counterclockwise"></i> Undo Last</button>
@@ -78,6 +90,14 @@ export function renderWaterView() {
         <button class="water-target-btn" onclick="waterAdjustTarget(-0.25)">−</button>
         <div class="water-target-display" id="waterTargetDisplay">${target.toFixed(2)}L</div>
         <button class="water-target-btn" onclick="waterAdjustTarget(0.25)">+</button>
+      </div>
+    </div>
+    <div class="water-bottle-section">
+      <div class="water-section-label">My Bottle Size</div>
+      <div class="water-target-row">
+        <button class="water-target-btn" onclick="waterAdjustBottle(-50)">−</button>
+        <div class="water-target-display" id="waterBottleDisplay">${bottleMl}ml</div>
+        <button class="water-target-btn" onclick="waterAdjustBottle(50)">+</button>
       </div>
     </div>`;
 }
@@ -129,5 +149,17 @@ function showWaterCelebration() {
 export function waterAdjustTarget(delta) {
   const target = Math.max(0.5, getTarget() + delta);
   setTarget(target);
+  renderWaterView();
+}
+
+export function waterAddBottle() {
+  const bottleMl = getBottleSize();
+  waterAdd(bottleMl / 1000);
+}
+
+export function waterAdjustBottle(delta) {
+  const current = getBottleSize();
+  const next = Math.max(100, Math.min(2000, current + delta));
+  setBottleSize(next);
   renderWaterView();
 }
