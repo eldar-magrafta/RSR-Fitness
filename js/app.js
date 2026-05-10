@@ -6,7 +6,7 @@ import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clea
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollection } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
-import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler, openCustomExModal, closeCustomExModal, customExVideoSelected, removeCustomExVideo, saveCustomEx, deleteCustomEx } from './exercises.js';
+import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler, openCustomExModal, closeCustomExModal, customExImageSelected, removeCustomExImage, saveCustomEx, deleteCustomEx } from './exercises.js';
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
 import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe, bmiPromptHeight, bwEditGoal, bwClearGoal, closeHeightSheet, saveHeightFromSheet, clearHeightFromSheet, closeGoalSheet, saveGoalFromSheet, clearGoalFromSheet } from './bodyweight.js';
@@ -179,8 +179,8 @@ window.globalExSearchHandler = globalExSearchHandler;
 window.groupExSearchHandler = groupExSearchHandler;
 window.openCustomExModal = openCustomExModal;
 window.closeCustomExModal = closeCustomExModal;
-window.customExVideoSelected = customExVideoSelected;
-window.removeCustomExVideo = removeCustomExVideo;
+window.customExImageSelected = customExImageSelected;
+window.removeCustomExImage = removeCustomExImage;
 window.saveCustomEx = saveCustomEx;
 window.deleteCustomEx = deleteCustomEx;
 

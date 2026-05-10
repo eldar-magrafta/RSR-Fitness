@@ -489,12 +489,12 @@
             <div class="popup-title">Add Custom Exercise</div>
             <input type="text" id="customExName" class="custom-ex-input" placeholder="Exercise name" />
             <input type="text" id="customExDesc" class="custom-ex-input" placeholder="Short description (optional)" />
-            <input type="file" id="customExFileInput" accept="video/*" style="display:none" onchange="customExVideoSelected(event)">
+            <input type="file" id="customExFileInput" accept="image/*" style="display:none" onchange="customExImageSelected(event)">
             <div class="custom-ex-video-row">
                 <button class="custom-ex-video-btn" onclick="document.getElementById('customExFileInput').click()">
-                    <i class="bi bi-camera-video"></i> Add Video
+                    <i class="bi bi-image"></i> Add Image
                 </button>
-                <button class="custom-ex-video-remove" onclick="removeCustomExVideo()" style="display:none" id="customExBtnDel">
+                <button class="custom-ex-video-remove" onclick="removeCustomExImage()" style="display:none" id="customExBtnDel">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>

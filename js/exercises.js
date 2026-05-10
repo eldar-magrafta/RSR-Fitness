@@ -191,13 +191,14 @@ export function openModal(ex, muscleName, fromPlan = false) {
     }
   };
 
-  if (ex.gif && ex.gif.startsWith('cloud:')) {
+  const mediaSrc = ex.gif || ex.thumb || '';
+  if (mediaSrc.startsWith('cloud:')) {
     if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
     if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
-    const parts = ex.gif.slice(6).split('/');
+    const parts = mediaSrc.slice(6).split('/');
     loadPhotoDoc(parts[0], parts[1]).then(data => { if (data) loadMedia(data); });
   } else {
-    loadMedia(ex.gif || '');
+    loadMedia(mediaSrc);
   }
 
   const planSection = document.getElementById('modalPlanSection');
@@ -335,7 +336,6 @@ export function initModalSwipe() {
 
 // ── Custom Exercise Creation ──
 
-let _customVideoBase64 = null;
 let _customThumbBase64 = null;
 
 export function openCustomExModal() {
@@ -344,42 +344,40 @@ export function openCustomExModal() {
   document.getElementById('customExVideoPreview').style.display = 'none';
   document.getElementById('customExVideoPreview').src = '';
   document.getElementById('customExBtnDel').style.display = 'none';
-  _customVideoBase64 = null;
+  _customThumbBase64 = null;
   document.getElementById('customExOverlay').classList.add('open');
   setTimeout(() => document.getElementById('customExName').focus(), 250);
 }
 
 export function closeCustomExModal() {
   document.getElementById('customExOverlay').classList.remove('open');
-  _customVideoBase64 = null;
   _customThumbBase64 = null;
 }
 
-export function customExVideoSelected(e) {
+export function customExImageSelected(e) {
   const file = e.target.files[0];
   if (!file) return;
   e.target.value = '';
 
-  const videoBtn = document.querySelector('.custom-ex-video-btn');
-  const origHTML = videoBtn.innerHTML;
-  videoBtn.innerHTML = '<div class="bw-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing…';
-  videoBtn.disabled = true;
-
-  _processVideo(file).then(result => {
-    videoBtn.innerHTML = origHTML;
-    videoBtn.disabled = false;
-    if (!result) return;
-    _customThumbBase64 = result.thumb;
-    _customVideoBase64 = result.video;
+  const canvas = document.createElement('canvas');
+  const img = new Image();
+  img.onload = () => {
+    const w = Math.min(img.width, 400);
+    const h = Math.round((w / img.width) * img.height);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    _customThumbBase64 = canvas.toDataURL('image/webp', 0.75);
     document.getElementById('customExBtnDel').style.display = '';
     const preview = document.getElementById('customExVideoPreview');
-    preview.src = result.thumb;
+    preview.src = _customThumbBase64;
     preview.style.display = 'block';
-  });
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
 }
 
-export function removeCustomExVideo() {
-  _customVideoBase64 = null;
+export function removeCustomExImage() {
   _customThumbBase64 = null;
   document.getElementById('customExVideoPreview').style.display = 'none';
   document.getElementById('customExVideoPreview').src = '';
@@ -412,10 +410,6 @@ export function saveCustomEx() {
   if (_customThumbBase64) {
     const docId = encodeURIComponent(name);
     savePhotoDoc('custom_ex_thumb', docId, _customThumbBase64);
-    if (_customVideoBase64) {
-      savePhotoDoc('custom_ex_media', docId, _customVideoBase64);
-      ex.gif = 'cloud:custom_ex_media/' + docId;
-    }
     ex.thumb = 'cloud:custom_ex_thumb/' + docId;
   }
 
@@ -435,11 +429,8 @@ export function deleteCustomEx(exName) {
       const idx = customs.findIndex(c => c.name === exName);
       if (idx >= 0) {
         const ex = customs[idx];
-        const docId = encodeURIComponent(ex.name);
-        if (ex.gif && ex.gif.startsWith('cloud:')) {
-          deletePhotoDoc('custom_ex_media', docId);
-        }
         if (ex.thumb && ex.thumb.startsWith('cloud:')) {
+          const docId = encodeURIComponent(ex.name);
           deletePhotoDoc('custom_ex_thumb', docId);
         }
         customs.splice(idx, 1);
@@ -451,90 +442,3 @@ export function deleteCustomEx(exName) {
   });
 }
 
-const MAX_VIDEO_DURATION = 10;
-
-function _processVideo(file) {
-  return new Promise((resolve) => {
-    const video = document.createElement('video');
-    video.muted = true;
-    video.playsInline = true;
-    const objUrl = URL.createObjectURL(file);
-    video.src = objUrl;
-
-    video.onloadedmetadata = () => {
-      if (video.duration > MAX_VIDEO_DURATION) {
-        URL.revokeObjectURL(objUrl);
-        alert(`Video too long (${Math.round(video.duration)}s). Max ${MAX_VIDEO_DURATION} seconds.`);
-        resolve(null);
-        return;
-      }
-
-      const canvas = document.createElement('canvas');
-      const w = Math.min(video.videoWidth, 360);
-      const h = Math.round((w / video.videoWidth) * video.videoHeight);
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-
-      // Capture a thumbnail from the first frame
-      video.currentTime = 0.5;
-      video.onseeked = () => {
-        ctx.drawImage(video, 0, 0, w, h);
-        const thumb = canvas.toDataURL('image/webp', 0.7);
-
-        // Now re-encode the video
-        if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm')) {
-          const stream = canvas.captureStream(12);
-          const recorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 500000 });
-          const chunks = [];
-          recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-          recorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            const reader = new FileReader();
-            reader.onload = () => {
-              URL.revokeObjectURL(objUrl);
-              const videoBase64 = reader.result;
-              if (videoBase64.length > 900000) {
-                resolve({ thumb, video: null });
-              } else {
-                resolve({ thumb, video: videoBase64 });
-              }
-            };
-            reader.readAsDataURL(blob);
-          };
-
-          video.currentTime = 0;
-          video.onseeked = () => {
-            recorder.start();
-            video.play();
-            const draw = () => {
-              if (video.paused || video.ended) { recorder.stop(); return; }
-              ctx.drawImage(video, 0, 0, w, h);
-              requestAnimationFrame(draw);
-            };
-            draw();
-          };
-          video.currentTime = 0;
-        } else {
-          // No MediaRecorder — try original file
-          const reader = new FileReader();
-          reader.onload = () => {
-            URL.revokeObjectURL(objUrl);
-            const videoBase64 = reader.result;
-            if (videoBase64.length > 900000) {
-              resolve({ thumb, video: null });
-            } else {
-              resolve({ thumb, video: videoBase64 });
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-    };
-
-    video.onerror = () => {
-      URL.revokeObjectURL(objUrl);
-      resolve(null);
-    };
-  });
-}
