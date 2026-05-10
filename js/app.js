@@ -17,7 +17,7 @@ import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
-import { openWaterView, waterAdd, waterUndo, waterAdjustTarget } from './water.js';
+import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget } from './water.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -295,6 +295,7 @@ window.openGallery = openGallery;
 window.openWaterView = openWaterView;
 window.waterAdd = waterAdd;
 window.waterUndo = waterUndo;
+window.waterReset = waterReset;
 window.waterAdjustTarget = waterAdjustTarget;
 
 // Exercise History

@@ -35,11 +35,14 @@
 }
 .water-quick-btn:active { background:rgba(0,229,255,0.18); box-shadow:0 0 12px rgba(0,229,255,0.15); }
 
+.water-undo-row {
+  display:flex; gap:10px; margin-bottom:24px;
+}
 .water-undo-btn {
-  width:100%; background:var(--card); border:1px solid var(--border-med);
+  flex:1; background:var(--card); border:1px solid var(--border-med);
   color:var(--text-secondary); padding:12px; border-radius:14px;
   font-size:0.88rem; font-weight:600; font-family:inherit;
-  cursor:pointer; margin-bottom:24px; transition:all 0.15s;
+  cursor:pointer; transition:all 0.15s;
 }
 .water-undo-btn:active { border-color:var(--accent); color:var(--accent); }
 

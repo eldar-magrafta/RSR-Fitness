@@ -68,7 +68,10 @@ export function renderWaterView() {
       <button class="water-quick-btn" onclick="waterAdd(0.5)">+500ml</button>
       <button class="water-quick-btn water-quick-btn-custom" onclick="waterAdd(1)">+1L</button>
     </div>
-    <button class="water-undo-btn" onclick="waterUndo()"><i class="bi bi-arrow-counterclockwise"></i> Undo Last</button>
+    <div class="water-undo-row">
+      <button class="water-undo-btn" onclick="waterUndo()"><i class="bi bi-arrow-counterclockwise"></i> Undo Last</button>
+      <button class="water-undo-btn" onclick="waterReset()"><i class="bi bi-x-circle"></i> Reset</button>
+    </div>
     <div class="water-target-section">
       <div class="water-section-label">Daily Target</div>
       <div class="water-target-row">
@@ -92,6 +95,12 @@ export function waterUndo() {
   if (_lastAdd <= 0) return;
   const intake = getIntake() - _lastAdd;
   saveIntake(intake);
+  _lastAdd = 0;
+  renderWaterView();
+}
+
+export function waterReset() {
+  saveIntake(0);
   _lastAdd = 0;
   renderWaterView();
 }
