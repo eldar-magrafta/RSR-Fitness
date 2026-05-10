@@ -69,3 +69,43 @@
 .water-target-display {
   font-size:1.3rem; font-weight:800; color:var(--text); min-width:80px; text-align:center;
 }
+
+/* ── Water Celebration Animation ── */
+.water-celebration {
+  position:absolute; inset:0; z-index:50; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity 0.5s;
+}
+.water-celebration.fade-out { opacity:0; }
+.water-drops {
+  position:absolute; inset:0; overflow:hidden;
+}
+.water-drop {
+  position:absolute; top:-10%;
+  left:var(--x); width:var(--size); height:var(--size);
+  background:rgba(0,229,255,0.6); border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  animation:waterFall 1.8s ease-in var(--delay) forwards;
+}
+.water-drop::after {
+  content:''; position:absolute; inset:20%; border-radius:50%;
+  background:rgba(255,255,255,0.3);
+}
+@keyframes waterFall {
+  0% { top:-10%; opacity:1; }
+  80% { opacity:1; }
+  100% { top:110%; opacity:0; }
+}
+.water-celebration-text {
+  text-align:center; animation:celebPop 0.4s ease-out;
+}
+.water-celebration-icon { font-size:3rem; margin-bottom:8px; }
+.water-celebration-msg {
+  font-size:1.3rem; font-weight:800; color:var(--accent);
+  text-shadow:0 0 20px rgba(0,229,255,0.4);
+}
+@keyframes celebPop {
+  0% { transform:scale(0.5); opacity:0; }
+  70% { transform:scale(1.1); }
+  100% { transform:scale(1); opacity:1; }
+}

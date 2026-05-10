@@ -85,10 +85,15 @@ export function renderWaterView() {
 let _lastAdd = 0;
 
 export function waterAdd(amount) {
-  const intake = getIntake() + amount;
+  const prevIntake = getIntake();
+  const target = getTarget();
+  const intake = prevIntake + amount;
   _lastAdd = amount;
   saveIntake(intake);
   renderWaterView();
+  if (prevIntake < target && intake >= target) {
+    showWaterCelebration();
+  }
 }
 
 export function waterUndo() {
@@ -103,6 +108,22 @@ export function waterReset() {
   saveIntake(0);
   _lastAdd = 0;
   renderWaterView();
+}
+
+function showWaterCelebration() {
+  const overlay = document.createElement('div');
+  overlay.className = 'water-celebration';
+  overlay.innerHTML = `
+    <div class="water-drops">
+      ${Array.from({ length: 20 }, (_, i) => `<div class="water-drop" style="--i:${i};--x:${Math.random() * 100}%;--delay:${Math.random() * 0.5}s;--size:${0.5 + Math.random() * 0.8}rem"></div>`).join('')}
+    </div>
+    <div class="water-celebration-text">
+      <div class="water-celebration-icon">💧</div>
+      <div class="water-celebration-msg">Target Reached!</div>
+    </div>`;
+  document.getElementById('waterView').appendChild(overlay);
+  setTimeout(() => { overlay.classList.add('fade-out'); }, 2000);
+  setTimeout(() => { overlay.remove(); }, 2500);
 }
 
 export function waterAdjustTarget(delta) {
