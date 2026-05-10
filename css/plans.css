@@ -49,6 +49,10 @@
   width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
   flex-shrink: 0; background: var(--card2);
 }
+.plan-ex-thumb-ph {
+  width: 44px; height: 44px; border-radius: 12px;
+  flex-shrink: 0; background: var(--card2);
+}
 .plan-ex-info { flex: 1; min-width: 0; cursor: pointer; }
 .plan-ex-name { font-size: 1rem; font-weight: 600; }
 .plan-ex-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }

@@ -7,6 +7,7 @@ import { getPlans, savePlans, getPlan, getLog, getCustomExercises } from './stor
 import { showView, setHeader } from './navigation.js';
 import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
+import { loadPhotoDoc } from './cloud.js';
 
 // ── Plans List ──
 
@@ -171,14 +172,31 @@ export function showPlanDetail(planId) {
       el.className = 'plan-ex-item';
       el.dataset.planItemIdx = idx;
       const subText = log ? `Last: ${log.setList.map(s => `${s.w}kg \u00d7 ${s.r}`).join(' / ')}` : found.groupName;
+      const thumbSrc = found.ex.thumb || found.ex.gif || '';
+      const isCloud = thumbSrc.startsWith('cloud:');
+      const showThumb = thumbSrc && !isCloud;
       el.innerHTML = `
         <span class="drag-handle">\u2807</span>
-        ${found.ex.gif ? `<img class="plan-ex-thumb" src="${found.ex.gif}" loading="lazy" />` : ''}
+        ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" />` : (isCloud ? '<div class="plan-ex-thumb-ph"></div>' : '')}
         <div class="plan-ex-info">
           <div class="plan-ex-name">${exName}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
         </div>
         <button class="plan-ex-remove" title="Remove">−</button>`;
+      if (isCloud) {
+        const parts = thumbSrc.slice(6).split('/');
+        loadPhotoDoc(parts[0], parts[1]).then(data => {
+          if (data) {
+            const ph = el.querySelector('.plan-ex-thumb-ph');
+            if (ph) {
+              const img = document.createElement('img');
+              img.className = 'plan-ex-thumb';
+              img.src = data;
+              ph.replaceWith(img);
+            }
+          }
+        });
+      }
       el.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, true);
       el.querySelector('.plan-ex-remove').onclick = (e) => {
         e.stopPropagation();
