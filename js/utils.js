@@ -114,9 +114,11 @@ export function renderCalendarGrid(year, month, opts) {
   for (let d = 1; d <= daysInMon; d++) {
     const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const isFuture = ds > today;
+    const isPast = ds < today;
     const hasData = opts.hasData(ds);
     const cls = ['bw-cal-day',
       isFuture && opts.markFuture !== false ? 'future' : '',
+      isPast && opts.markPast ? 'past' : '',
       ds === today ? 'today' : '',
       hasData ? 'has-data' : '',
       opts.selected && ds === opts.selected ? 'selected' : '',

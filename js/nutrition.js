@@ -1103,6 +1103,7 @@ export function renderNLCalendar() {
     hasData: ds => mealDates.has(ds),
     selected: state.nlSelectedDate,
     markFuture: false,
+    markPast: true,
     onClick: 'nlSelectDate',
   });
 }
