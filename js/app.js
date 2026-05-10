@@ -24,8 +24,10 @@ import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignI
 // Tab Switching & Navigation (orchestration)
 // ═══════════════════════════════════════════
 
+const TAB_CONTEXTS = ['home', 'plans', 'weight', 'nutrition'];
+
 function switchTab(tab) {
-  if (state.currentTab === tab) {
+  if (state.currentTab === tab && TAB_CONTEXTS.includes(state.navContext)) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
