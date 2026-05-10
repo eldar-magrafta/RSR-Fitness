@@ -358,7 +358,17 @@ export function customExVideoSelected(e) {
   const file = e.target.files[0];
   if (!file) return;
   e.target.value = '';
+
+  // Show loading state
+  const videoBtn = document.querySelector('.custom-ex-video-btn');
+  const origHTML = videoBtn.innerHTML;
+  videoBtn.innerHTML = '<div class="bw-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing…';
+  videoBtn.disabled = true;
+
   _convertVideoToGif(file).then(base64 => {
+    videoBtn.innerHTML = origHTML;
+    videoBtn.disabled = false;
+    if (!base64) return;
     _customVideoBase64 = base64;
     document.getElementById('customExBtnDel').style.display = '';
     const preview = document.getElementById('customExVideoPreview');
@@ -432,58 +442,93 @@ export function deleteCustomEx(exName) {
   });
 }
 
+const MAX_VIDEO_DURATION = 5;
+
 function _convertVideoToGif(file) {
   return new Promise((resolve) => {
     const video = document.createElement('video');
     video.muted = true;
     video.playsInline = true;
-    video.src = URL.createObjectURL(file);
+    const objUrl = URL.createObjectURL(file);
+    video.src = objUrl;
 
     video.onloadedmetadata = () => {
-      const duration = Math.min(video.duration, 4);
-      const fps = 10;
-      const frameCount = Math.floor(duration * fps);
+      if (video.duration > MAX_VIDEO_DURATION) {
+        URL.revokeObjectURL(objUrl);
+        alert(`Video too long (${Math.round(video.duration)}s). Max ${MAX_VIDEO_DURATION} seconds.`);
+        resolve('');
+        return;
+      }
+
+      // Store as base64 video, downscale if needed
       const canvas = document.createElement('canvas');
-      const w = Math.min(video.videoWidth, 320);
+      const w = Math.min(video.videoWidth, 360);
       const h = Math.round((w / video.videoWidth) * video.videoHeight);
       canvas.width = w;
       canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      const frames = [];
-      let i = 0;
 
-      video.currentTime = 0;
-
-      video.onseeked = () => {
-        ctx.drawImage(video, 0, 0, w, h);
-        frames.push(canvas.toDataURL('image/webp', 0.6));
-        i++;
-        if (i < frameCount) {
-          video.currentTime = i / fps;
-        } else {
-          URL.revokeObjectURL(video.src);
-          // Encode as animated webp by combining frames into a single strip image
-          // Simpler: just use first frame as thumbnail for the card,
-          // and store the video as a base64 webm
+      // Try to use MediaRecorder to re-encode at lower quality
+      if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm')) {
+        const ctx = canvas.getContext('2d');
+        const stream = canvas.captureStream(12);
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 400000 });
+        const chunks = [];
+        recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
           const reader = new FileReader();
           reader.onload = () => {
-            let base64 = reader.result;
-            // If over 900KB, use the middle frame as a static thumbnail
+            URL.revokeObjectURL(objUrl);
+            const base64 = reader.result;
             if (base64.length > 900000) {
-              const midFrame = frames[Math.floor(frames.length / 2)];
-              resolve(midFrame);
+              // Too large — fall back to a static frame
+              video.currentTime = video.duration / 2;
+              video.onseeked = () => {
+                ctx.drawImage(video, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/webp', 0.7));
+              };
             } else {
               resolve(base64);
             }
           };
-          reader.readAsDataURL(file);
-        }
-      };
-      video.currentTime = 0;
+          reader.readAsDataURL(blob);
+        };
+
+        video.currentTime = 0;
+        video.onseeked = () => {
+          recorder.start();
+          video.play();
+          const draw = () => {
+            if (video.paused || video.ended) { recorder.stop(); return; }
+            ctx.drawImage(video, 0, 0, w, h);
+            requestAnimationFrame(draw);
+          };
+          draw();
+        };
+        video.currentTime = 0;
+      } else {
+        // Fallback: store original if small enough, else use a frame
+        const reader = new FileReader();
+        reader.onload = () => {
+          URL.revokeObjectURL(objUrl);
+          const base64 = reader.result;
+          if (base64.length > 900000) {
+            video.currentTime = video.duration / 2;
+            const ctx = canvas.getContext('2d');
+            video.onseeked = () => {
+              ctx.drawImage(video, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/webp', 0.7));
+            };
+          } else {
+            resolve(base64);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     };
 
     video.onerror = () => {
-      URL.revokeObjectURL(video.src);
+      URL.revokeObjectURL(objUrl);
       resolve('');
     };
   });
