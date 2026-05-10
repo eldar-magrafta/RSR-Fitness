@@ -145,6 +145,20 @@ export function saveWeightGoal(kg) {
   }
 }
 
+// ── User Height ──
+export function getUserHeight() {
+  const v = localStorage.getItem('trainer_user_height');
+  return v ? parseFloat(v) : null;
+}
+export function saveUserHeight(cm) {
+  safeSetItem('trainer_user_height', cm.toString());
+  _cloudSave('sections', 'userheight', cm.toString());
+}
+export function clearUserHeight() {
+  localStorage.removeItem('trainer_user_height');
+  _cloudSave('sections', 'userheight', 'null');
+}
+
 // Backward-compat helpers (old entries are plain numbers, new are {w,p} objects)
 export function bwGetWeight(val) { return typeof val === 'object' && val ? Number(val.w) : Number(val); }
 // Returns array of photo markers (e.g. ['cloud','cloud']) or empty array

@@ -2,7 +2,7 @@
 // Stats, chart, calendar, entry sheet, photo handling.
 
 import { state } from './state.js';
-import { getBWData, saveBWData, bwGetWeight, bwGetPhotos, bwHasPhoto, saveBWEmpty, getWeightGoal, saveWeightGoal } from './store.js';
+import { getBWData, saveBWData, bwGetWeight, bwGetPhotos, bwHasPhoto, saveBWEmpty, getWeightGoal, saveWeightGoal, getUserHeight, saveUserHeight, clearUserHeight } from './store.js';
 import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
@@ -23,11 +23,28 @@ function renderBWGoalRow() {
 
 export function bwEditGoal() {
   const current = getWeightGoal();
-  const input = prompt('Enter your target weight (kg):', current ? current.toString() : '');
-  if (input === null) return;
-  const val = parseFloat(input);
+  const inp = document.getElementById('goalInput');
+  inp.value = current ? current.toString() : '';
+  document.getElementById('goalBtnClear').classList.toggle('visible', !!current);
+  document.getElementById('goalOverlay').classList.add('open');
+  setTimeout(() => inp.focus(), 380);
+}
+
+export function closeGoalSheet() {
+  document.getElementById('goalOverlay').classList.remove('open');
+}
+
+export function saveGoalFromSheet() {
+  const val = parseFloat(document.getElementById('goalInput').value);
   if (!val || val <= 0 || val > 500) return;
   saveWeightGoal(val);
+  closeGoalSheet();
+  buildWeightView();
+}
+
+export function clearGoalFromSheet() {
+  saveWeightGoal(null);
+  closeGoalSheet();
   buildWeightView();
 }
 
@@ -290,6 +307,8 @@ export function closeBWEntry() {
 
 export function initBWSheetSwipe() {
   initSheetSwipe('bwOverlay', 'bwSheet', closeBWEntry);
+  initSheetSwipe('heightOverlay', 'heightSheet', closeHeightSheet);
+  initSheetSwipe('goalOverlay', 'goalSheet', closeGoalSheet);
 }
 
 export function handleBWOverlay(e) {
@@ -437,16 +456,6 @@ export function closeBWViewer() { document.getElementById('bwViewer').classList.
 
 // ── BMI Card ──
 
-const BMI_KEY = 'trainer_user_height';
-
-function getUserHeight() {
-  const v = localStorage.getItem(BMI_KEY);
-  return v ? parseFloat(v) : null;
-}
-
-function setUserHeight(cm) {
-  localStorage.setItem(BMI_KEY, String(cm));
-}
 
 function calcBMI(weightKg, heightCm) {
   const hm = heightCm / 100;
@@ -533,10 +542,27 @@ function renderBMICard() {
 
 export function bmiPromptHeight() {
   const current = getUserHeight();
-  const input = prompt('Enter your height in cm:', current || '');
-  if (input === null) return;
-  const val = parseFloat(input);
+  const inp = document.getElementById('heightInput');
+  inp.value = current ? current.toString() : '';
+  document.getElementById('heightBtnClear').classList.toggle('visible', !!current);
+  document.getElementById('heightOverlay').classList.add('open');
+  setTimeout(() => inp.focus(), 380);
+}
+
+export function closeHeightSheet() {
+  document.getElementById('heightOverlay').classList.remove('open');
+}
+
+export function saveHeightFromSheet() {
+  const val = parseFloat(document.getElementById('heightInput').value);
   if (!val || val < 50 || val > 300) return;
-  setUserHeight(Math.round(val));
+  saveUserHeight(Math.round(val));
+  closeHeightSheet();
+  renderBMICard();
+}
+
+export function clearHeightFromSheet() {
+  clearUserHeight();
+  closeHeightSheet();
   renderBMICard();
 }

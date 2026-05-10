@@ -20,6 +20,7 @@ const SECTION_MAP = {
   macrogoalsmap: 'trainer_macro_goals_map',
   customings:    'trainer_custom_ings',
   weightgoal:    'trainer_weight_goal',
+  userheight:    'trainer_user_height',
 };
 
 let db, auth;
