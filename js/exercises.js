@@ -442,7 +442,7 @@ export function deleteCustomEx(exName) {
   });
 }
 
-const MAX_VIDEO_DURATION = 5;
+const MAX_VIDEO_DURATION = 10;
 
 function _convertVideoToGif(file) {
   return new Promise((resolve) => {
