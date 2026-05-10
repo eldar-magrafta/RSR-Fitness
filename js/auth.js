@@ -36,7 +36,6 @@ const LOADING_TIPS = [
     'Excuses don\'t burn calories.',
     'Make yourself proud.',
     'Tough times don\'t last. Tough people do.',
-    'Earn it.',
     'Champions train. Losers complain.',
     'No pressure, no diamonds.',
     'The pain you feel today is the strength you feel tomorrow.',

@@ -109,7 +109,7 @@ function _renderGroupList(group, filter) {
     const isCustom = customs.includes(ex);
     const item = document.createElement('div');
     item.className = 'exercise-item';
-    const thumbSrc = ex.gif || '';
+    const thumbSrc = ex.thumb || ex.gif || '';
     const isCloud = thumbSrc.startsWith('cloud:');
     const showThumb = thumbSrc && !isCloud;
     item.innerHTML = `
@@ -336,10 +336,10 @@ export function initModalSwipe() {
 // ── Custom Exercise Creation ──
 
 let _customVideoBase64 = null;
+let _customThumbBase64 = null;
 
 export function openCustomExModal() {
   document.getElementById('customExName').value = '';
-  document.getElementById('customExSets').value = '';
   document.getElementById('customExDesc').value = '';
   document.getElementById('customExVideoPreview').style.display = 'none';
   document.getElementById('customExVideoPreview').src = '';
@@ -352,6 +352,7 @@ export function openCustomExModal() {
 export function closeCustomExModal() {
   document.getElementById('customExOverlay').classList.remove('open');
   _customVideoBase64 = null;
+  _customThumbBase64 = null;
 }
 
 export function customExVideoSelected(e) {
@@ -359,26 +360,27 @@ export function customExVideoSelected(e) {
   if (!file) return;
   e.target.value = '';
 
-  // Show loading state
   const videoBtn = document.querySelector('.custom-ex-video-btn');
   const origHTML = videoBtn.innerHTML;
   videoBtn.innerHTML = '<div class="bw-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing…';
   videoBtn.disabled = true;
 
-  _convertVideoToGif(file).then(base64 => {
+  _processVideo(file).then(result => {
     videoBtn.innerHTML = origHTML;
     videoBtn.disabled = false;
-    if (!base64) return;
-    _customVideoBase64 = base64;
+    if (!result) return;
+    _customThumbBase64 = result.thumb;
+    _customVideoBase64 = result.video;
     document.getElementById('customExBtnDel').style.display = '';
     const preview = document.getElementById('customExVideoPreview');
-    preview.src = base64;
+    preview.src = result.thumb;
     preview.style.display = 'block';
   });
 }
 
 export function removeCustomExVideo() {
   _customVideoBase64 = null;
+  _customThumbBase64 = null;
   document.getElementById('customExVideoPreview').style.display = 'none';
   document.getElementById('customExVideoPreview').src = '';
   document.getElementById('customExBtnDel').style.display = 'none';
@@ -400,17 +402,21 @@ export function saveCustomEx() {
   const ex = {
     name,
     group,
-    sets: document.getElementById('customExSets').value.trim() || '3 sets',
+    sets: '',
     desc: document.getElementById('customExDesc').value.trim() || '',
     tips: [],
     yt: name + ' exercise form',
     gif: '',
   };
 
-  if (_customVideoBase64) {
+  if (_customThumbBase64) {
     const docId = encodeURIComponent(name);
-    savePhotoDoc('custom_ex_media', docId, _customVideoBase64);
-    ex.gif = 'cloud:custom_ex_media/' + docId;
+    savePhotoDoc('custom_ex_thumb', docId, _customThumbBase64);
+    if (_customVideoBase64) {
+      savePhotoDoc('custom_ex_media', docId, _customVideoBase64);
+      ex.gif = 'cloud:custom_ex_media/' + docId;
+    }
+    ex.thumb = 'cloud:custom_ex_thumb/' + docId;
   }
 
   customs.push(ex);
@@ -429,9 +435,12 @@ export function deleteCustomEx(exName) {
       const idx = customs.findIndex(c => c.name === exName);
       if (idx >= 0) {
         const ex = customs[idx];
+        const docId = encodeURIComponent(ex.name);
         if (ex.gif && ex.gif.startsWith('cloud:')) {
-          const docId = encodeURIComponent(ex.name);
           deletePhotoDoc('custom_ex_media', docId);
+        }
+        if (ex.thumb && ex.thumb.startsWith('cloud:')) {
+          deletePhotoDoc('custom_ex_thumb', docId);
         }
         customs.splice(idx, 1);
         saveCustomExercises(customs);
@@ -444,7 +453,7 @@ export function deleteCustomEx(exName) {
 
 const MAX_VIDEO_DURATION = 10;
 
-function _convertVideoToGif(file) {
+function _processVideo(file) {
   return new Promise((resolve) => {
     const video = document.createElement('video');
     video.muted = true;
@@ -456,80 +465,76 @@ function _convertVideoToGif(file) {
       if (video.duration > MAX_VIDEO_DURATION) {
         URL.revokeObjectURL(objUrl);
         alert(`Video too long (${Math.round(video.duration)}s). Max ${MAX_VIDEO_DURATION} seconds.`);
-        resolve('');
+        resolve(null);
         return;
       }
 
-      // Store as base64 video, downscale if needed
       const canvas = document.createElement('canvas');
       const w = Math.min(video.videoWidth, 360);
       const h = Math.round((w / video.videoWidth) * video.videoHeight);
       canvas.width = w;
       canvas.height = h;
+      const ctx = canvas.getContext('2d');
 
-      // Try to use MediaRecorder to re-encode at lower quality
-      if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm')) {
-        const ctx = canvas.getContext('2d');
-        const stream = canvas.captureStream(12);
-        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 400000 });
-        const chunks = [];
-        recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-        recorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'video/webm' });
+      // Capture a thumbnail from the first frame
+      video.currentTime = 0.5;
+      video.onseeked = () => {
+        ctx.drawImage(video, 0, 0, w, h);
+        const thumb = canvas.toDataURL('image/webp', 0.7);
+
+        // Now re-encode the video
+        if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm')) {
+          const stream = canvas.captureStream(12);
+          const recorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 500000 });
+          const chunks = [];
+          recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+          recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const reader = new FileReader();
+            reader.onload = () => {
+              URL.revokeObjectURL(objUrl);
+              const videoBase64 = reader.result;
+              if (videoBase64.length > 900000) {
+                resolve({ thumb, video: null });
+              } else {
+                resolve({ thumb, video: videoBase64 });
+              }
+            };
+            reader.readAsDataURL(blob);
+          };
+
+          video.currentTime = 0;
+          video.onseeked = () => {
+            recorder.start();
+            video.play();
+            const draw = () => {
+              if (video.paused || video.ended) { recorder.stop(); return; }
+              ctx.drawImage(video, 0, 0, w, h);
+              requestAnimationFrame(draw);
+            };
+            draw();
+          };
+          video.currentTime = 0;
+        } else {
+          // No MediaRecorder — try original file
           const reader = new FileReader();
           reader.onload = () => {
             URL.revokeObjectURL(objUrl);
-            const base64 = reader.result;
-            if (base64.length > 900000) {
-              // Too large — fall back to a static frame
-              video.currentTime = video.duration / 2;
-              video.onseeked = () => {
-                ctx.drawImage(video, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/webp', 0.7));
-              };
+            const videoBase64 = reader.result;
+            if (videoBase64.length > 900000) {
+              resolve({ thumb, video: null });
             } else {
-              resolve(base64);
+              resolve({ thumb, video: videoBase64 });
             }
           };
-          reader.readAsDataURL(blob);
-        };
-
-        video.currentTime = 0;
-        video.onseeked = () => {
-          recorder.start();
-          video.play();
-          const draw = () => {
-            if (video.paused || video.ended) { recorder.stop(); return; }
-            ctx.drawImage(video, 0, 0, w, h);
-            requestAnimationFrame(draw);
-          };
-          draw();
-        };
-        video.currentTime = 0;
-      } else {
-        // Fallback: store original if small enough, else use a frame
-        const reader = new FileReader();
-        reader.onload = () => {
-          URL.revokeObjectURL(objUrl);
-          const base64 = reader.result;
-          if (base64.length > 900000) {
-            video.currentTime = video.duration / 2;
-            const ctx = canvas.getContext('2d');
-            video.onseeked = () => {
-              ctx.drawImage(video, 0, 0, w, h);
-              resolve(canvas.toDataURL('image/webp', 0.7));
-            };
-          } else {
-            resolve(base64);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
+          reader.readAsDataURL(file);
+        }
+      };
     };
 
     video.onerror = () => {
       URL.revokeObjectURL(objUrl);
-      resolve('');
+      resolve(null);
     };
   });
 }
