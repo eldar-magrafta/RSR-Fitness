@@ -134,7 +134,14 @@ function _renderGroupList(group, filter) {
         <span class="ex-name">${ex.name}</span>
         ${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}
       </div>
+      ${isCustom ? '<button class="ex-del-btn" title="Delete"><i class="bi bi-trash3"></i></button>' : ''}
       <span class="arrow">\u203a</span>`;
+    if (isCustom) {
+      item.querySelector('.ex-del-btn').onclick = (e) => {
+        e.stopPropagation();
+        deleteCustomEx(ex.name);
+      };
+    }
     if (isCloud) {
       const parts = thumbSrc.slice(6).split('/');
       loadPhotoDoc(parts[0], parts[1]).then(data => {
@@ -172,13 +179,6 @@ export function openModal(ex, muscleName, fromPlan = false) {
   document.getElementById('modalDesc').textContent = ex.desc || '';
   document.getElementById('modalTips').innerHTML = (ex.tips || []).map(t => `<li>${t}</li>`).join('');
 
-  // Custom exercise delete button — only from exercise tab, not from plans
-  const delCustomBtn = document.getElementById('modalDeleteCustom');
-  const isCustom = !fromPlan && getCustomExercises().some(c => c.name === ex.name);
-  if (delCustomBtn) {
-    delCustomBtn.style.display = isCustom ? 'inline-flex' : 'none';
-    delCustomBtn.onclick = () => deleteCustomEx(ex.name);
-  }
 
   // Support both <video> (.webm/.mp4) and <img> (.gif) — find whichever elements exist
   const vidEl = document.getElementById('modalVid') || document.getElementById('modalGif');
