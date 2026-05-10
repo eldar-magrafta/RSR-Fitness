@@ -31,6 +31,12 @@
   flex-shrink: 0; transition: all 0.15s;
 }
 .modal-close:active { background: var(--subtle-bg-hover); color: var(--accent); }
+.modal-del-custom {
+  background: none; border: none; color: var(--carbs); font-size: 1rem;
+  cursor: pointer; padding: 4px 6px; opacity: 0.6; flex-shrink: 0;
+  display: none;
+}
+.modal-del-custom:active { opacity: 1; }
 .modal-tag {
   display: inline-block;
   background: linear-gradient(135deg, rgba(0,229,255,0.12), rgba(139,92,246,0.12));

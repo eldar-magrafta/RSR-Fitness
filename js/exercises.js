@@ -176,7 +176,7 @@ export function openModal(ex, muscleName, fromPlan = false) {
   const delCustomBtn = document.getElementById('modalDeleteCustom');
   const isCustom = !fromPlan && getCustomExercises().some(c => c.name === ex.name);
   if (delCustomBtn) {
-    delCustomBtn.style.display = isCustom ? 'block' : 'none';
+    delCustomBtn.style.display = isCustom ? 'inline-flex' : 'none';
     delCustomBtn.onclick = () => deleteCustomEx(ex.name);
   }
 
