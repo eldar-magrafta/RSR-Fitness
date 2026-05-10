@@ -20,6 +20,7 @@ export function findExercise(name) {
 
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
+  _lastGlobalQuery = '';
   const searchEl = document.getElementById('globalExSearch');
   if (searchEl) searchEl.value = '';
   document.getElementById('globalSearchResults').style.display = 'none';
@@ -46,8 +47,11 @@ export function buildHome() {
   });
 }
 
+let _lastGlobalQuery = '';
 export const globalExSearchHandler = debounce(function() {
   const q = document.getElementById('globalExSearch').value.trim().toLowerCase();
+  if (q === _lastGlobalQuery) return;
+  _lastGlobalQuery = q;
   const resultsEl = document.getElementById('globalSearchResults');
   const gridEl = document.getElementById('muscleGrid');
 
@@ -104,6 +108,7 @@ export const globalExSearchHandler = debounce(function() {
 /** Show exercise list for a muscle group */
 export function showExercises(key) {
   state.currentMuscleKey = key;
+  _lastGroupQuery = '';
   const group = exerciseData[key];
   const searchEl = document.getElementById('groupExSearch');
   if (searchEl) searchEl.value = '';
@@ -164,10 +169,13 @@ function _renderGroupList(group, filter) {
   }
 }
 
+let _lastGroupQuery = '';
 export const groupExSearchHandler = debounce(function() {
   const group = exerciseData[state.currentMuscleKey];
   if (!group) return;
   const q = document.getElementById('groupExSearch').value.trim();
+  if (q === _lastGroupQuery) return;
+  _lastGroupQuery = q;
   _renderGroupList(group, q);
 }, 150);
 
@@ -377,6 +385,7 @@ export function customExImageSelected(e) {
 
   const canvas = document.createElement('canvas');
   const img = new Image();
+  const objUrl = URL.createObjectURL(file);
   img.onload = () => {
     const w = Math.min(img.width, 400);
     const h = Math.round((w / img.width) * img.height);
@@ -388,9 +397,10 @@ export function customExImageSelected(e) {
     const preview = document.getElementById('customExVideoPreview');
     preview.src = _customThumbBase64;
     preview.style.display = 'block';
-    URL.revokeObjectURL(img.src);
+    URL.revokeObjectURL(objUrl);
   };
-  img.src = URL.createObjectURL(file);
+  img.onerror = () => URL.revokeObjectURL(objUrl);
+  img.src = objUrl;
 }
 
 export function removeCustomExImage() {

@@ -80,8 +80,10 @@ export function resizeImage(file, maxSize, quality, cb) {
       }
       cb(result);
     };
+    img.onerror = () => cb(null);
     img.src = ev.target.result;
   };
+  reader.onerror = () => cb(null);
   reader.readAsDataURL(file);
 }
 
@@ -181,9 +183,10 @@ export function initDragReorder(el, domIdx, opts) {
 
     _dragState = { el: child, ghost, listEl, offsetY: e.touches[0].clientY - rect.top, origItems: items, dataAttr: opts.dataAttr };
 
-    document.addEventListener('touchmove', _dragMove, { passive: false });
-    document.addEventListener('touchend', () => {
+    const _dragEnd = () => {
       document.removeEventListener('touchmove', _dragMove);
+      document.removeEventListener('touchend', _dragEnd);
+      document.removeEventListener('touchcancel', _dragEnd);
       if (!_dragState) return;
       _dragState.ghost.remove();
       _dragState.el.style.visibility = '';
@@ -193,7 +196,11 @@ export function initDragReorder(el, domIdx, opts) {
       }).filter(i => i !== undefined);
       _dragState = null;
       opts.onDrop(newOrder);
-    }, { once: true });
+    };
+
+    document.addEventListener('touchmove', _dragMove, { passive: false });
+    document.addEventListener('touchend', _dragEnd, { once: true });
+    document.addEventListener('touchcancel', _dragEnd, { once: true });
   }, { passive: false });
 }
 

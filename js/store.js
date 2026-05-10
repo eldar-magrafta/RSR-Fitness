@@ -35,6 +35,7 @@ export function saveExHist(name, data) {
   const v = JSON.stringify(data);
   safeSetItem('trainer_exhist_' + name, v);
   _cloudSave('exhist', encodeURIComponent(name), v);
+  _exHistByDateCache = null;
 }
 
 /** Delete the most recent log entry for an exercise. */
@@ -258,19 +259,22 @@ export function savePRs(prs) {
 
 export const DEFAULT_MACRO_GOALS = { calories: 2700, protein: 270, carbs: 203, fat: 90 };
 
-// Cache sorted dates to avoid re-sorting on every getGoalsForDate() call
+// Cache sorted dates and parsed map to avoid re-parsing on every getGoalsForDate() call
 let _cachedGoalDates = null;
+let _cachedGoalsMap = null;
 
-export function invalidateGoalDatesCache() { _cachedGoalDates = null; }
+export function invalidateGoalDatesCache() { _cachedGoalDates = null; _cachedGoalsMap = null; }
 
 export function getMacroGoalsMap() {
-  try { return JSON.parse(localStorage.getItem('trainer_macro_goals_map')) || {}; } catch { return {}; }
+  if (_cachedGoalsMap) return _cachedGoalsMap;
+  try { _cachedGoalsMap = JSON.parse(localStorage.getItem('trainer_macro_goals_map')) || {}; } catch { _cachedGoalsMap = {}; }
+  return _cachedGoalsMap;
 }
 export function saveMacroGoalsMap(map) {
   const v = JSON.stringify(map);
   safeSetItem('trainer_macro_goals_map', v);
   _cloudSave('sections', 'macrogoalsmap', v);
-  // Invalidate cache when map changes
+  _cachedGoalsMap = null;
   _cachedGoalDates = null;
 }
 
@@ -334,7 +338,12 @@ export function migrateMacroGoalsToMap() {
 }
 
 // ── All Exercise History (aggregated by date) ──
+let _exHistByDateCache = null;
+
+export function invalidateExHistCache() { _exHistByDateCache = null; }
+
 export function getAllExHistByDate() {
+  if (_exHistByDateCache) return _exHistByDateCache;
   const result = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -348,6 +357,7 @@ export function getAllExHistByDate() {
       }
     } catch { /* skip corrupted */ }
   }
+  _exHistByDateCache = result;
   return result;
 }
 
@@ -361,6 +371,7 @@ export function clearAllExerciseData() {
   keys.forEach(k => localStorage.removeItem(k));
   localStorage.removeItem('trainer_prs');
   _cloudSave('sections', 'prs', '{}');
+  _exHistByDateCache = null;
 }
 
 // ── Custom Ingredients ──

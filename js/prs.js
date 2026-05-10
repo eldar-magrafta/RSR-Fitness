@@ -105,7 +105,14 @@ export function showNewPRToast(exerciseName, weight) {
 function showPRConfetti() {
   const container = document.createElement('div');
   container.className = 'pr-confetti-container';
-  const colors = ['#00e5ff', '#8b5cf6', '#00e87b', '#ffc107', '#ff6b6b', '#ff9f43'];
+  const s = getComputedStyle(document.documentElement);
+  const colors = [
+    s.getPropertyValue('--accent').trim() || '#00e5ff',
+    s.getPropertyValue('--accent2').trim() || '#8b5cf6',
+    s.getPropertyValue('--green').trim() || '#00e87b',
+    '#ffc107', '#ff9f43',
+    s.getPropertyValue('--carbs').trim() || '#ff6b6b',
+  ];
   for (let i = 0; i < 60; i++) {
     const piece = document.createElement('div');
     piece.className = 'pr-confetti';

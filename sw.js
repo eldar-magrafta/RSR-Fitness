@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v75';
+const CACHE = 'trainer-v76';
 
 const CORE = [
   './',

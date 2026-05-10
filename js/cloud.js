@@ -10,7 +10,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 import { FIREBASE_CONFIG } from './firebase-config.js';
-import { setCloudSaver, invalidateGoalDatesCache } from './store.js';
+import { setCloudSaver, invalidateGoalDatesCache, invalidateExHistCache } from './store.js';
 
 const SECTION_MAP = {
   plans:         'trainer_plans',
@@ -98,6 +98,7 @@ export async function loadFromCloud(uid) {
     });
   } catch (e) { console.warn('[cloud] failed to load notes', e.code); }
   invalidateGoalDatesCache();
+  invalidateExHistCache();
 }
 
 let _cloudError = false;
@@ -132,11 +133,20 @@ export async function deleteCollection(collectionName) {
 
 // ── Photo document helpers (each photo = its own Firestore doc) ──
 
-const _photoCache = {};
+const _photoCache = new Map();
+const _PHOTO_CACHE_MAX = 100;
+
+function _photoCacheSet(key, val) {
+  if (_photoCache.size >= _PHOTO_CACHE_MAX && !_photoCache.has(key)) {
+    const oldest = _photoCache.keys().next().value;
+    _photoCache.delete(oldest);
+  }
+  _photoCache.set(key, val);
+}
 
 export async function savePhotoDoc(collectionName, docId, base64) {
   if (!_uid || !db) return;
-  _photoCache[`${collectionName}/${docId}`] = base64;
+  _photoCacheSet(`${collectionName}/${docId}`, base64);
   try { await setDoc(doc(db, 'users', _uid, collectionName, docId), { value: base64 }); }
   catch { /* offline — will be synced via migration on next login */ }
 }
@@ -144,18 +154,18 @@ export async function savePhotoDoc(collectionName, docId, base64) {
 export async function loadPhotoDoc(collectionName, docId) {
   if (!_uid || !db) return null;
   const key = `${collectionName}/${docId}`;
-  if (_photoCache[key] !== undefined) return _photoCache[key];
+  if (_photoCache.has(key)) return _photoCache.get(key);
   try {
     const snap = await getDoc(doc(db, 'users', _uid, collectionName, docId));
     const val = snap.exists() ? snap.data().value : null;
-    _photoCache[key] = val;
+    _photoCacheSet(key, val);
     return val;
   } catch { return null; }
 }
 
 export async function deletePhotoDoc(collectionName, docId) {
   if (!_uid || !db) return;
-  delete _photoCache[`${collectionName}/${docId}`];
+  _photoCache.delete(`${collectionName}/${docId}`);
   try { await deleteDoc(doc(db, 'users', _uid, collectionName, docId)); }
   catch { /* ignore */ }
 }
@@ -165,7 +175,10 @@ export async function loadAllPhotoDocs(collectionName) {
   try {
     const snaps = await getDocs(collection(db, 'users', _uid, collectionName));
     const result = {};
-    snaps.forEach(d => { result[d.id] = d.data().value; });
+    snaps.forEach(d => {
+      result[d.id] = d.data().value;
+      _photoCacheSet(`${collectionName}/${d.id}`, d.data().value);
+    });
     return result;
   } catch { return {}; }
 }

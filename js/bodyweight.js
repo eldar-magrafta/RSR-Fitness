@@ -56,11 +56,8 @@ export function bwClearGoal() {
 // ── Build / Refresh ──
 
 export function buildWeightView() {
-  // Sync range buttons to current state
   document.querySelectorAll('#bodyWeightView .bw-range-btn').forEach(btn => {
-    const m = btn.getAttribute('onclick').match(/setBWRange\((\d+)/);
-    const days = m ? parseInt(m[1]) : -1;
-    btn.classList.toggle('active', days === state.bwRange);
+    btn.classList.toggle('active', parseInt(btn.dataset.days) === state.bwRange);
   });
   renderBWStats();
   renderBWChart();
