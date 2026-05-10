@@ -31,9 +31,12 @@
   flex-shrink: 0; transition: all 0.15s;
 }
 .modal-close:active { background: var(--subtle-bg-hover); color: var(--accent); }
+.modal-header-actions {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0;
+}
 .modal-del-custom {
   background: none; border: none; color: var(--carbs); font-size: 1rem;
-  cursor: pointer; padding: 4px 6px; opacity: 0.6; flex-shrink: 0;
+  cursor: pointer; padding: 4px 6px; opacity: 0.6;
   display: none;
 }
 .modal-del-custom:active { opacity: 1; }
