@@ -33,7 +33,6 @@ const CORE = [
   './js/exerciselog.js',
   './js/export.js',
   './js/gallery.js',
-  './js/recap.js',
   './data/exercises.js',
   './data/ingredients.js',
 ];

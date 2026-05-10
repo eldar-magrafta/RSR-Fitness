@@ -18,7 +18,6 @@ import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openD
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
-import { renderRecap, dismissRecap } from './recap.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -67,7 +66,6 @@ function switchTab(tab) {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
-    renderRecap();
   }
 }
 
@@ -106,7 +104,6 @@ function handleBack() {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
-    renderRecap();
   } else if (state.navContext === 'nl-picker') {
     state.nlPickerIng = null;
     state.nlPickerGrams = 100;
@@ -129,7 +126,6 @@ function handleBack() {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
-    renderRecap();
   } else if (state.navContext === 'summary') {
     const tab = state.currentTab;
     state.currentTab = null;
@@ -305,8 +301,6 @@ window.waterAdjustTarget = waterAdjustTarget;
 window.waterAddBottle = waterAddBottle;
 window.waterAdjustBottle = waterAdjustBottle;
 
-// Weekly Recap
-window.dismissRecap = dismissRecap;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

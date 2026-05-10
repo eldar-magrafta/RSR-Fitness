@@ -441,39 +441,3 @@
 .barcode-product-macros .val { font-weight:800; display:block; font-size:1rem; }
 .barcode-product-macros .lbl { font-size:0.7rem; color:var(--muted); }
 
-/* ── Weekly Recap Card ── */
-.nl-recap-card {
-  background:var(--card); border:1px solid var(--border-med); border-radius:18px;
-  padding:16px; margin-bottom:16px;
-  animation:nlRecapFadeIn 0.3s ease;
-}
-@keyframes nlRecapFadeIn {
-  from { opacity:0; transform:translateY(-8px); }
-  to { opacity:1; transform:translateY(0); }
-}
-.nl-recap-header {
-  display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
-}
-.nl-recap-title {
-  font-size:0.82rem; font-weight:800; text-transform:uppercase;
-  letter-spacing:0.8px; color:var(--accent);
-  display:flex; align-items:center; gap:6px;
-}
-.nl-recap-close {
-  background:none; border:none; color:var(--muted); font-size:1.3rem;
-  cursor:pointer; padding:2px 6px; line-height:1; border-radius:8px;
-  transition:color 0.15s;
-}
-.nl-recap-close:active { color:var(--text); }
-.nl-recap-stats {
-  display:flex; justify-content:space-around; text-align:center;
-}
-.nl-recap-stat-val {
-  font-size:1.1rem; font-weight:800; color:var(--text);
-}
-.nl-recap-stat-lbl {
-  font-size:0.68rem; color:var(--muted); margin-top:2px;
-}
-.nl-recap-stat-green { color:var(--green); }
-.nl-recap-stat-red { color:var(--carbs); }
-
