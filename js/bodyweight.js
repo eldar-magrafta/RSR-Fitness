@@ -27,7 +27,7 @@ export function bwEditGoal() {
   inp.value = current ? current.toString() : '';
   document.getElementById('goalBtnClear').classList.toggle('visible', !!current);
   document.getElementById('goalOverlay').classList.add('open');
-  setTimeout(() => inp.focus(), 380);
+  setTimeout(() => inp.focus(), 250);
 }
 
 export function closeGoalSheet() {
@@ -307,8 +307,6 @@ export function closeBWEntry() {
 
 export function initBWSheetSwipe() {
   initSheetSwipe('bwOverlay', 'bwSheet', closeBWEntry);
-  initSheetSwipe('heightOverlay', 'heightSheet', closeHeightSheet);
-  initSheetSwipe('goalOverlay', 'goalSheet', closeGoalSheet);
 }
 
 export function handleBWOverlay(e) {
@@ -546,7 +544,7 @@ export function bmiPromptHeight() {
   inp.value = current ? current.toString() : '';
   document.getElementById('heightBtnClear').classList.toggle('visible', !!current);
   document.getElementById('heightOverlay').classList.add('open');
-  setTimeout(() => inp.focus(), 380);
+  setTimeout(() => inp.focus(), 250);
 }
 
 export function closeHeightSheet() {

@@ -209,33 +209,29 @@
         </div>
     </div>
 
-    <!-- Height Entry Sheet -->
-    <div class="bw-overlay" id="heightOverlay" onclick="if(event.target===this)closeHeightSheet()">
-        <div class="bw-sheet" id="heightSheet">
-            <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="closeHeightSheet()">&times;</button>
-            <div class="bw-sheet-title">Set Height</div>
-            <div class="bw-input-row">
+    <!-- Height Popup -->
+    <div class="popup-overlay" id="heightOverlay" onclick="if(event.target===this)closeHeightSheet()">
+        <div class="popup-box" id="heightSheet">
+            <div class="popup-title">Set Height</div>
+            <div class="popup-input-row">
                 <input type="number" id="heightInput" placeholder="0" inputmode="decimal" step="1"/>
-                <span class="bw-unit">cm</span>
+                <span class="popup-unit">cm</span>
             </div>
-            <button class="bw-btn-save" id="heightBtnSave" onclick="saveHeightFromSheet()">Save</button>
-            <button class="bw-btn-del" id="heightBtnClear" onclick="clearHeightFromSheet()">Clear Height</button>
+            <button class="popup-btn-save" onclick="saveHeightFromSheet()">Save</button>
+            <button class="popup-btn-clear" id="heightBtnClear" onclick="clearHeightFromSheet()">Clear Height</button>
         </div>
     </div>
 
-    <!-- Weight Goal Entry Sheet -->
-    <div class="bw-overlay" id="goalOverlay" onclick="if(event.target===this)closeGoalSheet()">
-        <div class="bw-sheet" id="goalSheet">
-            <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="closeGoalSheet()">&times;</button>
-            <div class="bw-sheet-title">Set Weight Goal</div>
-            <div class="bw-input-row">
+    <!-- Weight Goal Popup -->
+    <div class="popup-overlay" id="goalOverlay" onclick="if(event.target===this)closeGoalSheet()">
+        <div class="popup-box" id="goalSheet">
+            <div class="popup-title">Set Weight Goal</div>
+            <div class="popup-input-row">
                 <input type="number" id="goalInput" placeholder="0.0" inputmode="decimal" step="0.1"/>
-                <span class="bw-unit">kg</span>
+                <span class="popup-unit">kg</span>
             </div>
-            <button class="bw-btn-save" id="goalBtnSave" onclick="saveGoalFromSheet()">Save</button>
-            <button class="bw-btn-del" id="goalBtnClear" onclick="clearGoalFromSheet()">Clear Goal</button>
+            <button class="popup-btn-save" onclick="saveGoalFromSheet()">Save</button>
+            <button class="popup-btn-clear" id="goalBtnClear" onclick="clearGoalFromSheet()">Clear Goal</button>
         </div>
     </div>
 
