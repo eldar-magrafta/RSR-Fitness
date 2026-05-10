@@ -5,13 +5,6 @@ import { exerciseData } from '../data/exercises.js';
 import { getExHist } from './store.js';
 import { showView, setHeader } from './navigation.js';
 
-const BALANCE_PAIRS = [
-  { label: 'Push vs Pull', push: ['chest', 'shoulders', 'triceps'], pull: ['back_upper', 'back_lateral', 'back_lower', 'biceps'] },
-  { label: 'Upper vs Lower', upper: ['chest', 'back_upper', 'back_lateral', 'shoulders', 'biceps', 'triceps', 'forearms'], lower: ['quads', 'hamstrings', 'glutes', 'calves', 'adductors', 'abductors'] },
-  { label: 'Quads vs Hamstrings', push: ['quads'], pull: ['hamstrings'] },
-  { label: 'Biceps vs Triceps', push: ['triceps'], pull: ['biceps'] },
-];
-
 function getDateRange(range) {
   const now = new Date();
   let start;
@@ -82,54 +75,6 @@ function renderBalanceReport() {
         <div class="mb-bar-fill ${intensity}" style="width:${pct}%"></div>
       </div>
       <div class="mb-bar-val">${g.sets}</div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Balance pairs
-  html += `<div class="mb-section">
-    <div class="mb-section-title">Balance Analysis</div>`;
-
-  BALANCE_PAIRS.forEach(pair => {
-    const leftKeys = pair.push || pair.upper;
-    const rightKeys = pair.pull || pair.lower;
-    const leftSets = leftKeys.reduce((s, k) => s + (groupSets[k] || 0), 0);
-    const rightSets = rightKeys.reduce((s, k) => s + (groupSets[k] || 0), 0);
-    const total = leftSets + rightSets;
-    const leftPct = total > 0 ? Math.round((leftSets / total) * 100) : 50;
-    const rightPct = 100 - leftPct;
-
-    const leftLabel = pair.push ? 'Push' : 'Upper';
-    const rightLabel = pair.pull ? 'Pull' : 'Lower';
-
-    let status = 'balanced';
-    let statusText = 'Balanced';
-    if (total === 0) {
-      statusText = 'No data';
-      status = 'nodata';
-    } else if (Math.abs(leftPct - 50) > 20) {
-      status = 'imbalanced';
-      statusText = leftPct > 50 ? `${leftLabel} dominant` : `${rightLabel} dominant`;
-    } else if (Math.abs(leftPct - 50) > 10) {
-      status = 'slight';
-      statusText = leftPct > 50 ? `Slightly ${leftLabel.toLowerCase()}-heavy` : `Slightly ${rightLabel.toLowerCase()}-heavy`;
-    }
-
-    html += `<div class="mb-pair-card">
-      <div class="mb-pair-header">
-        <span class="mb-pair-title">${pair.label}</span>
-        <span class="mb-pair-status ${status}">${statusText}</span>
-      </div>
-      <div class="mb-pair-bar-wrap">
-        <div class="mb-pair-bar">
-          <div class="mb-pair-left" style="width:${leftPct}%"></div>
-          <div class="mb-pair-right" style="width:${rightPct}%"></div>
-        </div>
-        <div class="mb-pair-labels">
-          <span>${leftLabel} ${leftSets}s (${leftPct}%)</span>
-          <span>${rightLabel} ${rightSets}s (${rightPct}%)</span>
-        </div>
-      </div>
     </div>`;
   });
   html += `</div>`;
