@@ -156,9 +156,9 @@ export function openModal(ex, muscleName, fromPlan = false) {
   document.getElementById('modalDesc').textContent = ex.desc || '';
   document.getElementById('modalTips').innerHTML = (ex.tips || []).map(t => `<li>${t}</li>`).join('');
 
-  // Custom exercise delete button
+  // Custom exercise delete button — only from exercise tab, not from plans
   const delCustomBtn = document.getElementById('modalDeleteCustom');
-  const isCustom = getCustomExercises().some(c => c.name === ex.name);
+  const isCustom = !fromPlan && getCustomExercises().some(c => c.name === ex.name);
   if (delCustomBtn) {
     delCustomBtn.style.display = isCustom ? '' : 'none';
     delCustomBtn.onclick = () => deleteCustomEx(ex.name);
