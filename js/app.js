@@ -346,6 +346,7 @@ function closeBurgerMenu() {
   document.getElementById('burgerOverlay').classList.remove('open');
   document.getElementById('burgerMenu').classList.remove('open');
   document.getElementById('clearDataPanel').classList.remove('open');
+  document.getElementById('settingsPanel').classList.remove('open');
 }
 
 function showClearDataMenu() {
@@ -354,6 +355,14 @@ function showClearDataMenu() {
 
 function hideClearDataMenu() {
   document.getElementById('clearDataPanel').classList.remove('open');
+}
+
+function showSettingsMenu() {
+  document.getElementById('settingsPanel').classList.add('open');
+}
+
+function hideSettingsMenu() {
+  document.getElementById('settingsPanel').classList.remove('open');
 }
 
 function openClearAllData() {
@@ -408,6 +417,8 @@ window.closeBurgerMenu = closeBurgerMenu;
 window.setTheme = setTheme;
 window.showClearDataMenu = showClearDataMenu;
 window.hideClearDataMenu = hideClearDataMenu;
+window.showSettingsMenu = showSettingsMenu;
+window.hideSettingsMenu = hideSettingsMenu;
 window.openClearAllData = openClearAllData;
 
 // ═══════════════════════════════════════════

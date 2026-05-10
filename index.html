@@ -45,17 +45,7 @@
     <!-- Burger Menu -->
     <div class="burger-overlay" id="burgerOverlay" onclick="closeBurgerMenu()"></div>
     <div class="burger-menu" id="burgerMenu">
-        <div class="burger-header">Settings</div>
-        <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
-            <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Theme</span>
-            <div class="theme-picker" id="themePicker">
-                <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="dark" onclick="setTheme('dark')"></div><div class="theme-label">Cyan</div></div>
-                <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="crimson" onclick="setTheme('crimson')"></div><div class="theme-label">Crimson</div></div>
-                <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="golden" onclick="setTheme('golden')"></div><div class="theme-label">Golden</div></div>
-                <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="ultraviolet" onclick="setTheme('ultraviolet')"></div><div class="theme-label">Violet</div></div>
-                <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
-            </div>
-        </div>
+        <div class="burger-header">Menu</div>
         <div class="burger-item" onclick="closeBurgerMenu();openSummary()">
             <span class="burger-item-icon">📊</span>
             <span class="burger-item-label">Activity Summary</span>
@@ -83,6 +73,10 @@
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
             <span class="burger-item-label">Export Data</span>
+        </div>
+        <div class="burger-item" onclick="showSettingsMenu()">
+            <span class="burger-item-icon">⚙️</span>
+            <span class="burger-item-label">Settings</span>
         </div>
         <div class="burger-item" onclick="showClearDataMenu()">
             <span class="burger-item-icon">🗑️</span>
@@ -113,6 +107,20 @@
             <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openClearAllData()">
                 <span class="burger-item-icon">🗑️</span>
                 <span class="burger-item-label">All Data</span>
+            </div>
+        </div>
+        <div class="burger-sub-panel" id="settingsPanel">
+            <div class="burger-sub-back" onclick="hideSettingsMenu()">← Back</div>
+            <div class="burger-header">Settings</div>
+            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Theme</span>
+                <div class="theme-picker" id="themePicker">
+                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="dark" onclick="setTheme('dark')"></div><div class="theme-label">Cyan</div></div>
+                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="crimson" onclick="setTheme('crimson')"></div><div class="theme-label">Crimson</div></div>
+                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="golden" onclick="setTheme('golden')"></div><div class="theme-label">Golden</div></div>
+                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="ultraviolet" onclick="setTheme('ultraviolet')"></div><div class="theme-label">Violet</div></div>
+                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
+                </div>
             </div>
         </div>
     </div>
