@@ -18,6 +18,7 @@ import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openD
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
+import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -145,6 +146,10 @@ function handleBack() {
     state.currentTab = null;
     switchTab(tab);
   } else if (state.navContext === 'water') {
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
+  } else if (state.navContext === 'muscle-balance') {
     const tab = state.currentTab;
     state.currentTab = null;
     switchTab(tab);
@@ -304,6 +309,10 @@ window.waterReset = waterReset;
 window.waterAdjustTarget = waterAdjustTarget;
 window.waterAddBottle = waterAddBottle;
 window.waterAdjustBottle = waterAdjustBottle;
+
+// Muscle Balance
+window.openMuscleBalance = openMuscleBalance;
+window.setMBRange = setMBRange;
 
 
 // Exercise History

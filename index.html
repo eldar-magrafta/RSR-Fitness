@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="css/bodyweight.css"/>
     <link rel="stylesheet" href="css/nutrition.css"/>
     <link rel="stylesheet" href="css/water.css"/>
+    <link rel="stylesheet" href="css/musclebalance.css"/>
     <link rel="stylesheet" href="css/summary.css"/>
     <link rel="stylesheet" href="css/exerciselog.css"/>
     <link rel="stylesheet" href="css/auth.css"/>
@@ -71,6 +72,10 @@
         <div class="burger-item" onclick="closeBurgerMenu();openWaterView()">
             <span class="burger-item-icon">💧</span>
             <span class="burger-item-label">Water Intake</span>
+        </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openMuscleBalance()">
+            <span class="burger-item-icon">⚖️</span>
+            <span class="burger-item-label">Muscle Balance</span>
         </div>
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
@@ -332,6 +337,11 @@
     </div>
     <div class="view" id="waterView">
         <div id="waterContent"></div>
+    </div>
+
+    <!-- ── Muscle Balance View ── -->
+    <div class="view" id="muscleBalanceView">
+        <div id="muscleBalanceContent"></div>
     </div>
 
     <!-- Exercise History Entry Sheet -->

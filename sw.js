@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v57';
+const CACHE = 'trainer-v58';
 
 const CORE = [
   './',
@@ -33,6 +33,8 @@ const CORE = [
   './js/exerciselog.js',
   './js/export.js',
   './js/gallery.js',
+  './js/musclebalance.js',
+  './css/musclebalance.css',
   './data/exercises.js',
   './data/ingredients.js',
 ];

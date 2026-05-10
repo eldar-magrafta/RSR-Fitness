@@ -8,7 +8,7 @@ export const state = {
   currentMuscleKey: null,
   currentPlanId: null,
   currentExerciseName: null,
-  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'|'summary'|'exercise-log'|'prs'|'gallery'
+  navContext: 'home',    // 'home'|'exercise-list'|'plans'|'plan-detail'|'picker'|'weight'|'nutrition'|'nl-meal'|'nl-picker'|'nl-browse'|'ex-history'|'summary'|'exercise-log'|'prs'|'gallery'|'muscle-balance'
 
   // Body Weight
   bwCalYear: new Date().getFullYear(),
@@ -38,6 +38,9 @@ export const state = {
 
   // Summary
   summaryRange: 'week',
+
+  // Muscle Balance
+  mbRange: 'month',
 
   // Global Exercise Log
   exLogCalYear: new Date().getFullYear(),
