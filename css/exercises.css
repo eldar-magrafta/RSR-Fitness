@@ -104,3 +104,16 @@
 }
 @keyframes prToastIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
 @keyframes prToastOut { from { opacity:1; transform:translateX(-50%) translateY(0); } to { opacity:0; transform:translateX(-50%) translateY(-20px); } }
+
+.pr-confetti-container {
+  position:fixed; inset:0; z-index:9999; pointer-events:none; overflow:hidden;
+}
+.pr-confetti {
+  position:absolute; top:-10px; left:var(--x);
+  border-radius:2px; opacity:0.9;
+  animation:prConfettiFall 2.4s ease-in var(--delay) forwards;
+}
+@keyframes prConfettiFall {
+  0% { transform:translateY(0) translateX(0) rotate(0deg); opacity:1; }
+  100% { transform:translateY(100vh) translateX(var(--drift)) rotate(var(--r)); opacity:0; }
+}

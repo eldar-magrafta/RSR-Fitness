@@ -90,15 +90,36 @@ export function renderPRBadge(exerciseName) {
   return `<span class="pr-badge">PR ${pr.weight}kg</span>`;
 }
 
-/** Show a toast notification for a new PR */
+/** Show a toast notification for a new PR with confetti */
 export function showNewPRToast(exerciseName, weight) {
   const existing = document.querySelector('.pr-toast');
   if (existing) existing.remove();
   const toast = document.createElement('div');
   toast.className = 'pr-toast';
-  toast.textContent = `New PR! ${exerciseName}: ${weight}kg`;
+  toast.textContent = `🏆 New PR! ${exerciseName}: ${weight}kg`;
   document.body.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+  showPRConfetti();
+}
+
+function showPRConfetti() {
+  const container = document.createElement('div');
+  container.className = 'pr-confetti-container';
+  const colors = ['#00e5ff', '#8b5cf6', '#00e87b', '#ffc107', '#ff6b6b', '#ff9f43'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'pr-confetti';
+    piece.style.setProperty('--x', `${Math.random() * 100}vw`);
+    piece.style.setProperty('--r', `${Math.random() * 360}deg`);
+    piece.style.setProperty('--delay', `${Math.random() * 0.4}s`);
+    piece.style.setProperty('--drift', `${(Math.random() - 0.5) * 80}px`);
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = `${6 + Math.random() * 6}px`;
+    piece.style.height = `${4 + Math.random() * 8}px`;
+    container.appendChild(piece);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 3000);
 }
 
 /** Open the Personal Records view from the burger menu */
