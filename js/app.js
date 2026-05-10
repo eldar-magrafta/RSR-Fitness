@@ -9,7 +9,7 @@ import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler } from './exercises.js';
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
 import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
-import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe } from './bodyweight.js';
+import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe, bmiPromptHeight } from './bodyweight.js';
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlSaveAsSavedMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, initMacroGoalsSwipe, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, nlFilterSavedMeals, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs, nlSearchBarcode, nlCloseBarcodeResult, nlSaveBarcodeAsCustom, nlToggleCreateChoice, nlCloseCreateChoice, nlShowBarcodeInput, nlBarcodePhotoSelected, nlRemoveBarcodePhoto, nlOpenBarcodeScanner, nlCloseBarcodeScanner, nlBarcodeScanFile } from './nutrition.js';
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
 import { rebuildAllPRs, openPRsView } from './prs.js';
@@ -18,6 +18,7 @@ import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openD
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
+import { renderRecap, dismissRecap } from './recap.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -66,6 +67,7 @@ function switchTab(tab) {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
+    renderRecap();
   }
 }
 
@@ -104,6 +106,7 @@ function handleBack() {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
+    renderRecap();
   } else if (state.navContext === 'nl-picker') {
     state.nlPickerIng = null;
     state.nlPickerGrams = 100;
@@ -126,6 +129,7 @@ function handleBack() {
     renderNLCalendar();
     renderNLMeals();
     renderMacroGoals();
+    renderRecap();
   } else if (state.navContext === 'summary') {
     const tab = state.currentTab;
     state.currentTab = null;
@@ -208,6 +212,7 @@ window.bwRemovePhoto = bwRemovePhoto;
 window.bwViewPhoto = bwViewPhoto;
 window.closeBWViewer = closeBWViewer;
 window.openBWDeleteConfirm = openBWDeleteConfirm;
+window.bmiPromptHeight = bmiPromptHeight;
 
 // Nutrition
 window.renderNLMeals = renderNLMeals;
@@ -299,6 +304,9 @@ window.waterReset = waterReset;
 window.waterAdjustTarget = waterAdjustTarget;
 window.waterAddBottle = waterAddBottle;
 window.waterAdjustBottle = waterAdjustBottle;
+
+// Weekly Recap
+window.dismissRecap = dismissRecap;
 
 // Exercise History
 window.setExHistRange = setExHistRange;

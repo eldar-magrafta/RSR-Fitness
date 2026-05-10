@@ -19,6 +19,7 @@ export function buildWeightView() {
   renderBWStats();
   renderBWChart();
   renderBWCalendar();
+  renderBMICard();
 }
 
 // ── Stats Strip ──
@@ -397,3 +398,109 @@ export function bwViewPhoto(idx) {
 }
 
 export function closeBWViewer() { document.getElementById('bwViewer').classList.remove('open'); }
+
+// ── BMI Card ──
+
+const BMI_KEY = 'trainer_user_height';
+
+function getUserHeight() {
+  const v = localStorage.getItem(BMI_KEY);
+  return v ? parseFloat(v) : null;
+}
+
+function setUserHeight(cm) {
+  localStorage.setItem(BMI_KEY, String(cm));
+}
+
+function calcBMI(weightKg, heightCm) {
+  const hm = heightCm / 100;
+  return weightKg / (hm * hm);
+}
+
+function getBMICategory(bmi) {
+  if (bmi < 18.5) return { label: 'Underweight', color: 'var(--accent)' };
+  if (bmi < 25) return { label: 'Normal', color: 'var(--green)' };
+  if (bmi < 30) return { label: 'Overweight', color: '#ffb347' };
+  return { label: 'Obese', color: 'var(--carbs, #ff3d71)' };
+}
+
+function getLatestWeight() {
+  const data = getBWData();
+  const sorted = Object.entries(data).sort(([a], [b]) => a.localeCompare(b));
+  if (!sorted.length) return null;
+  return bwGetWeight(sorted[sorted.length - 1][1]);
+}
+
+function renderBMICard() {
+  const container = document.getElementById('bmiCard');
+  if (!container) return;
+
+  const height = getUserHeight();
+  const weight = getLatestWeight();
+
+  if (!height) {
+    container.innerHTML = `
+      <div class="bmi-card bmi-card-prompt" onclick="bmiPromptHeight()">
+        <i class="bi bi-rulers"></i>
+        <div class="bmi-prompt-text">
+          <div class="bmi-prompt-title">Set your height</div>
+          <div class="bmi-prompt-sub">Tap to enter height and see your BMI</div>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+      </div>`;
+    return;
+  }
+
+  if (!weight || weight <= 0) {
+    container.innerHTML = `
+      <div class="bmi-card">
+        <div class="bmi-header">
+          <span class="bmi-title">BMI</span>
+          <button class="bmi-height-btn" onclick="bmiPromptHeight()"><i class="bi bi-rulers"></i> ${height} cm</button>
+        </div>
+        <div class="bmi-no-data">Log a weight entry to calculate BMI</div>
+      </div>`;
+    return;
+  }
+
+  const bmi = calcBMI(weight, height);
+  const cat = getBMICategory(bmi);
+  // Position on bar: BMI range 15 to 40
+  const pct = Math.max(0, Math.min(100, ((bmi - 15) / 25) * 100));
+
+  container.innerHTML = `
+    <div class="bmi-card">
+      <div class="bmi-header">
+        <span class="bmi-title">BMI</span>
+        <button class="bmi-height-btn" onclick="bmiPromptHeight()"><i class="bi bi-rulers"></i> ${height} cm</button>
+      </div>
+      <div class="bmi-value-row">
+        <span class="bmi-value" style="color:${cat.color}">${bmi.toFixed(1)}</span>
+        <span class="bmi-category" style="color:${cat.color}">${cat.label}</span>
+      </div>
+      <div class="bmi-bar-wrap">
+        <div class="bmi-bar">
+          <div class="bmi-bar-seg bmi-seg-under"></div>
+          <div class="bmi-bar-seg bmi-seg-normal"></div>
+          <div class="bmi-bar-seg bmi-seg-over"></div>
+          <div class="bmi-bar-seg bmi-seg-obese"></div>
+          <div class="bmi-bar-indicator" style="left:${pct}%"></div>
+        </div>
+        <div class="bmi-bar-labels">
+          <span>18.5</span>
+          <span>25</span>
+          <span>30</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+export function bmiPromptHeight() {
+  const current = getUserHeight();
+  const input = prompt('Enter your height in cm:', current || '');
+  if (input === null) return;
+  const val = parseFloat(input);
+  if (!val || val < 50 || val > 300) return;
+  setUserHeight(Math.round(val));
+  renderBMICard();
+}
