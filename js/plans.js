@@ -1,11 +1,11 @@
 // ── Plans Module ──
 // Plan CRUD, plan detail, exercise picker, drag-to-reorder.
 
-import { exerciseData, findExercise } from '../data/exercises.js';
+import { exerciseData } from '../data/exercises.js';
 import { state } from './state.js';
-import { getPlans, savePlans, getPlan, getLog } from './store.js';
+import { getPlans, savePlans, getPlan, getLog, getCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { openModal } from './exercises.js';
+import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 
 // ── Plans List ──
@@ -284,11 +284,15 @@ export function showExercisePicker() {
   const container = document.getElementById('pickerList');
   container.innerHTML = '';
 
+  const customs = getCustomExercises();
+
   Object.entries(exerciseData).forEach(([key, group]) => {
     const groupEl = document.createElement('div');
     groupEl.className = 'picker-group';
 
-    const addedCount = group.exercises.filter(ex => plan.exercises.some(i => i === ex.name)).length;
+    const groupCustoms = customs.filter(c => c.group === key);
+    const allExercises = [...group.exercises, ...groupCustoms];
+    const addedCount = allExercises.filter(ex => plan.exercises.some(i => i === ex.name)).length;
 
     groupEl.innerHTML = `
       <div class="picker-group-hdr" onclick="togglePickerGroup(this)">
@@ -303,11 +307,12 @@ export function showExercisePicker() {
         <span class="picker-chevron">\u25bc</span>
       </div>
       <div class="picker-exercises" id="picker_${key}">
-        ${group.exercises.map(ex => {
+        ${allExercises.map(ex => {
           const added = plan.exercises.some(i => i === ex.name);
+          const isCustom = !group.exercises.includes(ex);
           return `
             <div class="picker-ex-item">
-              <span class="picker-ex-name" onclick="previewExercise('${ex.name.replace(/'/g, "\\'")}')">${ex.name}</span>
+              <span class="picker-ex-name" onclick="previewExercise('${ex.name.replace(/'/g, "\\'")}')">${ex.name}${isCustom ? ' <span class="picker-custom-badge">custom</span>' : ''}</span>
               <div class="picker-toggle ${added ? 'added' : ''}" data-ex-toggle="${ex.name}" onclick="toggleExerciseInPlan('${ex.name.replace(/'/g, "\\'")}', '${key}')">\u2713</div>
             </div>`;
         }).join('')}

@@ -372,3 +372,13 @@ export function saveCustomIngs(c) {
   safeSetItem('trainer_custom_ings', v);
   _cloudSave('sections', 'customings', v);
 }
+
+// ── Custom Exercises ──
+export function getCustomExercises() {
+  try { return JSON.parse(localStorage.getItem('trainer_custom_exercises')) || []; } catch { return []; }
+}
+export function saveCustomExercises(list) {
+  const v = JSON.stringify(list);
+  safeSetItem('trainer_custom_exercises', v);
+  _cloudSave('sections', 'customexercises', v);
+}

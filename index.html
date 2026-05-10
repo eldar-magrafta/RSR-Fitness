@@ -479,6 +479,28 @@
                     📊&nbsp; Log & History
                 </button>
             </div>
+            <button class="bw-btn-del" id="modalDeleteCustom" style="display:none;margin-top:12px;">Delete Custom Exercise</button>
+        </div>
+    </div>
+
+    <!-- Custom Exercise Popup -->
+    <div class="popup-overlay" id="customExOverlay" onclick="if(event.target===this)closeCustomExModal()">
+        <div class="popup-box" style="width:320px;">
+            <div class="popup-title">Add Custom Exercise</div>
+            <input type="text" id="customExName" class="custom-ex-input" placeholder="Exercise name" />
+            <input type="text" id="customExSets" class="custom-ex-input" placeholder="Sets & reps (e.g. 3 sets × 10 reps)" />
+            <input type="text" id="customExDesc" class="custom-ex-input" placeholder="Short description (optional)" />
+            <input type="file" id="customExFileInput" accept="video/*" style="display:none" onchange="customExVideoSelected(event)">
+            <div class="custom-ex-video-row">
+                <button class="custom-ex-video-btn" onclick="document.getElementById('customExFileInput').click()">
+                    <i class="bi bi-camera-video"></i> Add Video
+                </button>
+                <button class="custom-ex-video-remove" onclick="removeCustomExVideo()" style="display:none" id="customExBtnDel">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <img id="customExVideoPreview" class="custom-ex-preview" style="display:none;" alt="">
+            <button class="popup-btn-save" onclick="saveCustomEx()">Save Exercise</button>
         </div>
     </div>
 

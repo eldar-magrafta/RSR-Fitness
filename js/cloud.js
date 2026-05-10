@@ -22,6 +22,7 @@ const SECTION_MAP = {
   weightgoal:    'trainer_weight_goal',
   userheight:    'trainer_user_height',
   usertheme:     'trainer_user_theme',
+  customexercises: 'trainer_custom_exercises',
 };
 
 let db, auth;

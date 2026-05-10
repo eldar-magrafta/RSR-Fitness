@@ -6,7 +6,7 @@ import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clea
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollection } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
-import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler } from './exercises.js';
+import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler, openCustomExModal, closeCustomExModal, customExVideoSelected, removeCustomExVideo, saveCustomEx, deleteCustomEx } from './exercises.js';
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
 import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe, bmiPromptHeight, bwEditGoal, bwClearGoal, closeHeightSheet, saveHeightFromSheet, clearHeightFromSheet, closeGoalSheet, saveGoalFromSheet, clearGoalFromSheet } from './bodyweight.js';
@@ -73,7 +73,8 @@ function switchTab(tab) {
 }
 
 function handleFab() {
-  if (state.currentTab === 'plans') openCreatePlan();
+  if (state.navContext === 'exercise-list') openCustomExModal();
+  else if (state.currentTab === 'plans') openCreatePlan();
   else if (state.currentTab === 'nutrition') {
     if (state.nlViewMode === 'today') openNLFabChoice();
     else nlOpenCreateModal();
@@ -176,6 +177,12 @@ window.deleteExLog = deleteExLog;
 window.openExHistory = openExHistory;
 window.globalExSearchHandler = globalExSearchHandler;
 window.groupExSearchHandler = groupExSearchHandler;
+window.openCustomExModal = openCustomExModal;
+window.closeCustomExModal = closeCustomExModal;
+window.customExVideoSelected = customExVideoSelected;
+window.removeCustomExVideo = removeCustomExVideo;
+window.saveCustomEx = saveCustomEx;
+window.deleteCustomEx = deleteCustomEx;
 
 // Shared confirm dialog
 window.closeConfirmDialog = closeConfirmDialog;

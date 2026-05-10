@@ -1,12 +1,22 @@
 // ── Exercises Module ──
 // Home grid, exercise list, exercise detail modal.
 
-import { exerciseData, findExercise } from '../data/exercises.js';
+import { exerciseData, findExercise as findBuiltIn } from '../data/exercises.js';
 import { state } from './state.js';
-import { getLog, getNotes, saveNotesData, deleteLastLog } from './store.js';
+import { getLog, getNotes, saveNotesData, deleteLastLog, getCustomExercises, saveCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { getPR, renderPRBadge, recalcPR } from './prs.js';
-import { debounce } from './utils.js';
+import { debounce, openConfirmDialog } from './utils.js';
+import { savePhotoDoc, loadPhotoDoc, deletePhotoDoc } from './cloud.js';
+
+export function findExercise(name) {
+  const built = findBuiltIn(name);
+  if (built) return built;
+  const customs = getCustomExercises();
+  const ex = customs.find(c => c.name === name);
+  if (ex) return { ex, groupName: exerciseData[ex.group]?.name || ex.group };
+  return null;
+}
 
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
@@ -17,8 +27,11 @@ export function buildHome() {
 
   const grid = document.getElementById('muscleGrid');
   const entries = Object.entries(exerciseData);
+  const customs = getCustomExercises();
   grid.innerHTML = '';
   entries.forEach(([key, group]) => {
+    const customCount = customs.filter(c => c.group === key).length;
+    const totalCount = group.exercises.length + customCount;
     const card = document.createElement('div');
     card.className = 'muscle-card';
     card.innerHTML = `
@@ -27,7 +40,7 @@ export function buildHome() {
         <img class="m-overlay" src="assets/muscles/${group.img}.png" alt="${group.name}" loading="lazy">
       </div>
       <div class="name">${group.name}</div>
-      <div class="count">${group.exercises.length} exercises</div>`;
+      <div class="count">${totalCount} exercises</div>`;
     card.onclick = () => showExercises(key);
     grid.appendChild(card);
   });
@@ -48,14 +61,18 @@ export const globalExSearchHandler = debounce(function() {
   gridEl.style.display = 'none';
   resultsEl.innerHTML = '';
 
+  const customs = getCustomExercises();
   Object.entries(exerciseData).forEach(([key, group]) => {
-    group.exercises.forEach(ex => {
+    const groupCustoms = customs.filter(c => c.group === key);
+    [...group.exercises, ...groupCustoms].forEach(ex => {
       if (ex.name.toLowerCase().includes(q)) {
+        const isCustom = groupCustoms.includes(ex);
         const item = document.createElement('div');
         item.className = 'exercise-item';
+        const thumbSrc = ex.gif && !ex.gif.startsWith('cloud:') ? ex.gif : '';
         item.innerHTML = `
-          ${ex.gif ? `<img class="ex-thumb" src="${ex.gif}" loading="lazy" />` : ''}
-          <div class="ex-item-info"><span class="ex-name">${ex.name}</span><span class="ex-search-group">${group.name}</span></div>
+          ${thumbSrc ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+          <div class="ex-item-info"><span class="ex-name">${ex.name}</span>${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}<span class="ex-search-group">${group.name}</span></div>
           <span class="arrow">\u203a</span>`;
         item.onclick = () => openModal(ex, group.name);
         resultsEl.appendChild(item);
@@ -77,7 +94,7 @@ export function showExercises(key) {
   _renderGroupList(group);
   showView('exerciseView');
   setHeader(group.name, true);
-  document.getElementById('fab').classList.add('hidden');
+  document.getElementById('fab').classList.remove('hidden');
   state.navContext = 'exercise-list';
 }
 
@@ -85,14 +102,37 @@ function _renderGroupList(group, filter) {
   const list = document.getElementById('exerciseList');
   list.innerHTML = '';
   const q = (filter || '').toLowerCase();
-  group.exercises.forEach(ex => {
+  const customs = getCustomExercises().filter(c => c.group === state.currentMuscleKey);
+  const allExercises = [...group.exercises, ...customs];
+  allExercises.forEach(ex => {
     if (q && !ex.name.toLowerCase().includes(q)) return;
+    const isCustom = customs.includes(ex);
     const item = document.createElement('div');
     item.className = 'exercise-item';
+    const thumbSrc = ex.gif || '';
+    const isCloud = thumbSrc.startsWith('cloud:');
+    const showThumb = thumbSrc && !isCloud;
     item.innerHTML = `
-      ${ex.gif ? `<img class="ex-thumb" src="${ex.gif}" loading="lazy" />` : ''}
-      <div class="ex-item-info"><span class="ex-name">${ex.name}</span></div>
+      ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+      <div class="ex-item-info">
+        <span class="ex-name">${ex.name}</span>
+        ${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}
+      </div>
       <span class="arrow">\u203a</span>`;
+    if (isCloud) {
+      const parts = thumbSrc.slice(6).split('/');
+      loadPhotoDoc(parts[0], parts[1]).then(data => {
+        if (data) {
+          const placeholder = item.querySelector('.ex-thumb-placeholder');
+          if (placeholder) {
+            const img = document.createElement('img');
+            img.className = 'ex-thumb';
+            img.src = data;
+            placeholder.replaceWith(img);
+          }
+        }
+      });
+    }
     item.onclick = () => openModal(ex, group.name);
     list.appendChild(item);
   });
@@ -113,32 +153,51 @@ export function openModal(ex, muscleName, fromPlan = false) {
   state.currentExerciseName = ex.name;
   document.getElementById('modalTitle').textContent = ex.name;
   document.getElementById('modalTag').textContent = muscleName;
-  document.getElementById('modalDesc').textContent = ex.desc;
-  document.getElementById('modalTips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('modalDesc').textContent = ex.desc || '';
+  document.getElementById('modalTips').innerHTML = (ex.tips || []).map(t => `<li>${t}</li>`).join('');
+
+  // Custom exercise delete button
+  const delCustomBtn = document.getElementById('modalDeleteCustom');
+  const isCustom = getCustomExercises().some(c => c.name === ex.name);
+  if (delCustomBtn) {
+    delCustomBtn.style.display = isCustom ? '' : 'none';
+    delCustomBtn.onclick = () => deleteCustomEx(ex.name);
+  }
 
   // Support both <video> (.webm/.mp4) and <img> (.gif) — find whichever elements exist
   const vidEl = document.getElementById('modalVid') || document.getElementById('modalGif');
   const imgEl = document.getElementById('modalImg');
-  if (ex.gif) {
-    const isVideo = ex.gif.endsWith('.webm') || ex.gif.endsWith('.mp4');
+
+  const loadMedia = (src) => {
+    if (!src) {
+      if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
+      if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
+      return;
+    }
+    const isVideo = src.endsWith('.webm') || src.endsWith('.mp4') || src.startsWith('data:video');
     if (isVideo && vidEl) {
-      vidEl.src = ex.gif;
+      vidEl.src = src;
       vidEl.style.display = '';
       vidEl.play();
       if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
-    } else if (!isVideo && imgEl) {
-      imgEl.src = ex.gif;
+    } else if (imgEl) {
+      imgEl.src = src;
       imgEl.style.display = '';
       if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
     } else if (vidEl) {
-      // Fallback: old HTML only has <video id="modalGif"> — use it for everything
-      vidEl.src = ex.gif;
+      vidEl.src = src;
       vidEl.style.display = '';
       try { vidEl.play(); } catch(e) {}
     }
-  } else {
+  };
+
+  if (ex.gif && ex.gif.startsWith('cloud:')) {
     if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
     if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
+    const parts = ex.gif.slice(6).split('/');
+    loadPhotoDoc(parts[0], parts[1]).then(data => { if (data) loadMedia(data); });
+  } else {
+    loadMedia(ex.gif || '');
   }
 
   const planSection = document.getElementById('modalPlanSection');
@@ -271,5 +330,161 @@ export function initModalSwipe() {
       modal.style.transform = '';
     }
     _md = null;
+  });
+}
+
+// ── Custom Exercise Creation ──
+
+let _customVideoBase64 = null;
+
+export function openCustomExModal() {
+  document.getElementById('customExName').value = '';
+  document.getElementById('customExSets').value = '';
+  document.getElementById('customExDesc').value = '';
+  document.getElementById('customExVideoPreview').style.display = 'none';
+  document.getElementById('customExVideoPreview').src = '';
+  document.getElementById('customExBtnDel').style.display = 'none';
+  _customVideoBase64 = null;
+  document.getElementById('customExOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('customExName').focus(), 250);
+}
+
+export function closeCustomExModal() {
+  document.getElementById('customExOverlay').classList.remove('open');
+  _customVideoBase64 = null;
+}
+
+export function customExVideoSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = '';
+  _convertVideoToGif(file).then(base64 => {
+    _customVideoBase64 = base64;
+    document.getElementById('customExBtnDel').style.display = '';
+    const preview = document.getElementById('customExVideoPreview');
+    preview.src = base64;
+    preview.style.display = 'block';
+  });
+}
+
+export function removeCustomExVideo() {
+  _customVideoBase64 = null;
+  document.getElementById('customExVideoPreview').style.display = 'none';
+  document.getElementById('customExVideoPreview').src = '';
+  document.getElementById('customExBtnDel').style.display = 'none';
+}
+
+export function saveCustomEx() {
+  const name = document.getElementById('customExName').value.trim();
+  if (!name) return;
+  const group = state.currentMuscleKey;
+  if (!group) return;
+
+  const customs = getCustomExercises();
+  if (customs.some(c => c.name === name) || findBuiltIn(name)) {
+    document.getElementById('customExName').style.outline = '2px solid var(--carbs)';
+    setTimeout(() => document.getElementById('customExName').style.outline = '', 800);
+    return;
+  }
+
+  const ex = {
+    name,
+    group,
+    sets: document.getElementById('customExSets').value.trim() || '3 sets',
+    desc: document.getElementById('customExDesc').value.trim() || '',
+    tips: [],
+    yt: name + ' exercise form',
+    gif: '',
+  };
+
+  if (_customVideoBase64) {
+    const docId = encodeURIComponent(name);
+    savePhotoDoc('custom_ex_media', docId, _customVideoBase64);
+    ex.gif = 'cloud:custom_ex_media/' + docId;
+  }
+
+  customs.push(ex);
+  saveCustomExercises(customs);
+  closeCustomExModal();
+  _renderGroupList(exerciseData[group]);
+}
+
+export function deleteCustomEx(exName) {
+  openConfirmDialog({
+    title: 'Delete Custom Exercise?',
+    message: `Remove "${exName}" from your custom exercises?`,
+    confirmLabel: 'Delete',
+    onConfirm: () => {
+      const customs = getCustomExercises();
+      const idx = customs.findIndex(c => c.name === exName);
+      if (idx >= 0) {
+        const ex = customs[idx];
+        if (ex.gif && ex.gif.startsWith('cloud:')) {
+          const docId = encodeURIComponent(ex.name);
+          deletePhotoDoc('custom_ex_media', docId);
+        }
+        customs.splice(idx, 1);
+        saveCustomExercises(customs);
+        closeModal(true);
+        _renderGroupList(exerciseData[state.currentMuscleKey]);
+      }
+    },
+  });
+}
+
+function _convertVideoToGif(file) {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.src = URL.createObjectURL(file);
+
+    video.onloadedmetadata = () => {
+      const duration = Math.min(video.duration, 4);
+      const fps = 10;
+      const frameCount = Math.floor(duration * fps);
+      const canvas = document.createElement('canvas');
+      const w = Math.min(video.videoWidth, 320);
+      const h = Math.round((w / video.videoWidth) * video.videoHeight);
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      const frames = [];
+      let i = 0;
+
+      video.currentTime = 0;
+
+      video.onseeked = () => {
+        ctx.drawImage(video, 0, 0, w, h);
+        frames.push(canvas.toDataURL('image/webp', 0.6));
+        i++;
+        if (i < frameCount) {
+          video.currentTime = i / fps;
+        } else {
+          URL.revokeObjectURL(video.src);
+          // Encode as animated webp by combining frames into a single strip image
+          // Simpler: just use first frame as thumbnail for the card,
+          // and store the video as a base64 webm
+          const reader = new FileReader();
+          reader.onload = () => {
+            let base64 = reader.result;
+            // If over 900KB, use the middle frame as a static thumbnail
+            if (base64.length > 900000) {
+              const midFrame = frames[Math.floor(frames.length / 2)];
+              resolve(midFrame);
+            } else {
+              resolve(base64);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      video.currentTime = 0;
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src);
+      resolve('');
+    };
   });
 }
