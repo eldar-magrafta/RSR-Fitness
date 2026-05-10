@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/modals.css"/>
     <link rel="stylesheet" href="css/bodyweight.css"/>
     <link rel="stylesheet" href="css/nutrition.css"/>
+    <link rel="stylesheet" href="css/water.css"/>
     <link rel="stylesheet" href="css/summary.css"/>
     <link rel="stylesheet" href="css/exerciselog.css"/>
     <link rel="stylesheet" href="css/auth.css"/>
@@ -66,6 +67,10 @@
         <div class="burger-item" onclick="closeBurgerMenu();openGallery()">
             <span class="burger-item-icon">📸</span>
             <span class="burger-item-label">Progress Photos</span>
+        </div>
+        <div class="burger-item" onclick="closeBurgerMenu();openWaterView()">
+            <span class="burger-item-icon">💧</span>
+            <span class="burger-item-label">Water Intake</span>
         </div>
         <div class="burger-item" onclick="closeBurgerMenu();exportData()">
             <span class="burger-item-icon">📥</span>
@@ -322,6 +327,9 @@
     <!-- ── Progress Photos Gallery ── -->
     <div class="view" id="galleryView">
         <div id="galleryContent"></div>
+    </div>
+    <div class="view" id="waterView">
+        <div id="waterContent"></div>
     </div>
 
     <!-- Exercise History Entry Sheet -->

@@ -17,6 +17,7 @@ import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
+import { openWaterView, waterAdd, waterUndo, waterAdjustTarget } from './water.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
 // ═══════════════════════════════════════════
@@ -138,6 +139,10 @@ function handleBack() {
     state.currentTab = null;
     switchTab(tab);
   } else if (state.navContext === 'gallery') {
+    const tab = state.currentTab;
+    state.currentTab = null;
+    switchTab(tab);
+  } else if (state.navContext === 'water') {
     const tab = state.currentTab;
     state.currentTab = null;
     switchTab(tab);
@@ -287,6 +292,10 @@ window.exLogSelectDate = exLogSelectDate;
 window.openDeleteAllExerciseData = openDeleteAllExerciseData;
 window.openPRsView = openPRsView;
 window.openGallery = openGallery;
+window.openWaterView = openWaterView;
+window.waterAdd = waterAdd;
+window.waterUndo = waterUndo;
+window.waterAdjustTarget = waterAdjustTarget;
 
 // Exercise History
 window.setExHistRange = setExHistRange;
