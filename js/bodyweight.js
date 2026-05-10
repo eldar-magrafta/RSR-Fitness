@@ -2,22 +2,12 @@
 // Stats, chart, calendar, entry sheet, photo handling.
 
 import { state } from './state.js';
-import { getBWData, saveBWData, bwGetWeight, bwGetPhotos, bwHasPhoto, saveBWEmpty } from './store.js';
+import { getBWData, saveBWData, bwGetWeight, bwGetPhotos, bwHasPhoto, saveBWEmpty, getWeightGoal, saveWeightGoal } from './store.js';
 import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
 // ── Weight Goal ──
-
-function getWeightGoal() {
-  const v = localStorage.getItem('trainer_weight_goal');
-  return v ? parseFloat(v) : null;
-}
-
-function setWeightGoal(kg) {
-  if (kg === null) localStorage.removeItem('trainer_weight_goal');
-  else localStorage.setItem('trainer_weight_goal', kg.toString());
-}
 
 function renderBWGoalRow() {
   const row = document.getElementById('bwGoalRow');
@@ -37,12 +27,12 @@ export function bwEditGoal() {
   if (input === null) return;
   const val = parseFloat(input);
   if (!val || val <= 0 || val > 500) return;
-  setWeightGoal(val);
+  saveWeightGoal(val);
   buildWeightView();
 }
 
 export function bwClearGoal() {
-  setWeightGoal(null);
+  saveWeightGoal(null);
   buildWeightView();
 }
 

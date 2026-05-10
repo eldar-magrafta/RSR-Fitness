@@ -130,6 +130,21 @@ export function saveBWEmpty() {
   _cloudSave('sections', 'bodyweight', '{}');
 }
 
+// ── Weight Goal ──
+export function getWeightGoal() {
+  const v = localStorage.getItem('trainer_weight_goal');
+  return v ? parseFloat(v) : null;
+}
+export function saveWeightGoal(kg) {
+  if (kg === null) {
+    localStorage.removeItem('trainer_weight_goal');
+    _cloudSave('sections', 'weightgoal', 'null');
+  } else {
+    safeSetItem('trainer_weight_goal', kg.toString());
+    _cloudSave('sections', 'weightgoal', kg.toString());
+  }
+}
+
 // Backward-compat helpers (old entries are plain numbers, new are {w,p} objects)
 export function bwGetWeight(val) { return typeof val === 'object' && val ? Number(val.w) : Number(val); }
 // Returns array of photo markers (e.g. ['cloud','cloud']) or empty array
