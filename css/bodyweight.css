@@ -49,6 +49,29 @@
 .bw-tooltip-val { font-size: 0.95rem; font-weight: 700; color: #fff; }
 .bw-tooltip-date { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
 
+/* ── Weight Goal Row ── */
+.bw-goal-row {
+  display:flex; align-items:center; gap:8px; margin-bottom:14px;
+}
+.bw-goal-label {
+  flex:1; font-size:0.88rem; color:var(--text-secondary); font-weight:600;
+}
+.bw-goal-label b { color:var(--green); }
+.bw-goal-edit-btn {
+  background:none; border:1px solid var(--border-med); color:var(--text-secondary);
+  width:32px; height:32px; border-radius:10px; font-size:0.8rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.bw-goal-edit-btn:active { border-color:var(--accent); color:var(--accent); }
+.bw-goal-set-btn {
+  width:100%; background:var(--card); border:1px solid var(--border-med);
+  color:var(--text-secondary); padding:10px; border-radius:12px;
+  font-size:0.85rem; font-weight:600; font-family:inherit;
+  cursor:pointer; transition:all 0.15s;
+}
+.bw-goal-set-btn:active { border-color:var(--green); color:var(--green); }
+
 /* ── Calendar (shared by BW and Exercise History) ── */
 .bw-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .bw-cal-month-lbl { font-size: 1rem; font-weight: 800; }

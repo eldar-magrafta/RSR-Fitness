@@ -7,6 +7,45 @@ import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCal
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
+// ── Weight Goal ──
+
+function getWeightGoal() {
+  const v = localStorage.getItem('trainer_weight_goal');
+  return v ? parseFloat(v) : null;
+}
+
+function setWeightGoal(kg) {
+  if (kg === null) localStorage.removeItem('trainer_weight_goal');
+  else localStorage.setItem('trainer_weight_goal', kg.toString());
+}
+
+function renderBWGoalRow() {
+  const row = document.getElementById('bwGoalRow');
+  const goal = getWeightGoal();
+  if (goal) {
+    row.innerHTML = `<span class="bw-goal-label"><i class="bi bi-bullseye"></i> Goal: <b>${goal.toFixed(1)} kg</b></span>
+      <button class="bw-goal-edit-btn" onclick="bwEditGoal()"><i class="bi bi-pencil"></i></button>
+      <button class="bw-goal-edit-btn" onclick="bwClearGoal()"><i class="bi bi-x-lg"></i></button>`;
+  } else {
+    row.innerHTML = `<button class="bw-goal-set-btn" onclick="bwEditGoal()"><i class="bi bi-bullseye"></i> Set Weight Goal</button>`;
+  }
+}
+
+export function bwEditGoal() {
+  const current = getWeightGoal();
+  const input = prompt('Enter your target weight (kg):', current ? current.toString() : '');
+  if (input === null) return;
+  const val = parseFloat(input);
+  if (!val || val <= 0 || val > 500) return;
+  setWeightGoal(val);
+  buildWeightView();
+}
+
+export function bwClearGoal() {
+  setWeightGoal(null);
+  buildWeightView();
+}
+
 // ── Build / Refresh ──
 
 export function buildWeightView() {
@@ -18,6 +57,7 @@ export function buildWeightView() {
   });
   renderBWStats();
   renderBWChart();
+  renderBWGoalRow();
   renderBWCalendar();
   renderBMICard();
 }
@@ -82,7 +122,9 @@ function renderBWChart() {
   const W = 340, H = 150, P = { t: 14, r: 18, b: 30, l: 42 };
   const cW = W - P.l - P.r, cH = H - P.t - P.b;
   const vals = entries.map(([, v]) => v);
-  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const goal = getWeightGoal();
+  const allVals = goal ? [...vals, goal] : vals;
+  const minV = Math.min(...allVals), maxV = Math.max(...allVals);
   const spread = maxV - minV || 1;
   const xS = i => P.l + (i / (entries.length - 1)) * cW;
   const yS = v => P.t + cH - ((v - minV) / spread) * cH;
@@ -113,6 +155,9 @@ function renderBWChart() {
     `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="var(--accent)" stroke="var(--card)" stroke-width="2"/>`
   ).join('');
 
+  const goalLine = goal ? `<line x1="${P.l}" y1="${yS(goal)}" x2="${W - P.r}" y2="${yS(goal)}" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7"/>
+    <text x="${W - P.r + 4}" y="${yS(goal)}" dominant-baseline="middle" fill="var(--green)" font-size="8" font-family="-apple-system,sans-serif" opacity="0.8">${goal.toFixed(1)}</text>` : '';
+
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H);
   svg.innerHTML = `
     <defs>
@@ -122,6 +167,7 @@ function renderBWChart() {
       </linearGradient>
     </defs>
     <line x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}" stroke="${chartGrid}" stroke-width="1"/>
+    ${goalLine}
     <path d="${areaPath}" fill="url(#bwG)"/>
     <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     ${yLbls}${xLbls}${dots}`;
