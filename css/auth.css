@@ -219,6 +219,11 @@
 .auth-loading-msg {
   color: var(--muted, #5a6a8a);
   font-size: 0.95rem;
+  transition: opacity 0.3s ease;
+  text-align: center;
+  padding: 0 24px;
+  line-height: 1.5;
+  font-style: italic;
 }
 
 /* Sign-out confirmation */

@@ -10,14 +10,44 @@ export function showSignInScreen() {
   document.getElementById('appRoot').style.display = 'none';
 }
 
-export function showLoadingScreen(msg) {
+const LOADING_TIPS = [
+  'Consistency beats perfection.',
+  'The only bad workout is the one you skipped.',
+  'Small progress is still progress.',
+  'Your body can stand almost anything. It\'s your mind you have to convince.',
+  'Discipline is choosing between what you want now and what you want most.',
+  'Results happen over time, not overnight.',
+  'Sore today, strong tomorrow.',
+  'Push yourself \u2014 no one else will do it for you.',
+  'Every rep counts.',
+  'Train insane or remain the same.',
+  'Strength doesn\'t come from what you can do. It comes from overcoming what you thought you couldn\'t.',
+  'The harder you work, the luckier you get.',
+  'Fall in love with the process.',
+  'You don\'t have to be extreme, just consistent.',
+  'One more rep.',
+];
+
+let _loadingInterval = null;
+
+export function showLoadingScreen() {
   document.getElementById('signInOverlay').style.display = 'none';
   document.getElementById('loadingOverlay').style.display = 'flex';
-  document.getElementById('loadingMsg').textContent = msg || 'Loading\u2026';
   document.getElementById('appRoot').style.display = 'none';
+  const el = document.getElementById('loadingMsg');
+  el.textContent = LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)];
+  clearInterval(_loadingInterval);
+  _loadingInterval = setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)];
+      el.style.opacity = '1';
+    }, 300);
+  }, 2500);
 }
 
 export function showApp() {
+  clearInterval(_loadingInterval);
   document.getElementById('signInOverlay').style.display = 'none';
   document.getElementById('loadingOverlay').style.display = 'none';
   document.getElementById('appRoot').style.display = '';

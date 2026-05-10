@@ -453,7 +453,7 @@ onAuthChange(async (user) => {
       document.getElementById('siError').textContent = 'Please verify your email before signing in. Check your inbox.';
       return;
     }
-    showLoadingScreen('Syncing your data…');
+    showLoadingScreen();
     await loadFromCloud(user.uid);
     updateUserUI(user);
     showApp();
