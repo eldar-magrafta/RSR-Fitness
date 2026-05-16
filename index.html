@@ -122,20 +122,29 @@
                     <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
                 </div>
             </div>
-            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
-                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Daily Water Target</span>
-                <div class="settings-stepper">
-                    <button class="settings-stepper-btn" onclick="waterAdjustTarget(-0.25)">−</button>
-                    <div class="settings-stepper-val" id="settingsWaterTarget">2.50L</div>
-                    <button class="settings-stepper-btn" onclick="waterAdjustTarget(0.25)">+</button>
-                </div>
+            <div class="burger-item" onclick="showWaterSettingsMenu()">
+                <span class="burger-item-icon">💧</span>
+                <span class="burger-item-label">Water</span>
+                <span style="opacity:0.4;">›</span>
             </div>
-            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
-                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Bottle Size</span>
-                <div class="settings-stepper">
-                    <button class="settings-stepper-btn" onclick="waterAdjustBottle(-50)">−</button>
-                    <div class="settings-stepper-val" id="settingsWaterBottle">600ml</div>
-                    <button class="settings-stepper-btn" onclick="waterAdjustBottle(50)">+</button>
+            <div class="burger-sub-panel" id="waterSettingsPanel">
+                <div class="burger-sub-back" onclick="hideWaterSettingsMenu()">← Back</div>
+                <div class="burger-header">Water</div>
+                <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                    <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Daily Target</span>
+                    <div class="settings-stepper">
+                        <button class="settings-stepper-btn" onclick="waterAdjustTarget(-0.25)">−</button>
+                        <div class="settings-stepper-val" id="settingsWaterTarget">2.50L</div>
+                        <button class="settings-stepper-btn" onclick="waterAdjustTarget(0.25)">+</button>
+                    </div>
+                </div>
+                <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                    <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Bottle Size</span>
+                    <div class="settings-stepper">
+                        <button class="settings-stepper-btn" onclick="waterAdjustBottle(-50)">−</button>
+                        <div class="settings-stepper-val" id="settingsWaterBottle">600ml</div>
+                        <button class="settings-stepper-btn" onclick="waterAdjustBottle(50)">+</button>
+                    </div>
                 </div>
             </div>
         </div>

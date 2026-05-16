@@ -366,11 +366,19 @@ function hideClearDataMenu() {
 
 function showSettingsMenu() {
   document.getElementById('settingsPanel').classList.add('open');
-  syncWaterSettingsDisplay();
 }
 
 function hideSettingsMenu() {
   document.getElementById('settingsPanel').classList.remove('open');
+}
+
+function showWaterSettingsMenu() {
+  document.getElementById('waterSettingsPanel').classList.add('open');
+  syncWaterSettingsDisplay();
+}
+
+function hideWaterSettingsMenu() {
+  document.getElementById('waterSettingsPanel').classList.remove('open');
 }
 
 function openClearAllData() {
@@ -431,6 +439,8 @@ window.showClearDataMenu = showClearDataMenu;
 window.hideClearDataMenu = hideClearDataMenu;
 window.showSettingsMenu = showSettingsMenu;
 window.hideSettingsMenu = hideSettingsMenu;
+window.showWaterSettingsMenu = showWaterSettingsMenu;
+window.hideWaterSettingsMenu = hideWaterSettingsMenu;
 window.openClearAllData = openClearAllData;
 
 // ═══════════════════════════════════════════
