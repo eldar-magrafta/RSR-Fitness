@@ -394,6 +394,14 @@ function hideWaterSettingsMenu() {
   document.getElementById('waterSettingsPanel').classList.remove('open');
 }
 
+function showThemeSettingsMenu() {
+  document.getElementById('themeSettingsPanel').classList.add('open');
+}
+
+function hideThemeSettingsMenu() {
+  document.getElementById('themeSettingsPanel').classList.remove('open');
+}
+
 function openClearAllData() {
   openConfirmDialog({
     title: 'Delete ALL Data?',
@@ -454,6 +462,8 @@ window.showSettingsMenu = showSettingsMenu;
 window.hideSettingsMenu = hideSettingsMenu;
 window.showWaterSettingsMenu = showWaterSettingsMenu;
 window.hideWaterSettingsMenu = hideWaterSettingsMenu;
+window.showThemeSettingsMenu = showThemeSettingsMenu;
+window.hideThemeSettingsMenu = hideThemeSettingsMenu;
 window.openClearAllData = openClearAllData;
 
 // ═══════════════════════════════════════════

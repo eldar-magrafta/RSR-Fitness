@@ -113,20 +113,29 @@
         <div class="burger-sub-panel" id="settingsPanel">
             <div class="burger-sub-back" onclick="hideSettingsMenu()">← Back</div>
             <div class="burger-header">Settings</div>
-            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
-                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Theme</span>
-                <div class="theme-picker" id="themePicker">
-                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="dark" onclick="setTheme('dark')"></div><div class="theme-label">Cyan</div></div>
-                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="crimson" onclick="setTheme('crimson')"></div><div class="theme-label">Crimson</div></div>
-                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="golden" onclick="setTheme('golden')"></div><div class="theme-label">Golden</div></div>
-                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="ultraviolet" onclick="setTheme('ultraviolet')"></div><div class="theme-label">Violet</div></div>
-                    <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
-                </div>
+            <div class="burger-item" onclick="showThemeSettingsMenu()">
+                <span class="burger-item-icon">🎨</span>
+                <span class="burger-item-label">Theme</span>
+                <span style="opacity:0.4;">›</span>
             </div>
             <div class="burger-item" onclick="showWaterSettingsMenu()">
                 <span class="burger-item-icon">💧</span>
                 <span class="burger-item-label">Water</span>
                 <span style="opacity:0.4;">›</span>
+            </div>
+            <div class="burger-sub-panel" id="themeSettingsPanel">
+                <div class="burger-sub-back" onclick="hideThemeSettingsMenu()">← Back</div>
+                <div class="burger-header">Theme</div>
+                <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                    <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Accent Color</span>
+                    <div class="theme-picker" id="themePicker">
+                        <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="dark" onclick="setTheme('dark')"></div><div class="theme-label">Cyan</div></div>
+                        <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="crimson" onclick="setTheme('crimson')"></div><div class="theme-label">Crimson</div></div>
+                        <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="golden" onclick="setTheme('golden')"></div><div class="theme-label">Golden</div></div>
+                        <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="ultraviolet" onclick="setTheme('ultraviolet')"></div><div class="theme-label">Violet</div></div>
+                        <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
+                    </div>
+                </div>
             </div>
             <div class="burger-sub-panel" id="waterSettingsPanel">
                 <div class="burger-sub-back" onclick="hideWaterSettingsMenu()">← Back</div>
