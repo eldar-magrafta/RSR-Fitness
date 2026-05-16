@@ -152,17 +152,37 @@ export function showPlanDetail(planId) {
     if (exCount > 0) {
       const isResume = hasActiveSession() && getActiveSessionPlanId() === planId;
       if (isResume) {
-        const banner = document.createElement('div');
-        banner.className = 'plan-resume-banner';
-        banner.innerHTML = `
+        const wrap = document.createElement('div');
+        wrap.className = 'plan-resume-row';
+
+        const resumeBtn = document.createElement('div');
+        resumeBtn.className = 'plan-resume-banner';
+        resumeBtn.innerHTML = `
           <span class="plan-resume-icon">⏱️</span>
           <div class="plan-resume-text">
             <div class="plan-resume-title">Resume workout</div>
             <div class="plan-resume-sub">You have a session in progress</div>
           </div>
           <span class="session-card-arrow">›</span>`;
-        banner.onclick = () => resumeSession();
-        list.appendChild(banner);
+        resumeBtn.onclick = () => resumeSession();
+
+        const discardBtn = document.createElement('button');
+        discardBtn.className = 'plan-discard-banner';
+        discardBtn.innerHTML = `
+          <span class="plan-discard-icon"><i class="bi bi-trash"></i></span>
+          <div class="plan-discard-text">Discard</div>`;
+        discardBtn.onclick = () => {
+          openConfirmDialog({
+            title: 'Discard Workout?',
+            message: 'Your in-progress session will be lost.',
+            confirmLabel: 'Discard',
+            onConfirm: () => { discardSession(); showPlanDetail(planId); },
+          });
+        };
+
+        wrap.appendChild(resumeBtn);
+        wrap.appendChild(discardBtn);
+        list.appendChild(wrap);
       } else {
         const startBtn = document.createElement('button');
         startBtn.className = 'plan-start-btn';

@@ -4,7 +4,7 @@
 // existing exercise-history pipeline.
 
 import { state } from './state.js';
-import { getPlan, saveExHist } from './store.js';
+import { getPlan, getExHist, saveExHist } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { escHtml, openConfirmDialog } from './utils.js';
