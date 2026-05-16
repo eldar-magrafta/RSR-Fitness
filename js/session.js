@@ -4,7 +4,7 @@
 // existing exercise-history pipeline.
 
 import { state } from './state.js';
-import { getPlan, getExHist, saveExHist } from './store.js';
+import { getPlan, getExHist, saveExHist, getLog } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { escHtml, openConfirmDialog } from './utils.js';
@@ -159,7 +159,7 @@ export function renderSession() {
           </div>
         </div>
         <div class="session-sets" id="sessionSets_${idx}">
-          ${it.sets.map((set, sIdx) => renderSetRow(idx, sIdx, set)).join('')}
+          ${it.sets.map((set, sIdx) => renderSetRow(idx, sIdx, set, it.name)).join('')}
         </div>
         <div class="session-set-actions">
           <button class="session-add-set-btn" onclick="sessionAddSet(${idx})"><i class="bi bi-plus-lg"></i> Add Set</button>
@@ -175,14 +175,18 @@ export function renderSession() {
   document.getElementById('sessionContent').innerHTML = html;
 }
 
-function renderSetRow(exIdx, sIdx, set) {
+function renderSetRow(exIdx, sIdx, set, exName) {
   const filled = isSetFilled(set);
+  const last = exName ? getLog(exName) : null;
+  const lastSet = last && last.setList.length ? last.setList[Math.min(sIdx, last.setList.length - 1)] : null;
+  const wPlaceholder = lastSet && lastSet.w > 0 ? `Last: ${lastSet.w}kg` : 'kg';
+  const rPlaceholder = lastSet && lastSet.r > 0 ? `Last: ${lastSet.r} reps` : 'reps';
   return `
     <div class="session-set-row ${filled ? 'done' : ''}">
-      <input class="session-set-input" type="number" inputmode="decimal" placeholder="kg"
+      <input class="session-set-input" type="number" inputmode="decimal" placeholder="${wPlaceholder}"
              value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)"/>
       <span class="session-set-x">×</span>
-      <input class="session-set-input" type="number" inputmode="numeric" placeholder="reps"
+      <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPlaceholder}"
              value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)"/>
       <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
     </div>`;
