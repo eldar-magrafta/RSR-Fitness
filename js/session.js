@@ -59,6 +59,7 @@ export function startSession(planId) {
     currentIdx: items.findIndex(i => i.kind === 'ex'),
     restSec: DEFAULT_REST_SEC,
   };
+  if (session.currentIdx >= 0) session.items[session.currentIdx].sets.push({ w: '', r: '' });
   saveSession(session);
   openSessionView();
 }
@@ -94,16 +95,15 @@ export function renderSession() {
   if (!s) return;
 
   const totalEx = s.items.filter(i => i.kind === 'ex').length;
-  const doneEx = s.items.filter(i => i.kind === 'ex' && i.sets.length > 0 && i.sets.every(set => set.done)).length;
-  const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.length : sum, 0);
-  const doneSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(set => set.done).length : sum, 0);
+  const doneEx = s.items.filter(i => i.kind === 'ex' && i.sets.some(isSetFilled)).length;
+  const doneSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
   const elapsedMin = Math.floor((Date.now() - s.startedAt) / 60000);
 
   let html = `
     <div class="session-progress-card">
       <div class="session-progress-row">
         <div class="session-progress-stat"><div class="session-progress-num">${doneEx}/${totalEx}</div><div class="session-progress-label">exercises</div></div>
-        <div class="session-progress-stat"><div class="session-progress-num">${doneSets}/${totalSets || '0'}</div><div class="session-progress-label">sets</div></div>
+        <div class="session-progress-stat"><div class="session-progress-num">${doneSets}</div><div class="session-progress-label">sets</div></div>
         <div class="session-progress-stat"><div class="session-progress-num">${elapsedMin}<span class="session-progress-unit">m</span></div><div class="session-progress-label">elapsed</div></div>
       </div>
     </div>
@@ -115,15 +115,16 @@ export function renderSession() {
       return;
     }
     const isCurrent = idx === s.currentIdx;
-    const allDone = it.sets.length > 0 && it.sets.every(set => set.done);
-    const stateCls = isCurrent ? 'current' : allDone ? 'done' : 'upcoming';
+    const hasLogged = it.sets.some(set => isSetFilled(set));
+    const stateCls = isCurrent ? 'current' : hasLogged ? 'done' : 'upcoming';
     const found = findExercise(it.name);
     const groupName = found ? found.groupName : '';
     const last = formatLastTime(it.name);
 
     if (!isCurrent) {
-      const summary = it.sets.length
-        ? it.sets.map(s2 => `${s2.w || '–'}×${s2.r || '–'}`).join(' · ')
+      const filled = it.sets.filter(isSetFilled);
+      const summary = filled.length
+        ? filled.map(s2 => `${s2.w}×${s2.r}`).join(' · ')
         : (last ? `Last: ${last}` : groupName);
       html += `
         <div class="session-card ${stateCls}" data-idx="${idx}">
@@ -133,7 +134,7 @@ export function renderSession() {
               <div class="session-card-name">${escHtml(it.name)}</div>
               <div class="session-card-sub">${escHtml(summary)}</div>
             </div>
-            <span class="session-card-arrow">${allDone ? '✓' : '›'}</span>
+            <span class="session-card-arrow">${hasLogged ? '✓' : '›'}</span>
           </div>
         </div>`;
       return;
@@ -154,7 +155,6 @@ export function renderSession() {
         </div>
         <div class="session-set-actions">
           <button class="session-add-set-btn" onclick="sessionAddSet(${idx})"><i class="bi bi-plus-lg"></i> Add Set</button>
-          <button class="session-skip-btn" onclick="sessionSkipExercise(${idx})">Skip</button>
         </div>
       </div>`;
   });
@@ -168,19 +168,22 @@ export function renderSession() {
 }
 
 function renderSetRow(exIdx, sIdx, set) {
+  const filled = isSetFilled(set);
   return `
-    <div class="session-set-row ${set.done ? 'done' : ''}">
-      <span class="session-set-num">${sIdx + 1}</span>
+    <div class="session-set-row ${filled ? 'done' : ''}">
       <input class="session-set-input" type="number" inputmode="decimal" placeholder="kg"
-             value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)" ${set.done ? 'disabled' : ''}/>
+             value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)"/>
       <span class="session-set-x">×</span>
       <input class="session-set-input" type="number" inputmode="numeric" placeholder="reps"
-             value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)" ${set.done ? 'disabled' : ''}/>
-      <button class="session-set-check ${set.done ? 'done' : ''}" onclick="sessionToggleSet(${exIdx}, ${sIdx})" title="${set.done ? 'Undo' : 'Mark done'}">
-        ${set.done ? '<i class="bi bi-check-lg"></i>' : ''}
-      </button>
+             value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)"/>
       <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
     </div>`;
+}
+
+function isSetFilled(set) {
+  const w = String(set.w ?? '').trim();
+  const r = String(set.r ?? '').trim();
+  return w !== '' && r !== '' && parseFloat(w) > 0 && parseInt(r) > 0;
 }
 
 function formatLastTime(exName) {
@@ -201,6 +204,7 @@ export function sessionFocus(idx) {
   const s = loadSession();
   if (!s || s.items[idx]?.kind !== 'ex') return;
   s.currentIdx = idx;
+  if (s.items[idx].sets.length === 0) s.items[idx].sets.push({ w: '', r: '' });
   saveSession(s);
   renderSession();
 }
@@ -211,8 +215,9 @@ export function sessionAddSet(exIdx) {
   const ex = s.items[exIdx];
   if (!ex || ex.kind !== 'ex') return;
   const last = ex.sets[ex.sets.length - 1];
-  ex.sets.push({ w: last ? last.w : '', r: last ? last.r : '', done: false });
+  ex.sets.push({ w: last ? last.w : '', r: last ? last.r : '' });
   saveSession(s);
+  if (last && isSetFilled(last)) startRest(s.restSec);
   renderSession();
 }
 
@@ -235,36 +240,6 @@ export function sessionUpdateSet(exIdx, sIdx, field, value) {
   ex.sets[sIdx][field] = value;
   saveSession(s);
   // No re-render; input is already live
-}
-
-export function sessionToggleSet(exIdx, sIdx) {
-  const s = loadSession();
-  if (!s) return;
-  const ex = s.items[exIdx];
-  if (!ex || ex.kind !== 'ex') return;
-  const set = ex.sets[sIdx];
-  if (!set) return;
-  set.done = !set.done;
-  if (set.done) {
-    set.doneAt = Date.now();
-    startRest(s.restSec);
-    // If this was the last set of this exercise, advance focus
-    if (ex.sets.every(x => x.done)) {
-      const next = s.items.findIndex((it, i) => i > exIdx && it.kind === 'ex' && !(it.sets.length > 0 && it.sets.every(x => x.done)));
-      if (next !== -1) s.currentIdx = next;
-    }
-  }
-  saveSession(s);
-  renderSession();
-}
-
-export function sessionSkipExercise(exIdx) {
-  const s = loadSession();
-  if (!s) return;
-  const next = s.items.findIndex((it, i) => i > exIdx && it.kind === 'ex');
-  s.currentIdx = next === -1 ? exIdx : next;
-  saveSession(s);
-  renderSession();
 }
 
 // ── Rest timer ──
@@ -359,7 +334,7 @@ export function sessionFinish() {
   const s = loadSession();
   if (!s) return;
 
-  const completedSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(x => x.done).length : sum, 0);
+  const completedSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
   if (completedSets === 0) {
     openConfirmDialog({
       title: 'Discard Workout?',
@@ -384,10 +359,10 @@ function commitSession(s) {
 
   s.items.forEach(it => {
     if (it.kind !== 'ex') return;
-    const doneSets = it.sets.filter(x => x.done && (x.w || x.r));
+    const doneSets = it.sets.filter(isSetFilled);
     if (!doneSets.length) return;
 
-    const sets = doneSets.map(x => ({ w: String(x.w || '0'), r: String(x.r || '0') }));
+    const sets = doneSets.map(x => ({ w: String(x.w), r: String(x.r) }));
     const hist = getExHist(it.name);
     hist[dateStr] = { sets };
     saveExHist(it.name, hist);
@@ -417,7 +392,7 @@ function exitSession() {
 }
 
 function showSessionToast(s, newPRs) {
-  const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(x => x.done).length : sum, 0);
+  const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
   const minutes = Math.max(1, Math.floor((Date.now() - s.startedAt) / 60000));
   const toast = document.createElement('div');
   toast.className = 'session-finish-toast';
@@ -435,7 +410,7 @@ function showSessionToast(s, newPRs) {
 export function sessionHandleBack() {
   const s = loadSession();
   if (!s) return false;
-  const anyDone = s.items.some(it => it.kind === 'ex' && it.sets.some(x => x.done));
+  const anyDone = s.items.some(it => it.kind === 'ex' && it.sets.some(isSetFilled));
   if (!anyDone) {
     exitSession();
     return true;

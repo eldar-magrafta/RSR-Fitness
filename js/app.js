@@ -18,7 +18,7 @@ import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openD
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle, syncWaterSettingsDisplay } from './water.js';
-import { sessionFocus, sessionAddSet, sessionDeleteSet, sessionUpdateSet, sessionToggleSet, sessionSkipExercise, sessionRestAdjust, sessionRestSkip, sessionFinish, sessionHandleBack } from './session.js';
+import { sessionFocus, sessionAddSet, sessionDeleteSet, sessionUpdateSet, sessionRestAdjust, sessionRestSkip, sessionFinish, sessionHandleBack } from './session.js';
 import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -216,8 +216,6 @@ window.sessionFocus = sessionFocus;
 window.sessionAddSet = sessionAddSet;
 window.sessionDeleteSet = sessionDeleteSet;
 window.sessionUpdateSet = sessionUpdateSet;
-window.sessionToggleSet = sessionToggleSet;
-window.sessionSkipExercise = sessionSkipExercise;
 window.sessionRestAdjust = sessionRestAdjust;
 window.sessionRestSkip = sessionRestSkip;
 window.sessionFinish = sessionFinish;
