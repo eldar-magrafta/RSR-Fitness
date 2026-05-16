@@ -120,6 +120,12 @@ export function renderSession() {
     const stateCls = isCurrent ? 'current' : hasLogged ? 'done' : 'upcoming';
     const found = findExercise(it.name);
     const groupName = found ? found.groupName : '';
+    const thumbSrc = found ? (found.ex.thumb || found.ex.gif || '') : '';
+    const isCloudThumb = thumbSrc.startsWith('cloud:');
+    const showThumb = thumbSrc && !isCloudThumb;
+    const thumbHtml = showThumb
+      ? `<img class="session-card-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />`
+      : (isCloudThumb ? '<div class="session-card-thumb-ph"></div>' : '');
 
     if (!isCurrent) {
       const filled = it.sets.filter(isSetFilled);
@@ -130,6 +136,7 @@ export function renderSession() {
         <div class="session-card ${stateCls}" data-idx="${idx}">
           <div class="session-card-row" onclick="sessionFocus(${idx})">
             <span class="session-status-dot"></span>
+            ${thumbHtml}
             <div class="session-card-info">
               <div class="session-card-name">${escHtml(it.name)}</div>
               <div class="session-card-sub">${escHtml(summary)}</div>
@@ -145,6 +152,7 @@ export function renderSession() {
       <div class="session-card current" data-idx="${idx}">
         <div class="session-card-head">
           <span class="session-status-dot"></span>
+          ${thumbHtml}
           <div class="session-card-info">
             <div class="session-card-name">${escHtml(it.name)}</div>
             <div class="session-card-sub">${escHtml(groupName || '')}</div>
