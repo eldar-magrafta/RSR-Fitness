@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v78';
+const CACHE = 'trainer-v79';
 
 const CORE = [
   './',
@@ -206,9 +206,27 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Network first — always get fresh code, fall back to cache if offline
+// Cache-first for static assets (images, fonts) — they never change without
+// a deploy, so serving from cache eliminates the network round-trip that
+// was causing thumbnails to paint a few seconds late.
+// Network-first for everything else so code/data stays fresh.
+const ASSET_RE = /\.(?:gif|png|jpe?g|webp|svg|woff2?|ttf|otf)$/i;
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
+
+  const url = new URL(e.request.url);
+  if (ASSET_RE.test(url.pathname)) {
+    e.respondWith(
+      caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return res;
+      }))
+    );
+    return;
+  }
+
   e.respondWith(
     fetch(e.request)
       .then(res => {
