@@ -18,6 +18,8 @@ export function findExercise(name) {
   return null;
 }
 
+let _homeBuiltSig = '';
+
 /** Build the muscle-group grid on the home/exercises tab */
 export function buildHome() {
   _lastGlobalQuery = '';
@@ -29,6 +31,11 @@ export function buildHome() {
   const grid = document.getElementById('muscleGrid');
   const entries = Object.entries(exerciseData);
   const customs = getCustomExercises();
+
+  const sig = entries.map(([k, g]) => `${k}:${g.exercises.length}:${customs.filter(c => c.group === k).length}`).join('|');
+  if (sig === _homeBuiltSig && grid.children.length) return;
+  _homeBuiltSig = sig;
+
   grid.innerHTML = '';
   entries.forEach(([key, group]) => {
     const customCount = customs.filter(c => c.group === key).length;
@@ -37,8 +44,8 @@ export function buildHome() {
     card.className = 'muscle-card';
     card.innerHTML = `
       <div class="muscle-icon-wrap">
-        <img src="assets/muscles/baseImage_transparent.png" alt="" loading="lazy">
-        <img class="m-overlay" src="assets/muscles/${group.img}.png" alt="${group.name}" loading="lazy">
+        <img src="assets/muscles/baseImage_transparent.png" alt="" decoding="async">
+        <img class="m-overlay" src="assets/muscles/${group.img}.png" alt="${group.name}" decoding="async">
       </div>
       <div class="name">${group.name}</div>
       <div class="count">${totalCount} exercises</div>`;
