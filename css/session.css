@@ -108,11 +108,19 @@
 .session-set-input {
   flex: 1; min-width: 0;
   background: transparent; border: none; outline: none;
+  border-bottom: 1.5px solid var(--border-med);
   color: var(--text); font-size: 0.95rem; font-weight: 600;
   font-family: inherit; text-align: center;
-  padding: 6px 4px; border-radius: 8px;
+  padding: 6px 4px; border-radius: 0;
+  transition: border-color 0.15s, background 0.15s;
 }
-.session-set-input:focus { background: rgba(0,229,255,0.06); }
+.session-set-input:focus {
+  background: rgba(0,229,255,0.06);
+  border-bottom-color: var(--accent);
+}
+.session-set-row.done .session-set-input {
+  border-bottom-color: rgba(0,229,255,0.4);
+}
 .session-set-x { color: var(--text-secondary); font-size: 0.85rem; }
 .session-set-del {
   width: 26px; height: 26px; border-radius: 50%;
