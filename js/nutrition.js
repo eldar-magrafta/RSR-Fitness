@@ -13,11 +13,21 @@ function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 function _isCloudMarker(img) { return typeof img === 'string' && img.startsWith('cloud:'); }
 function _cloudDocId(img) { return img.slice(6); }
 
+// Session-scoped in-memory cache so list re-renders don't re-hit IndexedDB.
+const _cloudImgCache = new Map();
+
+function _cloudImgTag(cls, collection, docId) {
+  const key = `${collection}/${docId}`;
+  const cached = _cloudImgCache.get(key);
+  if (cached) return `<img class="${cls}" src="${cached}" alt="" decoding="async">`;
+  return `<img class="${cls}" data-cloud-src="${key}" src="" alt="" decoding="async">`;
+}
+
 function _mealCardImg(m) {
   if (m.image && _isCloudMarker(m.image)) {
-    return `<img class="nl-meal-card-img" data-cloud-src="meal-photos/${_cloudDocId(m.image)}" src="" alt="" loading="lazy" decoding="async">`;
+    return _cloudImgTag('nl-meal-card-img', 'meal-photos', _cloudDocId(m.image));
   } else if (m.image) {
-    return `<img class="nl-meal-card-img" src="${m.image}" alt="" loading="lazy" decoding="async">`;
+    return `<img class="nl-meal-card-img" src="${m.image}" alt="" decoding="async">`;
   }
   return `<div class="nl-meal-card-placeholder"></div>`;
 }
@@ -29,7 +39,10 @@ function _resolveCloudImages(container) {
     const col = key.slice(0, sep);
     const docId = key.slice(sep + 1);
     loadPhoto(col, docId).then(base64 => {
-      if (base64) el.src = base64;
+      if (base64) {
+        _cloudImgCache.set(key, base64);
+        el.src = base64;
+      }
     });
   });
 }
@@ -207,7 +220,7 @@ function renderNLMealDetail() {
       const m = ing.grams / 100;
       const imgHtml = ing.img
         ? (_isCloudMarker(ing.img)
-          ? `<img class="nl-ing-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="" loading="lazy" decoding="async">`
+          ? _cloudImgTag('nl-ing-img', 'custom-ing-photos', _cloudDocId(ing.img))
           : `<img class="nl-ing-img" src="${ing.img}" loading="lazy" decoding="async">`)
         : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
       return `<div class="nl-ing-card">
@@ -294,7 +307,7 @@ export function renderNLPicker() {
       const safeName = escHtml(ing.name);
       const imgHtml = ing.img
         ? (_isCloudMarker(ing.img)
-          ? `<img class="nl-pick-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="" loading="lazy" decoding="async">`
+          ? _cloudImgTag('nl-pick-img', 'custom-ing-photos', _cloudDocId(ing.img))
           : `<img class="nl-pick-img" src="${ing.img}" loading="lazy" decoding="async">`)
         : `<div class="nl-pick-initial">${escHtml(ing.name[0])}</div>`;
       const isCustom = cat === 'custom';
@@ -322,7 +335,7 @@ export function nlPickIngredient(name) {
   state.nlPickerGrams = 100;
   const imgHtml = ing.img
     ? (_isCloudMarker(ing.img)
-      ? `<img class="nl-amount-img" data-cloud-src="custom-ing-photos/${_cloudDocId(ing.img)}" src="" alt="" decoding="async">`
+      ? _cloudImgTag('nl-amount-img', 'custom-ing-photos', _cloudDocId(ing.img))
       : `<img class="nl-amount-img" src="${ing.img}" decoding="async">`)
     : `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div>`;
   const header = document.getElementById('nlAmountHeader');
@@ -520,6 +533,7 @@ export async function nlUploadMealPhoto(input) {
       try {
         await savePhoto('meal-photos', docId, b64);
         meal.image = 'cloud:' + docId;
+        _cloudImgCache.set(`meal-photos/${docId}`, b64);
       } catch {
         meal.image = b64;
       }
@@ -719,6 +733,7 @@ export async function nlSaveCustom() {
     try {
       await savePhoto('custom-ing-photos', docId, state.nlCustomPhotoBase64);
       ingData.img = 'cloud:' + docId;
+      _cloudImgCache.set(`custom-ing-photos/${docId}`, state.nlCustomPhotoBase64);
     } catch {
       ingData.img = state.nlCustomPhotoBase64;
     }
@@ -1391,6 +1406,7 @@ export async function nlSaveBarcodeAsCustom() {
     try {
       await savePhoto('custom-ing-photos', docId, state._barcodePhotoBase64);
       ingData.img = 'cloud:' + docId;
+      _cloudImgCache.set(`custom-ing-photos/${docId}`, state._barcodePhotoBase64);
     } catch {
       ingData.img = state._barcodePhotoBase64;
     }
