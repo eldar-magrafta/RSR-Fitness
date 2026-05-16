@@ -46,30 +46,6 @@
 }
 .water-undo-btn:active { border-color:var(--accent); color:var(--accent); }
 
-.water-target-section {
-  background:var(--card); border:1px solid var(--border-med);
-  border-radius:18px; padding:12px 18px; width:100%;
-}
-.water-section-label {
-  font-size:0.82rem; font-weight:700; color:var(--text-secondary);
-  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;
-  text-align:center;
-}
-.water-target-row {
-  display:flex; align-items:center; justify-content:center; gap:16px;
-}
-.water-target-btn {
-  width:40px; height:40px; border-radius:12px;
-  background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
-  color:var(--accent); font-size:1.3rem; font-weight:700;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  font-family:inherit; transition:all 0.15s;
-}
-.water-target-btn:active { background:rgba(0,229,255,0.18); }
-.water-target-display {
-  font-size:1.3rem; font-weight:800; color:var(--text); min-width:80px; text-align:center;
-}
-
 .water-quick-btn-bottle {
   background:rgba(0,229,255,0.14); border-color:rgba(0,229,255,0.35);
 }
@@ -77,9 +53,19 @@
   margin-right:3px;
 }
 
-.water-bottle-section {
-  background:var(--card); border:1px solid var(--border-med);
-  border-radius:18px; padding:12px 18px; width:100%; margin-top:12px;
+.settings-stepper {
+  display:flex; align-items:center; gap:14px; width:100%; justify-content:center;
+}
+.settings-stepper-btn {
+  width:36px; height:36px; border-radius:10px;
+  background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
+  color:var(--accent); font-size:1.2rem; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-family:inherit; transition:all 0.15s;
+}
+.settings-stepper-btn:active { background:rgba(0,229,255,0.18); }
+.settings-stepper-val {
+  font-size:1.1rem; font-weight:800; color:var(--text); min-width:80px; text-align:center;
 }
 
 /* ── Water Celebration Animation ── */

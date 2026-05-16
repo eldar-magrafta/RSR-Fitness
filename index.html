@@ -122,6 +122,22 @@
                     <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
                 </div>
             </div>
+            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Daily Water Target</span>
+                <div class="settings-stepper">
+                    <button class="settings-stepper-btn" onclick="waterAdjustTarget(-0.25)">−</button>
+                    <div class="settings-stepper-val" id="settingsWaterTarget">2.50L</div>
+                    <button class="settings-stepper-btn" onclick="waterAdjustTarget(0.25)">+</button>
+                </div>
+            </div>
+            <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Bottle Size</span>
+                <div class="settings-stepper">
+                    <button class="settings-stepper-btn" onclick="waterAdjustBottle(-50)">−</button>
+                    <div class="settings-stepper-val" id="settingsWaterBottle">600ml</div>
+                    <button class="settings-stepper-btn" onclick="waterAdjustBottle(50)">+</button>
+                </div>
+            </div>
         </div>
     </div>
 

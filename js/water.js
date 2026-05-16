@@ -7,6 +7,7 @@ const STORAGE_KEY_TARGET = 'trainer_water_target';
 const STORAGE_KEY_INTAKE = 'trainer_water_intake';
 const STORAGE_KEY_DATE = 'trainer_water_date';
 const STORAGE_KEY_BOTTLE = 'trainer_water_bottle';
+const STORAGE_KEY_HISTORY = 'trainer_water_history';
 
 function getTarget() {
   return parseFloat(localStorage.getItem(STORAGE_KEY_TARGET)) || 2.5;
@@ -33,6 +34,7 @@ function getIntake() {
   if (savedDate !== getTodayKey()) {
     localStorage.setItem(STORAGE_KEY_DATE, getTodayKey());
     localStorage.setItem(STORAGE_KEY_INTAKE, '0');
+    localStorage.removeItem(STORAGE_KEY_HISTORY);
     return 0;
   }
   return parseFloat(localStorage.getItem(STORAGE_KEY_INTAKE)) || 0;
@@ -41,6 +43,18 @@ function getIntake() {
 function saveIntake(liters) {
   localStorage.setItem(STORAGE_KEY_DATE, getTodayKey());
   localStorage.setItem(STORAGE_KEY_INTAKE, Math.max(0, liters).toString());
+}
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(stack) {
+  localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(stack));
 }
 
 export function openWaterView() {
@@ -81,34 +95,18 @@ export function renderWaterView() {
       <button class="water-quick-btn water-quick-btn-bottle" onclick="waterAddBottle()"><i class="bi bi-cup-straw"></i> ${bottleLabel}</button>
     </div>
     <div class="water-undo-row">
-      <button class="water-undo-btn" onclick="waterUndo()"><i class="bi bi-arrow-counterclockwise"></i> Undo Last</button>
+      <button class="water-undo-btn" onclick="waterUndo()" ${getHistory().length === 0 ? 'disabled' : ''}><i class="bi bi-arrow-counterclockwise"></i> Undo${getHistory().length > 1 ? ` (${getHistory().length})` : ''}</button>
       <button class="water-undo-btn" onclick="waterReset()"><i class="bi bi-x-circle"></i> Reset</button>
-    </div>
-    <div class="water-target-section">
-      <div class="water-section-label">Daily Target</div>
-      <div class="water-target-row">
-        <button class="water-target-btn" onclick="waterAdjustTarget(-0.25)">−</button>
-        <div class="water-target-display" id="waterTargetDisplay">${target.toFixed(2)}L</div>
-        <button class="water-target-btn" onclick="waterAdjustTarget(0.25)">+</button>
-      </div>
-    </div>
-    <div class="water-bottle-section">
-      <div class="water-section-label">My Bottle Size</div>
-      <div class="water-target-row">
-        <button class="water-target-btn" onclick="waterAdjustBottle(-50)">−</button>
-        <div class="water-target-display" id="waterBottleDisplay">${bottleMl}ml</div>
-        <button class="water-target-btn" onclick="waterAdjustBottle(50)">+</button>
-      </div>
     </div>`;
 }
-
-let _lastAdd = 0;
 
 export function waterAdd(amount) {
   const prevIntake = getIntake();
   const target = getTarget();
   const intake = prevIntake + amount;
-  _lastAdd = amount;
+  const history = getHistory();
+  history.push(amount);
+  saveHistory(history);
   saveIntake(intake);
   renderWaterView();
   if (prevIntake < target && intake >= target) {
@@ -117,16 +115,17 @@ export function waterAdd(amount) {
 }
 
 export function waterUndo() {
-  if (_lastAdd <= 0) return;
-  const intake = getIntake() - _lastAdd;
-  saveIntake(intake);
-  _lastAdd = 0;
+  const history = getHistory();
+  if (history.length === 0) return;
+  const last = history.pop();
+  saveHistory(history);
+  saveIntake(getIntake() - last);
   renderWaterView();
 }
 
 export function waterReset() {
   saveIntake(0);
-  _lastAdd = 0;
+  saveHistory([]);
   renderWaterView();
 }
 
@@ -149,7 +148,15 @@ function showWaterCelebration() {
 export function waterAdjustTarget(delta) {
   const target = Math.max(0.5, getTarget() + delta);
   setTarget(target);
-  renderWaterView();
+  syncWaterSettingsDisplay();
+  if (state.navContext === 'water') renderWaterView();
+}
+
+export function syncWaterSettingsDisplay() {
+  const t = document.getElementById('settingsWaterTarget');
+  if (t) t.textContent = `${getTarget().toFixed(2)}L`;
+  const b = document.getElementById('settingsWaterBottle');
+  if (b) b.textContent = `${getBottleSize()}ml`;
 }
 
 export function waterAddBottle() {
@@ -161,5 +168,6 @@ export function waterAdjustBottle(delta) {
   const current = getBottleSize();
   const next = Math.max(100, Math.min(2000, current + delta));
   setBottleSize(next);
-  renderWaterView();
+  syncWaterSettingsDisplay();
+  if (state.navContext === 'water') renderWaterView();
 }

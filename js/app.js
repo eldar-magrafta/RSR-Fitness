@@ -17,7 +17,7 @@ import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
-import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
+import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle, syncWaterSettingsDisplay } from './water.js';
 import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -366,6 +366,7 @@ function hideClearDataMenu() {
 
 function showSettingsMenu() {
   document.getElementById('settingsPanel').classList.add('open');
+  syncWaterSettingsDisplay();
 }
 
 function hideSettingsMenu() {
