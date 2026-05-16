@@ -8,6 +8,7 @@ import { showView, setHeader } from './navigation.js';
 import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
+import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
 
 // ── Plans List ──
 
@@ -147,6 +148,41 @@ export function showPlanDetail(planId) {
         <p>No exercises yet.<br>Tap below to add some.</p>
       </div>`;
   } else {
+    const exCount = plan.exercises.filter(i => typeof i === 'string').length;
+    if (exCount > 0) {
+      const isResume = hasActiveSession() && getActiveSessionPlanId() === planId;
+      if (isResume) {
+        const banner = document.createElement('div');
+        banner.className = 'plan-resume-banner';
+        banner.innerHTML = `
+          <span class="plan-resume-icon">⏱️</span>
+          <div class="plan-resume-text">
+            <div class="plan-resume-title">Resume workout</div>
+            <div class="plan-resume-sub">You have a session in progress</div>
+          </div>
+          <span class="session-card-arrow">›</span>`;
+        banner.onclick = () => resumeSession();
+        list.appendChild(banner);
+      } else {
+        const startBtn = document.createElement('button');
+        startBtn.className = 'plan-start-btn';
+        startBtn.innerHTML = '<i class="bi bi-play-fill"></i> Start Workout';
+        startBtn.onclick = () => {
+          if (hasActiveSession()) {
+            openConfirmDialog({
+              title: 'Discard Other Session?',
+              message: 'Another workout is in progress. Start fresh?',
+              confirmLabel: 'Start New',
+              onConfirm: () => { discardSession(); startSession(planId); },
+            });
+          } else {
+            startSession(planId);
+          }
+        };
+        list.appendChild(startBtn);
+      }
+    }
+
     plan.exercises.forEach((item, idx) => {
       // Section title
       if (item && typeof item === 'object' && item.title !== undefined) {
