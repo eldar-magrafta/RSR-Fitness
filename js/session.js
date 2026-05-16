@@ -16,6 +16,7 @@ const DEFAULT_REST_SEC = 150;
 
 let _restInterval = null;
 let _restEndAt = 0;
+let _restPausedMs = 0;
 let _wakeLock = null;
 
 // ── Persistence ──
@@ -235,6 +236,7 @@ export function sessionUpdateSet(exIdx, sIdx, field, value) {
 function startRest(sec) {
   stopRest();
   _restEndAt = Date.now() + sec * 1000;
+  _restPausedMs = 0;
   ensureRestChip();
   _restInterval = setInterval(updateRestChip, 250);
   updateRestChip();
@@ -242,6 +244,7 @@ function startRest(sec) {
 
 function stopRest() {
   if (_restInterval) { clearInterval(_restInterval); _restInterval = null; }
+  _restPausedMs = 0;
   const chip = document.getElementById('sessionRestChip');
   if (chip) chip.remove();
 }
@@ -258,12 +261,14 @@ function ensureRestChip() {
       <div class="session-rest-label">until next set</div>
     </div>
     <button class="session-rest-adjust" onclick="sessionRestAdjust(15)">+15</button>
+    <button class="session-rest-pause" id="sessionRestPause" onclick="sessionRestTogglePause()" title="Pause"><i class="bi bi-pause-fill"></i></button>
     <button class="session-rest-close" onclick="sessionRestSkip()" title="Skip rest"><i class="bi bi-x-lg"></i></button>`;
   document.getElementById('activeSessionView').appendChild(chip);
 }
 
 function updateRestChip() {
-  const remaining = Math.max(0, Math.ceil((_restEndAt - Date.now()) / 1000));
+  const remainingMs = _restPausedMs || Math.max(0, _restEndAt - Date.now());
+  const remaining = Math.ceil(remainingMs / 1000);
   const el = document.getElementById('sessionRestTime');
   if (!el) return;
   const m = Math.floor(remaining / 60);
@@ -280,9 +285,33 @@ function updateRestChip() {
 }
 
 export function sessionRestAdjust(delta) {
-  _restEndAt += delta * 1000;
-  if (_restEndAt < Date.now()) _restEndAt = Date.now();
-  if (!_restInterval) _restInterval = setInterval(updateRestChip, 250);
+  if (_restPausedMs) {
+    _restPausedMs = Math.max(0, _restPausedMs + delta * 1000);
+  } else {
+    _restEndAt += delta * 1000;
+    if (_restEndAt < Date.now()) _restEndAt = Date.now();
+    if (!_restInterval) _restInterval = setInterval(updateRestChip, 250);
+  }
+  updateRestChip();
+}
+
+export function sessionRestTogglePause() {
+  const btn = document.getElementById('sessionRestPause');
+  const chip = document.getElementById('sessionRestChip');
+  if (_restPausedMs) {
+    // Resume
+    _restEndAt = Date.now() + _restPausedMs;
+    _restPausedMs = 0;
+    if (!_restInterval) _restInterval = setInterval(updateRestChip, 250);
+    if (btn) { btn.innerHTML = '<i class="bi bi-pause-fill"></i>'; btn.title = 'Pause'; }
+    if (chip) chip.classList.remove('paused');
+  } else {
+    // Pause
+    _restPausedMs = Math.max(0, _restEndAt - Date.now());
+    if (_restInterval) { clearInterval(_restInterval); _restInterval = null; }
+    if (btn) { btn.innerHTML = '<i class="bi bi-play-fill"></i>'; btn.title = 'Resume'; }
+    if (chip) chip.classList.add('paused');
+  }
   updateRestChip();
 }
 

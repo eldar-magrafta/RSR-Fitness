@@ -196,9 +196,12 @@
   color: rgba(255,255,255,0.55);
   text-transform: uppercase; letter-spacing: 0.5px;
   margin-top: 3px;
+  white-space: nowrap;
 }
 .session-rest-chip.done .session-rest-time { color: var(--green, #00e87b); }
 .session-rest-chip.done .session-rest-label { color: var(--green, #00e87b); opacity: 0.8; }
+.session-rest-chip.paused { border-color: rgba(255,255,255,0.4); }
+.session-rest-chip.paused .session-rest-time { color: rgba(255,255,255,0.7); }
 .session-rest-adjust {
   background: rgba(255,255,255,0.08); border: none;
   color: var(--accent); font-size: 0.78rem; font-weight: 700;
@@ -206,6 +209,14 @@
   cursor: pointer; font-family: inherit;
 }
 .session-rest-adjust:active { background: rgba(255,255,255,0.18); }
+.session-rest-pause {
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.75); cursor: pointer;
+  padding: 4px 6px; font-size: 1rem;
+  display: flex; align-items: center;
+}
+.session-rest-pause:active { color: var(--accent); }
+.session-rest-chip.paused .session-rest-pause { color: var(--accent); }
 .session-rest-close {
   background: transparent; border: none;
   color: rgba(255,255,255,0.6); cursor: pointer;
