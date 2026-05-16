@@ -126,11 +126,18 @@ export function showExercises(key) {
   state.navContext = 'exercise-list';
 }
 
+let _groupListSig = '';
+
 function _renderGroupList(group, filter) {
   const list = document.getElementById('exerciseList');
-  list.innerHTML = '';
   const q = (filter || '').toLowerCase();
   const customs = getCustomExercises().filter(c => c.group === state.currentMuscleKey);
+
+  const sig = `${state.currentMuscleKey}|${q}|${customs.map(c => c.name + (c.thumb || '')).join(',')}|${group.exercises.length}`;
+  if (sig === _groupListSig && list.children.length) return;
+  _groupListSig = sig;
+
+  list.innerHTML = '';
   const allExercises = [...group.exercises, ...customs];
   allExercises.forEach(ex => {
     if (q && !ex.name.toLowerCase().includes(q)) return;
@@ -141,7 +148,7 @@ function _renderGroupList(group, filter) {
     const isCloud = thumbSrc.startsWith('cloud:');
     const showThumb = thumbSrc && !isCloud;
     item.innerHTML = `
-      ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+      ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
       <div class="ex-item-info">
         <span class="ex-name">${ex.name}</span>
         ${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}
