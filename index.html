@@ -79,10 +79,6 @@
             <span class="burger-item-icon">⚙️</span>
             <span class="burger-item-label">Settings</span>
         </div>
-        <div class="burger-item" onclick="showClearDataMenu()">
-            <span class="burger-item-icon">🗑️</span>
-            <span class="burger-item-label">Clear Data</span>
-        </div>
         <div class="burger-divider"></div>
         <div class="burger-meta" id="burgerUserEmail"></div>
         <div class="burger-item" onclick="handleSignOut()">
@@ -90,26 +86,6 @@
             <span class="burger-item-label">Sign Out</span>
         </div>
         <div class="burger-copyright">© 2026 Eldar Magrafta</div>
-        <div class="burger-sub-panel" id="clearDataPanel">
-            <div class="burger-sub-back" onclick="hideClearDataMenu()">← Back</div>
-            <div class="burger-header">Clear Data</div>
-            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllExerciseData()">
-                <span class="burger-item-icon">🏋️</span>
-                <span class="burger-item-label">Exercise Data</span>
-            </div>
-            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllMealLogs()">
-                <span class="burger-item-icon">🍽️</span>
-                <span class="burger-item-label">Meal Logs</span>
-            </div>
-            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openBWDeleteConfirm()">
-                <span class="burger-item-icon">⚖️</span>
-                <span class="burger-item-label">Weight Data</span>
-            </div>
-            <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openClearAllData()">
-                <span class="burger-item-icon">🗑️</span>
-                <span class="burger-item-label">All Data</span>
-            </div>
-        </div>
         <div class="burger-sub-panel" id="settingsPanel">
             <div class="burger-sub-back" onclick="hideSettingsMenu()">← Back</div>
             <div class="burger-header">Settings</div>
@@ -122,6 +98,31 @@
                 <span class="burger-item-icon">💧</span>
                 <span class="burger-item-label">Water</span>
                 <span style="opacity:0.4;">›</span>
+            </div>
+            <div class="burger-item" onclick="showClearDataMenu()">
+                <span class="burger-item-icon">🗑️</span>
+                <span class="burger-item-label">Clear Data</span>
+                <span style="opacity:0.4;">›</span>
+            </div>
+            <div class="burger-sub-panel" id="clearDataPanel">
+                <div class="burger-sub-back" onclick="hideClearDataMenu()">← Back</div>
+                <div class="burger-header">Clear Data</div>
+                <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllExerciseData()">
+                    <span class="burger-item-icon">🏋️</span>
+                    <span class="burger-item-label">Exercise Data</span>
+                </div>
+                <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openDeleteAllMealLogs()">
+                    <span class="burger-item-icon">🍽️</span>
+                    <span class="burger-item-label">Meal Logs</span>
+                </div>
+                <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openBWDeleteConfirm()">
+                    <span class="burger-item-icon">⚖️</span>
+                    <span class="burger-item-label">Weight Data</span>
+                </div>
+                <div class="burger-item burger-item-danger" onclick="closeBurgerMenu();hideClearDataMenu();openClearAllData()">
+                    <span class="burger-item-icon">🗑️</span>
+                    <span class="burger-item-label">All Data</span>
+                </div>
             </div>
             <div class="burger-sub-panel" id="themeSettingsPanel">
                 <div class="burger-sub-back" onclick="hideThemeSettingsMenu()">← Back</div>
