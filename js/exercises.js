@@ -84,7 +84,7 @@ export const globalExSearchHandler = debounce(function() {
         const isCloudThumb = thumbSrc.startsWith('cloud:');
         const showThumb = thumbSrc && !isCloudThumb;
         item.innerHTML = `
-          ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+          ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
           <div class="ex-item-info"><span class="ex-name">${ex.name}</span>${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}<span class="ex-search-group">${group.name}</span></div>
           <span class="arrow">\u203a</span>`;
         if (isCloudThumb) {
@@ -148,7 +148,7 @@ function _renderGroupList(group, filter) {
     const isCloud = thumbSrc.startsWith('cloud:');
     const showThumb = thumbSrc && !isCloud;
     item.innerHTML = `
-      ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
+      ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
       <div class="ex-item-info">
         <span class="ex-name">${ex.name}</span>
         ${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}

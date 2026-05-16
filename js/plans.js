@@ -233,7 +233,7 @@ export function showPlanDetail(planId) {
       const showThumb = thumbSrc && !isCloud;
       el.innerHTML = `
         <span class="drag-handle">\u2807</span>
-        ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" />` : (isCloud ? '<div class="plan-ex-thumb-ph"></div>' : '')}
+        ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : (isCloud ? '<div class="plan-ex-thumb-ph"></div>' : '')}
         <div class="plan-ex-info">
           <div class="plan-ex-name">${exName}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>

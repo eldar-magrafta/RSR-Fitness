@@ -406,7 +406,7 @@ function bwRenderPhotoArea() {
   photos.forEach((p, i) => {
     if (p && p !== 'cloud') {
       html += `<div class="bw-thumb-wrap">
-        <img class="bw-thumb-img" src="${p}" onclick="bwViewPhoto(${i})" />
+        <img class="bw-thumb-img" src="${p}" onclick="bwViewPhoto(${i})" loading="lazy" decoding="async" />
         <button class="bw-thumb-remove" onclick="bwRemovePhoto(${i})"><i class="bi bi-trash3"></i></button>
       </div>`;
     } else if (p === 'cloud') {
