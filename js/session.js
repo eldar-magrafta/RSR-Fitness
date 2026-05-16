@@ -201,10 +201,8 @@ export function sessionAddSet(exIdx) {
   if (!s) return;
   const ex = s.items[exIdx];
   if (!ex || ex.kind !== 'ex') return;
-  const last = ex.sets[ex.sets.length - 1];
-  ex.sets.push({ w: last ? last.w : '', r: last ? last.r : '' });
+  ex.sets.push({ w: '', r: '' });
   saveSession(s);
-  if (last && isSetFilled(last)) startRest(s.restSec);
   renderSession();
 }
 
@@ -223,9 +221,12 @@ export function sessionUpdateSet(exIdx, sIdx, field, value) {
   if (!s) return;
   const ex = s.items[exIdx];
   if (!ex || ex.kind !== 'ex') return;
-  if (!ex.sets[sIdx]) return;
-  ex.sets[sIdx][field] = value;
+  const set = ex.sets[sIdx];
+  if (!set) return;
+  const wasFilled = isSetFilled(set);
+  set[field] = value;
   saveSession(s);
+  if (!wasFilled && isSetFilled(set)) startRest(s.restSec);
   // No re-render; input is already live
 }
 
