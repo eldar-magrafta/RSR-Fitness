@@ -4,7 +4,7 @@
 // existing exercise-history pipeline.
 
 import { state } from './state.js';
-import { getPlan, getExHist, saveExHist } from './store.js';
+import { getPlan, saveExHist } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { escHtml, openConfirmDialog } from './utils.js';
@@ -12,7 +12,7 @@ import { checkForNewPR, showNewPRToast } from './prs.js';
 import { renderPlans, showPlanDetail } from './plans.js';
 
 const STORAGE_KEY = 'trainer_active_session';
-const DEFAULT_REST_SEC = 90;
+const DEFAULT_REST_SEC = 150;
 
 let _restInterval = null;
 let _restEndAt = 0;
@@ -119,13 +119,12 @@ export function renderSession() {
     const stateCls = isCurrent ? 'current' : hasLogged ? 'done' : 'upcoming';
     const found = findExercise(it.name);
     const groupName = found ? found.groupName : '';
-    const last = formatLastTime(it.name);
 
     if (!isCurrent) {
       const filled = it.sets.filter(isSetFilled);
       const summary = filled.length
         ? filled.map(s2 => `${s2.w}×${s2.r}`).join(' · ')
-        : (last ? `Last: ${last}` : groupName);
+        : groupName;
       html += `
         <div class="session-card ${stateCls}" data-idx="${idx}">
           <div class="session-card-row" onclick="sessionFocus(${idx})">
@@ -147,7 +146,7 @@ export function renderSession() {
           <span class="session-status-dot"></span>
           <div class="session-card-info">
             <div class="session-card-name">${escHtml(it.name)}</div>
-            <div class="session-card-sub">${escHtml(last ? 'Last: ' + last : groupName || '')}</div>
+            <div class="session-card-sub">${escHtml(groupName || '')}</div>
           </div>
         </div>
         <div class="session-sets" id="sessionSets_${idx}">
@@ -184,18 +183,6 @@ function isSetFilled(set) {
   const w = String(set.w ?? '').trim();
   const r = String(set.r ?? '').trim();
   return w !== '' && r !== '' && parseFloat(w) > 0 && parseInt(r) > 0;
-}
-
-function formatLastTime(exName) {
-  const hist = getExHist(exName);
-  const dates = Object.keys(hist).sort().reverse();
-  if (!dates.length) return '';
-  const last = hist[dates[0]];
-  const sets = last.sets || (last.w ? [{ w: last.w, r: last.r }] : []);
-  if (!sets.length) return '';
-  const days = Math.floor((Date.now() - new Date(dates[0] + 'T00:00:00').getTime()) / 86400000);
-  const ago = days === 0 ? 'today' : days === 1 ? '1d ago' : `${days}d ago`;
-  return `${sets.map(s => `${s.w}×${s.r}`).join(', ')} (${ago})`;
 }
 
 // ── Set actions ──
@@ -265,7 +252,10 @@ function ensureRestChip() {
   chip.className = 'session-rest-chip';
   chip.innerHTML = `
     <button class="session-rest-adjust" onclick="sessionRestAdjust(-15)">−15</button>
-    <div class="session-rest-time" id="sessionRestTime">1:30</div>
+    <div class="session-rest-center">
+      <div class="session-rest-time" id="sessionRestTime">2:30</div>
+      <div class="session-rest-label">until next set</div>
+    </div>
     <button class="session-rest-adjust" onclick="sessionRestAdjust(15)">+15</button>
     <button class="session-rest-close" onclick="sessionRestSkip()" title="Skip rest"><i class="bi bi-x-lg"></i></button>`;
   document.getElementById('activeSessionView').appendChild(chip);

@@ -171,12 +171,23 @@
   border-color: var(--green, #00e87b);
   box-shadow: 0 4px 24px rgba(0,232,123,0.35);
 }
+.session-rest-center {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 70px; line-height: 1;
+}
 .session-rest-time {
   font-variant-numeric: tabular-nums;
   font-size: 1rem; font-weight: 800; color: #fff;
-  min-width: 48px; text-align: center;
+  text-align: center;
+}
+.session-rest-label {
+  font-size: 0.62rem; font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-top: 3px;
 }
 .session-rest-chip.done .session-rest-time { color: var(--green, #00e87b); }
+.session-rest-chip.done .session-rest-label { color: var(--green, #00e87b); opacity: 0.8; }
 .session-rest-adjust {
   background: rgba(255,255,255,0.08); border: none;
   color: var(--accent); font-size: 0.78rem; font-weight: 700;
