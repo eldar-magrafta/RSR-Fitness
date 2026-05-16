@@ -51,7 +51,6 @@ function renderBalanceReport() {
 
   if (totalSets === 0) {
     html += `<div class="mb-empty">
-      <div style="font-size:2.5rem;margin-bottom:12px;">&#x1f4aa;</div>
       <div>No exercises logged in this period.<br>Start training to see your balance report.</div>
     </div>`;
     document.getElementById('muscleBalanceContent').innerHTML = html;
