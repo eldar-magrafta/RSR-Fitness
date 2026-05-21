@@ -243,7 +243,7 @@
 }
 .bw-add-photo-btn-small span { font-size: 0.7rem; font-weight: 700; }
 .bw-add-photo-btn-small:active { background: var(--subtle-bg-hover); border-color: var(--accent); }
-.bw-thumb-wrap { position: relative; }
+.bw-thumb-wrap { position: relative; display: inline-block; }
 .bw-thumb-img {
   width: 80px; height: 80px; object-fit: cover; border-radius: 16px;
   display: block; cursor: pointer; border: 2px solid var(--border-med);
