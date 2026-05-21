@@ -10,6 +10,8 @@ import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
+function ingUnit(ing) { return ing && ing.unit === 'ml' ? 'ml' : 'g'; }
+
 function _isCloudMarker(img) { return typeof img === 'string' && img.startsWith('cloud:'); }
 function _cloudDocId(img) { return img.slice(6); }
 
@@ -227,7 +229,7 @@ function renderNLMealDetail() {
         <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})"><i class="bi bi-trash3"></i></button></div>
         <div class="nl-ing-controls">
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">−</button>
-          <div class="nl-ing-grams">${ing.grams}g</div>
+          <div class="nl-ing-grams">${ing.grams}${ingUnit(ing)}</div>
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},10)">+</button>
         </div>
         <div class="nl-ing-macros">
@@ -317,7 +319,7 @@ export function renderNLPicker() {
         : '';
       html += `<div class="nl-pick-item" onclick="nlPickIngredient(this.dataset.name)" data-name="${safeName}">
         ${imgHtml}
-        <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100g</div></div>
+        <div style="flex:1;"><div class="nl-pick-name">${safeName}</div><div class="nl-pick-sub">P:${ing.p}g C:${ing.c}g F:${ing.f}g | ${ing.cal} cal /100${ingUnit(ing)}</div></div>
         ${delBtn}<span class="arrow">›</span></div>`;
     });
   });
@@ -339,9 +341,13 @@ export function nlPickIngredient(name) {
       : `<img class="nl-amount-img" src="${ing.img}" decoding="async">`)
     : `<div class="nl-amount-initial">${escHtml(ing.name[0])}</div>`;
   const header = document.getElementById('nlAmountHeader');
-  header.innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100g</div></div>`;
+  const unit = ingUnit(ing);
+  header.innerHTML = `${imgHtml}<div><div class="nl-amount-title">${escHtml(ing.name)}</div><div class="nl-amount-sub">${ing.cal} cal per 100${unit}</div></div>`;
   _resolveCloudImages(header);
-  document.getElementById('nlGramDisplay').textContent = '100g';
+  document.getElementById('nlGramDisplay').textContent = '100' + unit;
+  document.querySelectorAll('.nl-quick-btn[data-qty]').forEach(b => {
+    b.textContent = b.dataset.qty + unit;
+  });
   document.getElementById('nlAddToMealBtn').style.display = state.nlBrowseMode ? 'none' : '';
   // Show edit button only for custom ingredients
   const editBtn = document.getElementById('nlAmountEditBtn');
@@ -366,13 +372,13 @@ export function nlCloseAmount() {
 
 export function nlSetGrams(g) {
   state.nlPickerGrams = g;
-  document.getElementById('nlGramDisplay').textContent = g + 'g';
+  document.getElementById('nlGramDisplay').textContent = g + ingUnit(state.nlPickerIng);
   nlUpdateAmountPreview();
 }
 
 export function nlAdjustPickerGrams(delta) {
   state.nlPickerGrams = Math.max(10, state.nlPickerGrams + delta);
-  document.getElementById('nlGramDisplay').textContent = state.nlPickerGrams + 'g';
+  document.getElementById('nlGramDisplay').textContent = state.nlPickerGrams + ingUnit(state.nlPickerIng);
   nlUpdateAmountPreview();
 }
 
@@ -392,6 +398,7 @@ export function nlConfirmAddIng() {
   if (!meal) return;
   const ingData = { name: state.nlPickerIng.name, grams: state.nlPickerGrams, p: state.nlPickerIng.p, c: state.nlPickerIng.c, f: state.nlPickerIng.f, cal: state.nlPickerIng.cal, cat: state.nlPickerIng.cat };
   if (state.nlPickerIng.img) ingData.img = state.nlPickerIng.img;
+  if (state.nlPickerIng.unit) ingData.unit = state.nlPickerIng.unit;
   meal.ingredients.push(ingData);
   nlInvalidateTotalsCache(meal);
   saveNLMeals(meals);
@@ -506,7 +513,7 @@ export function nlCopySummary() {
   if (!meal) return;
   const t = nlCalcTotals(meal);
   let text = meal.name + '\n\n';
-  (meal.ingredients || []).forEach(i => { const m = i.grams / 100; text += `• ${i.name} — ${i.grams}g (P:${(i.p * m).toFixed(1)}g C:${(i.c * m).toFixed(1)}g F:${(i.f * m).toFixed(1)}g ${Math.round(i.cal * m)}cal)\n`; });
+  (meal.ingredients || []).forEach(i => { const m = i.grams / 100; const u = ingUnit(i); text += `• ${i.name} — ${i.grams}${u} (P:${(i.p * m).toFixed(1)}g C:${(i.c * m).toFixed(1)}g F:${(i.f * m).toFixed(1)}g ${Math.round(i.cal * m)}cal)\n`; });
   text += `\nTotals: ${t.cal} cal | P:${t.p}g | C:${t.c}g | F:${t.f}g`;
   if (meal.notes) text += '\n\nNotes: ' + meal.notes;
   navigator.clipboard.writeText(text).then(() => {
