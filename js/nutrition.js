@@ -1256,6 +1256,7 @@ async function _fetchProductData(barcode) {
       c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
       f: Math.round((n.fat_100g || 0) * 10) / 10,
       cal: Math.round(n['energy-kcal_100g'] || (n.energy_100g ? n.energy_100g / 4.184 : 0)),
+      imageUrl: p.image_front_url || p.image_url || p.image_front_small_url || '',
     };
   } catch (e) {
     clearTimeout(timeout);
@@ -1291,6 +1292,18 @@ export async function nlSearchBarcode() {
     _barcodeBusy = false;
     input.disabled = false;
   }
+}
+
+async function _fetchImageAsBase64(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('image fetch failed');
+  const blob = await resp.blob();
+  return await new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = () => reject(new Error('read failed'));
+    fr.readAsDataURL(blob);
+  });
 }
 
 function _showBarcodeResult(product) {
@@ -1336,6 +1349,21 @@ function _showBarcodeResult(product) {
   `;
   document.getElementById('barcodeResultOverlay').classList.add('open');
   setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
+
+  if (product.imageUrl) {
+    const requestUrl = product.imageUrl;
+    _fetchImageAsBase64(requestUrl).then(base64 => {
+      if (state._barcodeProduct !== product) return;
+      if (state._barcodePhotoBase64) return;
+      state._barcodePhotoBase64 = base64;
+      const area = document.getElementById('barcodePhotoArea');
+      if (!area) return;
+      area.innerHTML = `
+        <img src="${base64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:14px;margin-bottom:8px;">
+        <button class="nl-custom-photo-btn" onclick="nlRemoveBarcodePhoto()">Remove Photo</button>
+      `;
+    }).catch(() => {});
+  }
 }
 
 export function nlBarcodePhotoSelected(input) {
