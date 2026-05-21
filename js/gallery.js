@@ -24,7 +24,13 @@ async function renderGallery() {
     .sort(([a], [b]) => b.localeCompare(a));
 
   if (photoDates.length === 0) {
-    container.innerHTML = '<div class="gallery-empty">No progress photos yet. Add photos from the Body Weight tab.</div>';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📸</div>
+        <div class="empty-title">No Photos Yet</div>
+        <div class="empty-sub">Add progress photos when logging your weight to see them grouped by date here.</div>
+        <button class="empty-cta" onclick="switchTab('weight')">Go to Body Weight</button>
+      </div>`;
     return;
   }
 

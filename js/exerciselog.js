@@ -53,7 +53,10 @@ function renderExLogDayDetail(dateStr, exercises) {
   let html = `<div class="exlog-date-label">${label}</div>`;
 
   if (exercises.length === 0) {
-    html += '<div class="exlog-empty">No exercises logged</div>';
+    html += `<div class="exlog-empty">
+      <div class="exlog-empty-icon">🏋️</div>
+      <div>No exercises logged on this day.</div>
+    </div>`;
     container.innerHTML = html;
     return;
   }

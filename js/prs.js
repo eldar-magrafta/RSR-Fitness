@@ -144,7 +144,13 @@ export function openPRsView() {
   const container = document.getElementById('prsContent');
 
   if (entries.length === 0) {
-    container.innerHTML = '<div class="prs-empty">No personal records yet. Log exercises to track your PRs.</div>';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <div class="empty-title">No PRs Yet</div>
+        <div class="empty-sub">Your heaviest lift on each exercise will appear here as you log workouts.</div>
+        <button class="empty-cta" onclick="switchTab('exercises')">Browse Exercises</button>
+      </div>`;
     return;
   }
 
