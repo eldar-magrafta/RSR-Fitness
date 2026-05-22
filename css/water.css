@@ -65,19 +65,23 @@
   display:flex; gap:10px; margin-bottom:24px;
 }
 .water-settings-cell {
-  flex:1; background:var(--card); border:1px solid var(--border-med);
-  border-radius:14px; padding:14px 12px;
-  display:flex; flex-direction:column; align-items:center; gap:10px;
+  flex:1; min-width:0;
+  background:var(--card); border:1px solid var(--border-med);
+  border-radius:14px; padding:6px 10px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
 }
 .water-settings-label {
-  font-size:0.75rem; font-weight:700; color:var(--text-secondary);
+  font-size:0.7rem; font-weight:700; color:var(--text-secondary);
   text-transform:uppercase; letter-spacing:0.5px;
 }
 .water-settings-section .settings-stepper {
-  width:auto;
+  width:auto; gap:6px;
+}
+.water-settings-section .settings-stepper-btn {
+  width:26px; height:26px; font-size:1rem; border-radius:8px;
 }
 .water-settings-section .settings-stepper-val {
-  min-width:64px; font-size:1rem;
+  min-width:44px; font-size:0.85rem;
 }
 
 .water-quick-btn-bottle {
