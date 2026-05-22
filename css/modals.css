@@ -276,6 +276,28 @@
 .ai-preview-regen:active { border-color: var(--accent); color: var(--accent); }
 .ai-preview-save { flex: 1; }
 
+/* ── AI generating overlay ── */
+.ai-loading-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px;
+}
+.ai-loading-overlay.open { display: flex; }
+.ai-loading-spinner {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 5px solid rgba(255,255,255,0.08);
+  border-top-color: var(--accent);
+  animation: ai-spin 0.8s linear infinite;
+}
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+.ai-loading-msg {
+  color: var(--text); font-size: 0.95rem; font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 /* ── Confirmation Dialog ── */
 .confirm-overlay {
   position: fixed; inset: 0; z-index: 300;

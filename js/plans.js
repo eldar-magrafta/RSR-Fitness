@@ -141,9 +141,10 @@ export function aiToggleFocus(key) {
 export async function aiGenerate() {
   const btn = document.getElementById('aiGenerateBtn');
   const errEl = document.getElementById('aiError');
+  const loader = document.getElementById('aiLoadingOverlay');
   errEl.textContent = '';
   btn.disabled = true;
-  btn.innerHTML = '<i class="bi bi-stars"></i> Generating...';
+  loader.classList.add('open');
   try {
     const plan = await generatePlan({
       daysPerWeek: _aiState.days,
@@ -159,7 +160,7 @@ export async function aiGenerate() {
     errEl.textContent = e.message || 'Generation failed';
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-stars"></i> Generate Plan';
+    loader.classList.remove('open');
   }
 }
 
@@ -168,7 +169,7 @@ function _showAIPreview(plan) {
   const list = document.getElementById('aiPreviewList');
   list.innerHTML = plan.exercises.map((it, i) => {
     if (it && typeof it === 'object' && it.title) {
-      return `<div class="ai-preview-section">${escHtml(it.text)}</div>`;
+      return `<div class="ai-preview-section">${escHtml(it.title)}</div>`;
     }
     return `
       <div class="ai-preview-row" data-idx="${i}">
