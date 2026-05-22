@@ -9,7 +9,7 @@ import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
 import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
-import { generatePlan, MUSCLE_GROUP_OPTIONS } from './ai.js';
+import { generatePlan, MUSCLE_GROUP_OPTIONS, EQUIPMENT_OPTIONS, INJURY_OPTIONS } from './ai.js';
 
 // ── Plans List ──
 
@@ -94,6 +94,8 @@ const _aiState = {
   days: 4,
   level: 'intermediate',
   focus: new Set(),
+  equipment: new Set(['full-gym']),
+  injuries: new Set(),
   generated: null,
 };
 
@@ -101,7 +103,11 @@ export function openAIPlan() {
   document.getElementById('aiNotesInput').value = '';
   document.getElementById('aiError').textContent = '';
   _aiState.focus = new Set();
+  _aiState.equipment = new Set(['full-gym']);
+  _aiState.injuries = new Set();
   _renderAIFocusChips();
+  _renderAIEquipmentChips();
+  _renderAIInjuryChips();
   document.getElementById('aiDaysVal').textContent = _aiState.days;
   _aiSetLevelUI(_aiState.level);
   document.getElementById('aiPlanOverlay').classList.add('open');
@@ -138,6 +144,39 @@ export function aiToggleFocus(key) {
   _renderAIFocusChips();
 }
 
+function _renderAIEquipmentChips() {
+  const row = document.getElementById('aiEquipmentChips');
+  row.innerHTML = EQUIPMENT_OPTIONS.map(g => {
+    const active = _aiState.equipment.has(g.key) ? 'active' : '';
+    return `<button class="ai-chip ${active}" data-key="${g.key}" onclick="aiToggleEquipment('${g.key}')">${g.label}</button>`;
+  }).join('');
+}
+export function aiToggleEquipment(key) {
+  if (_aiState.equipment.has(key)) _aiState.equipment.delete(key);
+  else _aiState.equipment.add(key);
+  _renderAIEquipmentChips();
+}
+
+function _renderAIInjuryChips() {
+  const row = document.getElementById('aiInjuryChips');
+  row.innerHTML = INJURY_OPTIONS.map(g => {
+    const active = _aiState.injuries.has(g.key) ? 'active' : '';
+    return `<button class="ai-chip ${active}" data-key="${g.key}" onclick="aiToggleInjury('${g.key}')">${g.label}</button>`;
+  }).join('');
+}
+export function aiToggleInjury(key) {
+  // "None" is mutually exclusive with the rest.
+  if (key === 'none') {
+    if (_aiState.injuries.has('none')) _aiState.injuries.delete('none');
+    else _aiState.injuries = new Set(['none']);
+  } else {
+    _aiState.injuries.delete('none');
+    if (_aiState.injuries.has(key)) _aiState.injuries.delete(key);
+    else _aiState.injuries.add(key);
+  }
+  _renderAIInjuryChips();
+}
+
 export async function aiGenerate() {
   const btn = document.getElementById('aiGenerateBtn');
   const errEl = document.getElementById('aiError');
@@ -150,7 +189,10 @@ export async function aiGenerate() {
       daysPerWeek: _aiState.days,
       level: _aiState.level,
       focusGroups: [..._aiState.focus],
+      equipment: [..._aiState.equipment],
+      injuries: [..._aiState.injuries].filter(k => k !== 'none'),
       notes: document.getElementById('aiNotesInput').value.trim().slice(0, 200),
+      customExercises: getCustomExercises(),
     });
     if (!plan.exercises.length) throw new Error('Generated plan was empty');
     _aiState.generated = plan;
