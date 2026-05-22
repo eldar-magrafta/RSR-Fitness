@@ -8,6 +8,7 @@ const STORAGE_KEY_INTAKE = 'trainer_water_intake';
 const STORAGE_KEY_DATE = 'trainer_water_date';
 const STORAGE_KEY_BOTTLE = 'trainer_water_bottle';
 const STORAGE_KEY_HISTORY = 'trainer_water_history';
+const STORAGE_KEY_DAILY = 'trainer_water_daily';
 
 function getTarget() {
   return parseFloat(localStorage.getItem(STORAGE_KEY_TARGET)) || 2.5;
@@ -29,15 +30,88 @@ function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function getDailyLog() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_DAILY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveDailyLog(log) {
+  localStorage.setItem(STORAGE_KEY_DAILY, JSON.stringify(log));
+}
+
+function monthKey(dateStr) {
+  return dateStr ? dateStr.slice(0, 7) : '';
+}
+
+function archivePreviousDay(savedDate, intake) {
+  if (!savedDate) return;
+  const log = getDailyLog();
+  // If the previous day was in a different calendar month, start fresh.
+  if (monthKey(savedDate) !== monthKey(getTodayKey())) {
+    saveDailyLog({ [savedDate]: Math.round(intake * 100) / 100 });
+    return;
+  }
+  log[savedDate] = Math.round(intake * 100) / 100;
+  saveDailyLog(log);
+}
+
 function getIntake() {
   const savedDate = localStorage.getItem(STORAGE_KEY_DATE);
   if (savedDate !== getTodayKey()) {
+    const prevIntake = parseFloat(localStorage.getItem(STORAGE_KEY_INTAKE)) || 0;
+    archivePreviousDay(savedDate, prevIntake);
     localStorage.setItem(STORAGE_KEY_DATE, getTodayKey());
     localStorage.setItem(STORAGE_KEY_INTAKE, '0');
     localStorage.removeItem(STORAGE_KEY_HISTORY);
     return 0;
   }
   return parseFloat(localStorage.getItem(STORAGE_KEY_INTAKE)) || 0;
+}
+
+function getCalendarRange(range) {
+  const now = new Date();
+  let start;
+  if (range === 'week') {
+    // Sunday → today
+    start = new Date(now);
+    start.setDate(now.getDate() - now.getDay());
+  } else {
+    // 1st of month → today
+    start = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  const toStr = d => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  };
+  // Days elapsed in the period, inclusive of today.
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const days = Math.floor((now - start) / msPerDay) + 1;
+  return { startStr: toStr(start), days };
+}
+
+function computeAverages() {
+  const log = getDailyLog();
+  const today = getTodayKey();
+  // Include today's running total so the average reflects current data.
+  const todayIntake = parseFloat(localStorage.getItem(STORAGE_KEY_INTAKE)) || 0;
+  const combined = { ...log };
+  combined[today] = todayIntake;
+
+  const avgFor = range => {
+    const { startStr, days } = getCalendarRange(range);
+    const total = Object.entries(combined)
+      .filter(([d]) => d >= startStr && d <= today)
+      .reduce((sum, [, v]) => sum + v, 0);
+    if (days <= 0) return null;
+    return Math.round((total / days) * 10) / 10;
+  };
+
+  return { avgWeek: avgFor('week'), avgMonth: avgFor('month') };
 }
 
 function saveIntake(liters) {
@@ -71,6 +145,8 @@ export function renderWaterView() {
   const pct = Math.min(100, Math.round((intake / target) * 100));
   const bottleMl = getBottleSize();
   const bottleLabel = bottleMl >= 1000 ? `+${(bottleMl / 1000).toFixed(bottleMl % 1000 === 0 ? 0 : 1)}L` : `+${bottleMl}ml`;
+  const { avgWeek, avgMonth } = computeAverages();
+  const fmtAvg = v => v == null ? '—' : `${v.toFixed(1)}L`;
   const container = document.getElementById('waterContent');
 
   container.innerHTML = `
@@ -97,6 +173,16 @@ export function renderWaterView() {
     <div class="water-undo-row">
       <button class="water-undo-btn" onclick="waterUndo()" ${getHistory().length === 0 ? 'disabled' : ''}><i class="bi bi-arrow-counterclockwise"></i> Undo${getHistory().length > 1 ? ` (${getHistory().length})` : ''}</button>
       <button class="water-undo-btn" onclick="waterReset()"><i class="bi bi-x-circle"></i> Reset</button>
+    </div>
+    <div class="water-avg-row">
+      <div class="water-avg-card">
+        <div class="water-avg-label">Avg / day · this week</div>
+        <div class="water-avg-val">${fmtAvg(avgWeek)}</div>
+      </div>
+      <div class="water-avg-card">
+        <div class="water-avg-label">Avg / day · this month</div>
+        <div class="water-avg-val">${fmtAvg(avgMonth)}</div>
+      </div>
     </div>`;
 }
 
