@@ -1,13 +1,12 @@
 // ── Gemini-powered plan generator ──
-// Calls Gemini's REST API directly. The key lives in the gitignored
-// js/ai-config.js (see js/ai-config.example.js). Output is constrained
-// to exercises that exist in data/exercises.js so generated plans
-// always render with images and link to history.
+// Calls a Cloudflare Worker that proxies the Gemini API. The Gemini
+// key lives as a Worker secret, never in this repo. Output is
+// constrained to exercises that exist in data/exercises.js so
+// generated plans always render with images and link to history.
 
 import { exerciseData } from '../data/exercises.js';
 
-const MODEL = 'gemini-2.0-flash';
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const ENDPOINT = 'https://rsr-fitness-ai.magraftaeldar.workers.dev/';
 
 // All exercise names available, indexed for fast whitelist checks.
 function buildExerciseIndex() {
@@ -52,8 +51,8 @@ Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 }`;
 }
 
-async function callGemini(prompt, apiKey) {
-  const res = await fetch(`${ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
+async function callGemini(prompt) {
+  const res = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -65,12 +64,17 @@ async function callGemini(prompt, apiKey) {
     }),
   });
   if (!res.ok) {
-    const errBody = await res.text().catch(() => '');
-    throw new Error(`Gemini ${res.status}: ${errBody.slice(0, 200)}`);
+    if (res.status === 429) {
+      throw new Error('Daily AI quota reached. Free-tier limits reset every 24 hours — please try again later.');
+    }
+    if (res.status === 403) {
+      throw new Error('AI key invalid or blocked. The key may need rotating.');
+    }
+    throw new Error(`AI error (${res.status}). Please try again in a minute.`);
   }
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Gemini returned no text');
+  if (!text) throw new Error('AI returned no plan. Please try again.');
   return JSON.parse(text);
 }
 
@@ -96,17 +100,14 @@ function toPlanShape(raw, idx) {
 }
 
 export async function generatePlan(input) {
-  const cfg = await import('./ai-config.js');
-  const apiKey = cfg.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('AI key missing in js/ai-config.js');
   const idx = buildExerciseIndex();
   const prompt = buildPrompt(input, idx);
   // One retry on JSON parse failure — Gemini occasionally returns code-fenced output.
   let raw;
   try {
-    raw = await callGemini(prompt, apiKey);
+    raw = await callGemini(prompt);
   } catch (e) {
-    if (e instanceof SyntaxError) raw = await callGemini(prompt + '\n\nReturn pure JSON only.', apiKey);
+    if (e instanceof SyntaxError) raw = await callGemini(prompt + '\n\nReturn pure JSON only.');
     else throw e;
   }
   return toPlanShape(raw, idx);

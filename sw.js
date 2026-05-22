@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v93';
+const CACHE = 'trainer-v95';
 
 const CORE = [
   './',
@@ -38,7 +38,6 @@ const CORE = [
   './js/session.js',
   './css/session.css',
   './js/ai.js',
-  './js/ai-config.js',
   './assets/fonts/bootstrap-icons.css',
   './assets/fonts/fonts/bootstrap-icons.woff2',
   './assets/fonts/fonts/bootstrap-icons.woff',
