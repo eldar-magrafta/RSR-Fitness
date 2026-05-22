@@ -62,23 +62,16 @@
 }
 
 .water-settings-section {
-  background:var(--card); border:1px solid var(--border-med);
-  border-radius:14px; padding:14px 16px; margin-bottom:24px;
+  display:flex; gap:10px; margin-bottom:24px;
 }
-.water-settings-title {
-  font-size:0.75rem; font-weight:700; color:var(--text-secondary);
-  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;
-}
-.water-settings-row {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:8px 0;
-}
-.water-settings-row + .water-settings-row {
-  border-top:1px solid var(--border-med);
-  margin-top:4px; padding-top:14px;
+.water-settings-cell {
+  flex:1; background:var(--card); border:1px solid var(--border-med);
+  border-radius:14px; padding:14px 12px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
 }
 .water-settings-label {
-  font-size:0.92rem; font-weight:600; color:var(--text);
+  font-size:0.75rem; font-weight:700; color:var(--text-secondary);
+  text-transform:uppercase; letter-spacing:0.5px;
 }
 .water-settings-section .settings-stepper {
   width:auto;

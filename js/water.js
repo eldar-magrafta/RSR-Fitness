@@ -185,8 +185,7 @@ export function renderWaterView() {
       </div>
     </div>
     <div class="water-settings-section">
-      <div class="water-settings-title">Settings</div>
-      <div class="water-settings-row">
+      <div class="water-settings-cell">
         <span class="water-settings-label">Daily Target</span>
         <div class="settings-stepper">
           <button class="settings-stepper-btn" onclick="waterAdjustTarget(-0.25)">−</button>
@@ -194,7 +193,7 @@ export function renderWaterView() {
           <button class="settings-stepper-btn" onclick="waterAdjustTarget(0.25)">+</button>
         </div>
       </div>
-      <div class="water-settings-row">
+      <div class="water-settings-cell">
         <span class="water-settings-label">Bottle Size</span>
         <div class="settings-stepper">
           <button class="settings-stepper-btn" onclick="waterAdjustBottle(-50)">−</button>
