@@ -141,8 +141,11 @@
   border: 1.5px solid var(--accent);
   cursor: pointer; flex-shrink: 0;
   color: var(--accent);
-  display: flex; align-items: center; justify-content: center;
+  display: none; align-items: center; justify-content: center;
   font-size: 0.95rem;
+}
+.session-set-row.filled:not(.done) .session-set-save {
+  display: flex;
 }
 .session-set-save:active {
   background: rgba(0,229,255,0.28);

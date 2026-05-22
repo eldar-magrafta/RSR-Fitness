@@ -182,17 +182,17 @@ function renderSetRow(exIdx, sIdx, set, exName) {
   const lastSet = last && last.setList.length ? last.setList[Math.min(sIdx, last.setList.length - 1)] : null;
   const wPlaceholder = lastSet && lastSet.w > 0 ? `Last: ${lastSet.w}kg` : 'kg';
   const rPlaceholder = lastSet && lastSet.r > 0 ? `Last: ${lastSet.r} reps` : 'reps';
-  const saveBtn = filled && !committed
-    ? `<button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>`
-    : '';
+  const cls = ['session-set-row'];
+  if (committed) cls.push('done');
+  if (filled) cls.push('filled');
   return `
-    <div class="session-set-row ${committed ? 'done' : ''}">
+    <div class="${cls.join(' ')}" data-set-row="${exIdx}_${sIdx}">
       <input class="session-set-input" type="number" inputmode="decimal" placeholder="${wPlaceholder}"
              value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)"/>
       <span class="session-set-x">×</span>
       <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPlaceholder}"
              value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)"/>
-      ${saveBtn}
+      <button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>
       <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
     </div>`;
 }
@@ -245,13 +245,17 @@ export function sessionUpdateSet(exIdx, sIdx, field, value) {
   if (!ex || ex.kind !== 'ex') return;
   const set = ex.sets[sIdx];
   if (!set) return;
-  const wasFilled = isSetFilled(set);
   set[field] = value;
   // Editing a committed set un-commits it until the user re-saves.
   if (set.committed) set.committed = false;
   saveSession(s);
-  // Toggle the save button visibility when the filled-state crosses the threshold.
-  if (wasFilled !== isSetFilled(set)) renderSession();
+  // Toggle save-button visibility via class; do NOT re-render — that would
+  // tear down the focused input and close the on-screen keyboard mid-typing.
+  const row = document.querySelector(`[data-set-row="${exIdx}_${sIdx}"]`);
+  if (row) {
+    row.classList.toggle('filled', isSetFilled(set));
+    row.classList.remove('done');
+  }
 }
 
 export function sessionSaveSet(exIdx, sIdx) {
