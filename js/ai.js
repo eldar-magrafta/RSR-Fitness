@@ -41,15 +41,21 @@ function buildPrompt({ daysPerWeek, level, focusGroups, equipment, injuries, not
     ? `INJURIES / LIMITATIONS (HARD CONSTRAINT): The user has issues with: ${injuryLabels.join(', ')}. Avoid exercises that load these areas heavily or risk aggravating them. When in doubt, omit the exercise.`
     : '';
   const notesLine = notes ? `User notes: ${notes}` : '';
+  const levelGuidance = {
+    beginner: `LEVEL GUIDANCE — BEGINNER: Bias HEAVILY toward machines, cables, and supported/seated variations. AVOID free-weight moves that demand precise technique under load — specifically: Barbell Deadlift, Barbell Squat, Barbell Romanian Deadlift, Barbell Sumo Deadlift, Barbell Hip Thrust, Barbell Bent-Over Row, Barbell Upright Row, Snatches, Cleans, and Kettlebell Swings. Prefer Leg Press, Leg Extension, Seated Leg Curl, Lat Pulldown, Seated Row Machine, Chest Press machine, Pec Deck, Shoulder Press machine, Cable curls/extensions. A beginner can do dumbbell presses, dumbbell rows, and goblet squats if no leg-friendly machine alternative fits — but never barbell compounds.`,
+    intermediate: `LEVEL GUIDANCE — INTERMEDIATE: A balanced mix is ideal. Include core barbell lifts (Bench, Row, RDL, Squat) AND machines/cables for accessory work. Free-weight compounds are appropriate but should not be the entire program. Olympic-derivative moves (cleans, snatches) still skipped unless the user requested them in notes.`,
+    advanced: `LEVEL GUIDANCE — ADVANCED: Prefer free-weight compounds as the centerpiece — Barbell Squat, Deadlift variants, Bench, Overhead Press, Barbell Row, Romanian Deadlift, Hip Thrust. Machines are accessory work, not the focus. Include high-skill moves (Kettlebell Swings, weighted pull-ups, Bulgarian split squats) where they fit the split.`,
+  }[level] || '';
   return `You are an experienced strength coach. Build a ${daysPerWeek}-day-per-week workout plan for a ${level} lifter.
 ${focusLine}
 ${equipmentLine}
 ${injuryLine}
+${levelGuidance}
 ${notesLine}
 
 CONSTRAINTS (ALL ARE HARD):
 1. You MUST only choose exercises from the EXACT list below. Use the names verbatim — no paraphrasing, no prefixes, no suffixes.
-2. Respect the equipment limit and any injuries/limitations above. These override every other consideration — even at the cost of fewer exercises.
+2. Respect the equipment limit, any injuries/limitations, AND the level guidance above. These override every other consideration — even at the cost of fewer exercises.
 3. Each day should target a coherent set of muscle groups (e.g. push/pull/legs, upper/lower, full body).
 4. Each day should have 5–8 exercises, ordered with compound lifts first, then isolation.
 5. Do not repeat the same exercise on the same day.
