@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v80';
+const CACHE = 'trainer-v81';
 
 const CORE = [
   './',
@@ -47,6 +47,7 @@ const CORE = [
 const ASSETS = [
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/icons/banner.png',
   './assets/icons/sclae.png',
   './assets/icons/youtube-logo-icon.png',
   './assets/muscles/abductors.png',
