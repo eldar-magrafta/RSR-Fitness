@@ -40,7 +40,7 @@
   height: auto;
   border-radius: 14px;
   margin-bottom: 14px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 30px rgba(0,229,255,0.1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 .auth-title {
   font-size: 1.6rem;
