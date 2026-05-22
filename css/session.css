@@ -189,68 +189,111 @@
 }
 .session-finish-btn:active { transform: scale(0.98); }
 
-/* ── Rest timer chip ── */
+/* ── Rest timer ring ── */
 .session-rest-chip {
   position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 90px);
   transform: translateX(-50%);
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(0,0,0,0.85);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border: 1px solid var(--accent);
-  border-radius: 999px; padding: 6px 10px;
+  display: flex; align-items: center; gap: 14px;
   z-index: 30;
-  box-shadow: 0 4px 24px rgba(0,229,255,0.25);
   animation: sessionChipIn 0.25s ease-out;
 }
 @keyframes sessionChipIn {
   from { transform: translate(-50%, 12px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
-.session-rest-chip.done {
-  border-color: var(--green, #00e87b);
-  box-shadow: 0 4px 24px rgba(0,232,123,0.35);
+
+/* Floating ±15 chips, detached from the ring */
+.session-rest-adjust {
+  background: rgba(0,0,0,0.78);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,229,255,0.4);
+  color: var(--accent); font-size: 0.82rem; font-weight: 800;
+  padding: 8px 12px; border-radius: 999px;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  flex-shrink: 0;
 }
+.session-rest-adjust:active { background: rgba(0,229,255,0.18); }
+
+.session-rest-ring-wrap {
+  position: relative; flex-shrink: 0;
+}
+
+/* The draining ring */
+.session-rest-ring {
+  position: relative; width: 110px; height: 110px;
+  background: rgba(0,0,0,0.85);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none; padding: 0;
+  box-shadow: 0 6px 24px rgba(0,229,255,0.25);
+  flex-shrink: 0;
+}
+.session-rest-ring svg {
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.session-rest-ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.1);
+  stroke-width: 6;
+}
+.session-rest-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+.session-rest-chip.done .session-rest-ring-fill { stroke: var(--green, #00e87b); }
+.session-rest-chip.done .session-rest-ring {
+  box-shadow: 0 6px 24px rgba(0,232,123,0.4);
+}
+.session-rest-chip.paused .session-rest-ring-fill { stroke: rgba(255,255,255,0.5); }
+
 .session-rest-center {
-  display: flex; flex-direction: column; align-items: center;
-  min-width: 70px; line-height: 1;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
 }
 .session-rest-time {
   font-variant-numeric: tabular-nums;
-  font-size: 1rem; font-weight: 800; color: #fff;
-  text-align: center;
+  font-size: 1.35rem; font-weight: 800; color: #fff;
+  line-height: 1;
 }
 .session-rest-label {
-  font-size: 0.62rem; font-weight: 600;
+  font-size: 0.6rem; font-weight: 700;
   color: rgba(255,255,255,0.55);
   text-transform: uppercase; letter-spacing: 0.5px;
-  margin-top: 3px;
-  white-space: nowrap;
+  margin-top: 4px;
 }
 .session-rest-chip.done .session-rest-time { color: var(--green, #00e87b); }
 .session-rest-chip.done .session-rest-label { color: var(--green, #00e87b); opacity: 0.8; }
-.session-rest-chip.paused { border-color: rgba(255,255,255,0.4); }
-.session-rest-chip.paused .session-rest-time { color: rgba(255,255,255,0.7); }
-.session-rest-adjust {
-  background: rgba(255,255,255,0.08); border: none;
-  color: var(--accent); font-size: 0.78rem; font-weight: 700;
-  padding: 6px 10px; border-radius: 999px;
-  cursor: pointer; font-family: inherit;
+.session-rest-chip.paused .session-rest-time { color: rgba(255,255,255,0.75); }
+
+.session-rest-pause-icon {
+  position: absolute;
+  bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  pointer-events: none;
 }
-.session-rest-adjust:active { background: rgba(255,255,255,0.18); }
-.session-rest-pause {
-  background: transparent; border: none;
-  color: rgba(255,255,255,0.75); cursor: pointer;
-  padding: 4px 6px; font-size: 1rem;
-  display: flex; align-items: center;
-}
-.session-rest-pause:active { color: var(--accent); }
-.session-rest-chip.paused .session-rest-pause { color: var(--accent); }
+
 .session-rest-close {
-  background: transparent; border: none;
-  color: rgba(255,255,255,0.6); cursor: pointer;
-  padding: 4px 6px; font-size: 0.85rem;
-  display: flex; align-items: center;
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,0.85);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
 }
+.session-rest-close:active { color: var(--accent); border-color: var(--accent); }
 
 /* ── Start button on plan detail ── */
 .plan-start-btn {

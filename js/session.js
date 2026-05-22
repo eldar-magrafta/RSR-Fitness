@@ -17,6 +17,7 @@ const DEFAULT_REST_SEC = 150;
 let _restInterval = null;
 let _restEndAt = 0;
 let _restPausedMs = 0;
+let _restTotalSec = DEFAULT_REST_SEC;
 let _wakeLock = null;
 
 // ── Persistence ──
@@ -279,6 +280,7 @@ export function sessionSaveSet(exIdx, sIdx) {
 
 function startRest(sec) {
   stopRest();
+  _restTotalSec = sec;
   _restEndAt = Date.now() + sec * 1000;
   _restPausedMs = 0;
   ensureRestChip();
@@ -298,15 +300,25 @@ function ensureRestChip() {
   const chip = document.createElement('div');
   chip.id = 'sessionRestChip';
   chip.className = 'session-rest-chip';
+  // Ring circumference for r=44 → 2πr ≈ 276.46
   chip.innerHTML = `
-    <button class="session-rest-adjust" onclick="sessionRestAdjust(-15)">−15</button>
-    <div class="session-rest-center">
-      <div class="session-rest-time" id="sessionRestTime">2:30</div>
-      <div class="session-rest-label">until next set</div>
+    <button class="session-rest-adjust session-rest-adjust-l" onclick="sessionRestAdjust(-15)">−15</button>
+    <div class="session-rest-ring-wrap">
+      <button class="session-rest-ring" onclick="sessionRestTogglePause()" title="Pause / Resume">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="session-rest-ring-bg" cx="50" cy="50" r="44"/>
+          <circle class="session-rest-ring-fill" id="sessionRestRingFill" cx="50" cy="50" r="44"
+                  stroke-dasharray="276.46" stroke-dashoffset="0"/>
+        </svg>
+        <span class="session-rest-center">
+          <span class="session-rest-time" id="sessionRestTime">2:30</span>
+          <span class="session-rest-label">rest</span>
+        </span>
+        <i class="bi bi-pause-fill session-rest-pause-icon" id="sessionRestPauseIcon"></i>
+      </button>
+      <button class="session-rest-close" onclick="sessionRestSkip()" title="Skip rest"><i class="bi bi-x-lg"></i></button>
     </div>
-    <button class="session-rest-adjust" onclick="sessionRestAdjust(15)">+15</button>
-    <button class="session-rest-pause" id="sessionRestPause" onclick="sessionRestTogglePause()" title="Pause"><i class="bi bi-pause-fill"></i></button>
-    <button class="session-rest-close" onclick="sessionRestSkip()" title="Skip rest"><i class="bi bi-x-lg"></i></button>`;
+    <button class="session-rest-adjust session-rest-adjust-r" onclick="sessionRestAdjust(15)">+15</button>`;
   document.getElementById('activeSessionView').appendChild(chip);
 }
 
@@ -318,6 +330,15 @@ function updateRestChip() {
   const m = Math.floor(remaining / 60);
   const sec = remaining % 60;
   el.textContent = `${m}:${sec.toString().padStart(2, '0')}`;
+  const ring = document.getElementById('sessionRestRingFill');
+  if (ring) {
+    const total = Math.max(1, _restTotalSec);
+    const remainSec = remainingMs / 1000;
+    const frac = Math.max(0, Math.min(1, remainSec / total));
+    const C = 276.46;
+    // Empty as time elapses → offset increases.
+    ring.setAttribute('stroke-dashoffset', String(C * (1 - frac)));
+  }
   const chip = document.getElementById('sessionRestChip');
   if (chip) chip.classList.toggle('done', remaining === 0);
   if (remaining === 0) {
@@ -336,24 +357,26 @@ export function sessionRestAdjust(delta) {
     if (_restEndAt < Date.now()) _restEndAt = Date.now();
     if (!_restInterval) _restInterval = setInterval(updateRestChip, 250);
   }
+  // Grow the total so the ring drains correctly past the original budget.
+  if (delta > 0) _restTotalSec += delta;
   updateRestChip();
 }
 
 export function sessionRestTogglePause() {
-  const btn = document.getElementById('sessionRestPause');
+  const icon = document.getElementById('sessionRestPauseIcon');
   const chip = document.getElementById('sessionRestChip');
   if (_restPausedMs) {
     // Resume
     _restEndAt = Date.now() + _restPausedMs;
     _restPausedMs = 0;
     if (!_restInterval) _restInterval = setInterval(updateRestChip, 250);
-    if (btn) { btn.innerHTML = '<i class="bi bi-pause-fill"></i>'; btn.title = 'Pause'; }
+    if (icon) icon.className = 'bi bi-pause-fill session-rest-pause-icon';
     if (chip) chip.classList.remove('paused');
   } else {
     // Pause
     _restPausedMs = Math.max(0, _restEndAt - Date.now());
     if (_restInterval) { clearInterval(_restInterval); _restInterval = null; }
-    if (btn) { btn.innerHTML = '<i class="bi bi-play-fill"></i>'; btn.title = 'Resume'; }
+    if (icon) icon.className = 'bi bi-play-fill session-rest-pause-icon';
     if (chip) chip.classList.add('paused');
   }
   updateRestChip();
