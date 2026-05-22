@@ -95,36 +95,10 @@ function toPlanShape(raw, idx) {
   };
 }
 
-const KEY_STORAGE = 'trainer_gemini_key';
-
-export function getStoredKey() {
-  try { return localStorage.getItem(KEY_STORAGE) || ''; } catch { return ''; }
-}
-export function setStoredKey(k) {
-  try { localStorage.setItem(KEY_STORAGE, k.trim()); } catch { /* ignore */ }
-}
-export function clearStoredKey() {
-  try { localStorage.removeItem(KEY_STORAGE); } catch { /* ignore */ }
-}
-
-async function resolveApiKey() {
-  // Prefer localStorage so the deployed PWA works without committing the key.
-  // Falls back to a gitignored js/ai-config.js for local-only setups.
-  const fromStorage = getStoredKey();
-  if (fromStorage) return fromStorage;
-  try {
-    const cfg = await import('./ai-config.js');
-    const k = cfg.GEMINI_API_KEY;
-    if (k && k !== 'PASTE_YOUR_KEY_HERE') return k;
-  } catch { /* file is gitignored — fine in deployed builds */ }
-  return '';
-}
-
 export async function generatePlan(input) {
-  const apiKey = await resolveApiKey();
-  if (!apiKey) {
-    throw new Error('AI key not configured. Tap the key icon to add your Gemini API key.');
-  }
+  const cfg = await import('./ai-config.js');
+  const apiKey = cfg.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('AI key missing in js/ai-config.js');
   const idx = buildExerciseIndex();
   const prompt = buildPrompt(input, idx);
   // One retry on JSON parse failure — Gemini occasionally returns code-fenced output.
