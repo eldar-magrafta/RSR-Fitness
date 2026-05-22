@@ -9,7 +9,7 @@ import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
 import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
-import { generatePlan, MUSCLE_GROUP_OPTIONS } from './ai.js';
+import { generatePlan, MUSCLE_GROUP_OPTIONS, getStoredKey, setStoredKey, clearStoredKey } from './ai.js';
 
 // ── Plans List ──
 
@@ -104,7 +104,29 @@ export function openAIPlan() {
   _renderAIFocusChips();
   document.getElementById('aiDaysVal').textContent = _aiState.days;
   _aiSetLevelUI(_aiState.level);
+  _refreshAIKeyLabel();
   document.getElementById('aiPlanOverlay').classList.add('open');
+}
+
+function _refreshAIKeyLabel() {
+  const label = document.getElementById('aiKeyLinkLabel');
+  if (!label) return;
+  label.textContent = getStoredKey() ? 'Change API key' : 'Set API key';
+}
+
+export function aiPromptForKey() {
+  const current = getStoredKey();
+  const next = window.prompt(
+    'Paste your Gemini API key. It is stored only on this device (localStorage). Leave blank to clear.',
+    current,
+  );
+  if (next === null) return;
+  if (!next.trim()) {
+    clearStoredKey();
+  } else {
+    setStoredKey(next);
+  }
+  _refreshAIKeyLabel();
 }
 export function closeAIPlan() {
   document.getElementById('aiPlanOverlay').classList.remove('open');

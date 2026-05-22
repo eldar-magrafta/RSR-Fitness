@@ -95,16 +95,35 @@ function toPlanShape(raw, idx) {
   };
 }
 
-export async function generatePlan(input) {
-  let cfg;
+const KEY_STORAGE = 'trainer_gemini_key';
+
+export function getStoredKey() {
+  try { return localStorage.getItem(KEY_STORAGE) || ''; } catch { return ''; }
+}
+export function setStoredKey(k) {
+  try { localStorage.setItem(KEY_STORAGE, k.trim()); } catch { /* ignore */ }
+}
+export function clearStoredKey() {
+  try { localStorage.removeItem(KEY_STORAGE); } catch { /* ignore */ }
+}
+
+async function resolveApiKey() {
+  // Prefer localStorage so the deployed PWA works without committing the key.
+  // Falls back to a gitignored js/ai-config.js for local-only setups.
+  const fromStorage = getStoredKey();
+  if (fromStorage) return fromStorage;
   try {
-    cfg = await import('./ai-config.js');
-  } catch {
-    throw new Error('AI key not configured. Copy js/ai-config.example.js to js/ai-config.js and paste your Gemini key.');
-  }
-  const apiKey = cfg.GEMINI_API_KEY;
-  if (!apiKey || apiKey === 'PASTE_YOUR_KEY_HERE') {
-    throw new Error('AI key not configured. Edit js/ai-config.js and paste your Gemini key.');
+    const cfg = await import('./ai-config.js');
+    const k = cfg.GEMINI_API_KEY;
+    if (k && k !== 'PASTE_YOUR_KEY_HERE') return k;
+  } catch { /* file is gitignored — fine in deployed builds */ }
+  return '';
+}
+
+export async function generatePlan(input) {
+  const apiKey = await resolveApiKey();
+  if (!apiKey) {
+    throw new Error('AI key not configured. Tap the key icon to add your Gemini API key.');
   }
   const idx = buildExerciseIndex();
   const prompt = buildPrompt(input, idx);

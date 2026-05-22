@@ -234,6 +234,13 @@
   color: var(--carbs); font-size: 0.82rem;
   margin-top: 10px; min-height: 18px;
 }
+.ai-key-link {
+  width: 100%; background: transparent; border: none;
+  color: var(--muted); font-family: inherit; font-size: 0.82rem;
+  padding: 6px; margin-top: 4px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.ai-key-link:active { color: var(--accent); }
 
 /* ── AI preview ── */
 .ai-preview-name-row { margin-bottom: 6px; }
