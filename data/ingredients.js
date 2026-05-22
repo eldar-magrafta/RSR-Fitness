@@ -21,6 +21,7 @@ const MEAT = [
   {name:'Lamb (cooked)',cat:'protein',p:25,c:0,f:9,cal:206,img:'lamb.jpg'},
   {name:'Ribeye Steak (cooked)',cat:'protein',p:24,c:0,f:18,cal:271,img:'ribeye-steak.jpg'},
   {name:'Veal (cooked)',cat:'protein',p:31,c:0,f:6,cal:172,img:'veal.jpg'},
+  {name:'Ground Chicken (cooked)',cat:'protein',p:27,c:0,f:11,cal:219,img:'ground-chicken.jpg'},
 ];
 
 const SEAFOOD_DIR = 'assets/foods/seafood/';
@@ -34,6 +35,7 @@ const SEAFOOD = [
   {name:'Mackerel (cooked)',cat:'protein',p:24,c:0,f:18,cal:262,img:'mackerel.jpg'},
   {name:'Sea Bass (cooked)',cat:'protein',p:24,c:0,f:2.6,cal:124,img:'sea-bass.jpg'},
   {name:'Trout (cooked)',cat:'protein',p:23,c:0,f:7.2,cal:168,img:'trout.jpg'},
+  {name:'Anchovies (canned)',cat:'protein',p:29,c:0,f:10,cal:210,img:'anchovies.jpg'},
 ];
 
 const DAIRY_DIR = 'assets/foods/dairy/';
@@ -41,6 +43,8 @@ const DAIRY = [
   {name:'Eggs (whole, cooked)',cat:'protein',p:13,c:1.1,f:11,cal:155,img:'eggs.jpg'},
   {name:'Egg Whites (cooked)',cat:'protein',p:11,c:0.7,f:0.2,cal:52,img:'egg-whites.jpg'},
   {name:'Greek Yogurt (plain, nonfat)',cat:'dairy',p:10,c:3.6,f:0.4,cal:59,img:'greek-yogurt.jpg'},
+  {name:'Plain Yogurt (whole milk)',cat:'dairy',p:3.5,c:4.7,f:3.3,cal:61,img:'plain-yogurt.jpg'},
+  {name:'Heavy Cream (36%)',cat:'fats',unit:'ml',p:2.8,c:2.8,f:36,cal:340,img:'heavy-cream.jpg'},
   {name:'Cottage Cheese',cat:'dairy',p:11,c:3.4,f:4.3,cal:98,img:'cottage-cheese.jpg'},
   {name:'Whole Milk',cat:'dairy',unit:'ml',p:3.2,c:4.7,f:3.4,cal:61,img:'whole-milk.jpg'},
   {name:'Skim Milk',cat:'dairy',unit:'ml',p:3.4,c:5,f:0.1,cal:34,img:'skim-milk.jpg'},
@@ -54,6 +58,7 @@ const DAIRY = [
   {name:'Coconut Milk (canned)',cat:'other',unit:'ml',p:2.3,c:3.3,f:24,cal:230,img:'coconut-milk.jpg'},
   {name:'Oat Milk',cat:'other',unit:'ml',p:1,c:6.7,f:1.5,cal:43,img:'oat-milk.jpg'},
   {name:'Almond Milk (unsweetened)',cat:'other',unit:'ml',p:0.4,c:0.3,f:1.1,cal:13,img:'almond-milk.jpg'},
+  {name:'Soy Milk (unsweetened)',cat:'other',unit:'ml',p:3.3,c:1.8,f:1.8,cal:33,img:'soy-milk.jpg'},
 ];
 
 const GRAINS_DIR = 'assets/foods/grains/';
@@ -70,6 +75,10 @@ const GRAINS = [
   {name:'Pita Bread',cat:'carbs',p:9,c:55,f:1.2,cal:275,img:'pita-bread.jpg'},
   {name:'Couscous (cooked)',cat:'carbs',p:3.8,c:23,f:0.2,cal:112,img:'couscous.jpg'},
   {name:'Cornflakes',cat:'carbs',p:7.5,c:84,f:0.4,cal:357,img:'cornflakes.jpg'},
+  {name:'Flour (all-purpose)',cat:'carbs',p:10,c:76,f:1,cal:364,img:'flour.jpg'},
+  {name:'Cornmeal',cat:'carbs',p:7,c:79,f:3.6,cal:384,img:'cornmeal.jpg'},
+  {name:'Rice Noodles (cooked)',cat:'carbs',p:1.6,c:25,f:0.2,cal:109,img:'rice-noodles.jpg'},
+  {name:'Egg Noodles (cooked)',cat:'carbs',p:4.5,c:25,f:1.5,cal:138,img:'egg-noodles.jpg'},
   {name:'Bulgur (cooked)',cat:'carbs',p:3.1,c:18.6,f:0.2,cal:83,img:'bulgur.jpg'},
   {name:'Polenta (cooked)',cat:'carbs',p:2.1,c:13,f:0.3,cal:71,img:'polenta.jpg'},
   {name:'Granola',cat:'other',p:10,c:64,f:14,cal:471,img:'granola.jpg'},
@@ -101,10 +110,18 @@ const FRUITS = [
   {name:'Lime',cat:'carbs',p:0.7,c:11,f:0.2,cal:30,img:'lime.jpg'},
   {name:'Plum',cat:'carbs',p:0.7,c:11,f:0.3,cal:46,img:'plum.jpg'},
   {name:'Pomegranate',cat:'carbs',p:1.7,c:19,f:1.2,cal:83,img:'pomegranate.jpg'},
-  {name:'Prunes (dried)',cat:'carbs',p:2.2,c:64,f:0.4,cal:240,img:'prunes.jpg'},
   {name:'Raisins',cat:'carbs',p:3.1,c:79,f:0.5,cal:299,img:'raisins.jpg'},
   {name:'Raspberries',cat:'carbs',p:1.2,c:12,f:0.7,cal:52,img:'raspberries.jpg'},
+  {name:'Papaya',cat:'carbs',p:0.5,c:11,f:0.3,cal:43,img:'papaya.jpg'},
+  {name:'Honeydew Melon',cat:'carbs',p:0.5,c:9,f:0.1,cal:36,img:'honeydew.jpg'},
+  {name:'Fig (fresh)',cat:'carbs',p:0.8,c:19,f:0.3,cal:74,img:'fig.jpg'},
+  {name:'Tangerine',cat:'carbs',p:0.8,c:13,f:0.3,cal:53,img:'tangerine.jpg'},
+  {name:'Cranberries (fresh)',cat:'carbs',p:0.4,c:12,f:0.1,cal:46,img:'cranberries.jpg'},
   {name:'Coconut (raw)',cat:'fats',p:3.3,c:15,f:33,cal:354,img:'coconut.jpg'},
+  {name:'Nectarine',cat:'carbs',p:1.1,c:11,f:0.3,cal:44,img:'nectarine.jpg'},
+  {name:'Passion Fruit',cat:'carbs',p:2.2,c:23,f:0.7,cal:97,img:'passion-fruit.jpg'},
+  {name:'Lychee',cat:'carbs',p:0.8,c:17,f:0.4,cal:66,img:'lychee.jpg'},
+  {name:'Persimmon',cat:'carbs',p:0.6,c:19,f:0.2,cal:70,img:'persimmon.jpg'},
   {name:'Avocado',cat:'fats',p:2,c:8.5,f:14.7,cal:160,img:'avocado.jpg'},
 ];
 
@@ -140,12 +157,20 @@ const VEGETABLES = [
   {name:'Pumpkin (cooked)',cat:'vegetables',p:0.7,c:4.9,f:0.1,cal:20,img:'pumpkin.jpg'},
   {name:'Radish',cat:'vegetables',p:0.7,c:3.4,f:0.1,cal:16,img:'radish.jpg'},
   {name:'Scallions',cat:'vegetables',p:1.8,c:7.3,f:0.2,cal:32,img:'scallions.jpg'},
+  {name:'Butternut Squash (cooked)',cat:'vegetables',p:0.9,c:11,f:0.1,cal:45,img:'butternut-squash.jpg'},
+  {name:'Snow Peas',cat:'vegetables',p:2.8,c:7.5,f:0.2,cal:42,img:'snow-peas.jpg'},
+  {name:'Ginger (fresh)',cat:'vegetables',p:1.8,c:18,f:0.8,cal:80,img:'ginger.jpg'},
+  {name:'Kohlrabi',cat:'vegetables',p:1.7,c:6.2,f:0.1,cal:27,img:'kohlrabi.jpg'},
 ];
 
 const LEGUMES_DIR = 'assets/foods/legumes/';
 const LEGUMES = [
   {name:'Tofu (raw)',cat:'protein',p:8,c:1.9,f:4.8,cal:76,img:'tofu.jpg'},
   {name:'Edamame (cooked)',cat:'protein',p:11,c:9,f:5,cal:121,img:'edamame.jpg'},
+  {name:'Tempeh',cat:'protein',p:19,c:9,f:11,cal:192,img:'tempeh.jpg'},
+  {name:'Soybeans (cooked)',cat:'protein',p:17,c:8.4,f:9,cal:173,img:'soybeans.jpg'},
+  {name:'Lima Beans (cooked)',cat:'other',p:7.8,c:21,f:0.4,cal:115,img:'lima-beans.jpg'},
+  {name:'Black-Eyed Peas (cooked)',cat:'other',p:7.7,c:21,f:0.5,cal:116,img:'black-eyed-peas.jpg'},
   {name:'Hummus',cat:'other',p:8,c:14,f:10,cal:166,img:'hummus.jpg'},
   {name:'Chickpeas (cooked)',cat:'other',p:8.9,c:27,f:2.6,cal:164,img:'chickpeas.jpg'},
   {name:'Lentils (cooked)',cat:'other',p:9,c:20,f:0.4,cal:116,img:'lentils.jpg'},
@@ -173,6 +198,7 @@ const NUTS_AND_SEEDS = [
   {name:'Hazelnuts',cat:'fats',p:15,c:17,f:61,cal:628,img:'hazelnuts.jpg'},
   {name:'Brazil Nuts',cat:'fats',p:14,c:12,f:67,cal:656,img:'brazil-nuts.jpg'},
   {name:'Pine Nuts',cat:'fats',p:14,c:13,f:68,cal:673,img:'pine-nuts.jpg'},
+  {name:'Coconut Flakes (unsweetened)',cat:'fats',p:6.9,c:24,f:65,cal:660,img:'coconut-flakes.jpg'},
 ];
 
 const OILS_AND_CONDIMENTS_DIR = 'assets/foods/oils-and-condiments/';
@@ -180,20 +206,47 @@ const OILS_AND_CONDIMENTS = [
   {name:'Olive Oil',cat:'fats',p:0,c:0,f:100,cal:884,img:'olive-oil.jpg'},
   {name:'Coconut Oil',cat:'fats',p:0,c:0,f:100,cal:892,img:'coconut-oil.jpg'},
   {name:'Sesame Oil',cat:'fats',p:0,c:0,f:100,cal:884,img:'sesame-oil.jpg'},
+  {name:'Avocado Oil',cat:'fats',p:0,c:0,f:100,cal:884,img:'avocado-oil.jpg'},
+  {name:'Canola Oil',cat:'fats',p:0,c:0,f:100,cal:884,img:'canola-oil.jpg'},
+  {name:'Sunflower Oil',cat:'fats',p:0,c:0,f:100,cal:884,img:'sunflower-oil.jpg'},
+  {name:'Apple Cider Vinegar',cat:'other',unit:'ml',p:0,c:0.9,f:0,cal:22,img:'apple-cider-vinegar.jpg'},
   {name:'Honey',cat:'other',p:0.3,c:82,f:0,cal:304,img:'honey.jpg'},
   {name:'Maple Syrup',cat:'other',p:0,c:67,f:0.1,cal:260,img:'maple-syrup.jpg'},
   {name:'Soy Sauce',cat:'other',p:8,c:5,f:0.04,cal:53,img:'soy-sauce.jpg'},
   {name:'Sugar (white)',cat:'other',p:0,c:100,f:0,cal:387,img:'sugar.jpg'},
+  {name:'Brown Sugar',cat:'other',p:0,c:98,f:0,cal:380,img:'brown-sugar.jpg'},
+  {name:'Cocoa Powder (unsweetened)',cat:'other',p:20,c:58,f:14,cal:228,img:'cocoa-powder.jpg'},
 ];
 
 const SNACKS_DIR = 'assets/foods/snacks/';
 const SNACKS = [
   {name:'Dark Chocolate (70-85%)',cat:'other',p:7.8,c:46,f:43,cal:598,img:'dark-chocolate.jpg'},
+  {name:'Milk Chocolate',cat:'other',p:7.7,c:59,f:30,cal:535,img:'milk-chocolate.jpg'},
 ];
 
 const SUPPLEMENTS_DIR = 'assets/foods/supplements/';
 const SUPPLEMENTS = [
   {name:'Whey Protein Powder (dry)',cat:'protein',p:80,c:8,f:4,cal:388,img:'whey-protein.jpg'},
+];
+
+// All drinks are per 100ml.
+const DRINKS_DIR = 'assets/foods/drinks/';
+const DRINKS = [
+  {name:'Coffee (black, brewed)',cat:'other',unit:'ml',p:0.1,c:0,f:0,cal:1,img:'coffee.jpg'},
+  {name:'Green Tea (brewed)',cat:'other',unit:'ml',p:0.2,c:0,f:0,cal:1,img:'green-tea.jpg'},
+  {name:'Black Tea (brewed)',cat:'other',unit:'ml',p:0,c:0.3,f:0,cal:1,img:'black-tea.jpg'},
+  {name:'Orange Juice (fresh)',cat:'carbs',unit:'ml',p:0.7,c:10,f:0.2,cal:45,img:'orange-juice.jpg'},
+  {name:'Apple Juice (100%)',cat:'carbs',unit:'ml',p:0.1,c:11,f:0.1,cal:46,img:'apple-juice.jpg'},
+  // Branded sodas — macros from each brand's published nutrition facts.
+  {name:'Coca-Cola Classic',cat:'other',unit:'ml',p:0,c:10.6,f:0,cal:42,img:'coca-cola.jpg'},
+  {name:'Coke Zero',cat:'other',unit:'ml',p:0,c:0,f:0,cal:0,img:'coke-zero.jpg'},
+  {name:'Pepsi',cat:'other',unit:'ml',p:0,c:11,f:0,cal:43,img:'pepsi.jpg'},
+  {name:'Sprite',cat:'other',unit:'ml',p:0,c:9,f:0,cal:38,img:'sprite.jpg'},
+  {name:'Fanta Orange',cat:'other',unit:'ml',p:0,c:11.2,f:0,cal:44,img:'fanta.jpg'},
+  {name:'Dr Pepper',cat:'other',unit:'ml',p:0,c:10.3,f:0,cal:41,img:'dr-pepper.jpg'},
+  {name:'7UP',cat:'other',unit:'ml',p:0,c:10.5,f:0,cal:42,img:'7up.jpg'},
+  {name:'Red Bull',cat:'other',unit:'ml',p:0.4,c:11,f:0,cal:46,img:'red-bull.jpg'},
+  {name:'Gatorade',cat:'other',unit:'ml',p:0,c:6,f:0,cal:24,img:'gatorade.jpg'},
 ];
 
 const withDir = (arr, dir) => arr.map(x => ({...x, img: dir + x.img}));
@@ -210,4 +263,5 @@ export const NL_INGREDIENTS = [
   ...withDir(OILS_AND_CONDIMENTS, OILS_AND_CONDIMENTS_DIR),
   ...withDir(SNACKS, SNACKS_DIR),
   ...withDir(SUPPLEMENTS, SUPPLEMENTS_DIR),
+  ...withDir(DRINKS, DRINKS_DIR),
 ];
