@@ -7,7 +7,7 @@ import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollectio
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler, openCustomExModal, closeCustomExModal, customExImageSelected, removeCustomExImage, saveCustomEx, deleteCustomEx } from './exercises.js';
-import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise } from './plans.js';
+import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise, openCreatePlanChoice, closeCreatePlanChoice, openAIPlan, closeAIPlan, aiAdjustDays, aiSetLevel, aiToggleFocus, aiGenerate, closeAIPreview, aiRemoveItem, aiRegenerate, aiSaveGenerated } from './plans.js';
 import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe, bmiPromptHeight, bwEditGoal, bwClearGoal, closeHeightSheet, saveHeightFromSheet, clearHeightFromSheet, closeGoalSheet, saveGoalFromSheet, clearGoalFromSheet } from './bodyweight.js';
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlSaveAsSavedMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, initMacroGoalsSwipe, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, nlFilterSavedMeals, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs, nlSearchBarcode, nlCloseBarcodeResult, nlSaveBarcodeAsCustom, nlToggleCreateChoice, nlCloseCreateChoice, nlShowBarcodeInput, nlBarcodePhotoSelected, nlRemoveBarcodePhoto, nlOpenBarcodeScanner, nlCloseBarcodeScanner, nlBarcodeScanFile } from './nutrition.js';
@@ -75,7 +75,7 @@ function switchTab(tab) {
 
 function handleFab() {
   if (state.navContext === 'exercise-list') openCustomExModal();
-  else if (state.currentTab === 'plans') openCreatePlan();
+  else if (state.currentTab === 'plans') openCreatePlanChoice();
   else if (state.currentTab === 'nutrition') {
     if (state.nlViewMode === 'today') openNLFabChoice();
     else nlOpenCreateModal();
@@ -198,6 +198,18 @@ window.openCreatePlan = openCreatePlan;
 window.closeCreatePlan = closeCreatePlan;
 window.handleCreateOverlayClick = handleCreateOverlayClick;
 window.createPlan = createPlan;
+window.openCreatePlanChoice = openCreatePlanChoice;
+window.closeCreatePlanChoice = closeCreatePlanChoice;
+window.openAIPlan = openAIPlan;
+window.closeAIPlan = closeAIPlan;
+window.aiAdjustDays = aiAdjustDays;
+window.aiSetLevel = aiSetLevel;
+window.aiToggleFocus = aiToggleFocus;
+window.aiGenerate = aiGenerate;
+window.closeAIPreview = closeAIPreview;
+window.aiRemoveItem = aiRemoveItem;
+window.aiRegenerate = aiRegenerate;
+window.aiSaveGenerated = aiSaveGenerated;
 window.setPlanEditMode = setPlanEditMode;
 window.openDeletePlanConfirm = openDeletePlanConfirm;
 window.showPlanDetail = showPlanDetail;

@@ -531,6 +531,29 @@
         </div>
     </div>
 
+    <!-- Create Plan Mode Picker -->
+    <div class="modal-overlay" id="createPlanChoiceOverlay" onclick="if(event.target===this)closeCreatePlanChoice()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">New Plan</div>
+                <button class="modal-close" onclick="closeCreatePlanChoice()">✕</button>
+            </div>
+            <div class="plan-mode-row">
+                <button class="plan-mode-btn" onclick="closeCreatePlanChoice();openCreatePlan()">
+                    <i class="bi bi-pencil-square"></i>
+                    <div class="plan-mode-label">Create</div>
+                    <div class="plan-mode-sub">Build it manually</div>
+                </button>
+                <button class="plan-mode-btn plan-mode-btn-ai" onclick="closeCreatePlanChoice();openAIPlan()">
+                    <i class="bi bi-stars"></i>
+                    <div class="plan-mode-label">Create with AI</div>
+                    <div class="plan-mode-sub">Generate from a brief</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Create Plan Modal -->
     <div class="modal-overlay" id="createPlanOverlay" onclick="handleCreateOverlayClick(event)">
         <div class="modal">
@@ -543,6 +566,62 @@
                    type="text" placeholder="e.g. Push Day, Chest & Triceps..."
                    maxlength="40" onkeydown="if(event.key==='Enter')createPlan()"/>
             <button class="create-btn" onclick="createPlan()">Create Plan</button>
+        </div>
+    </div>
+
+    <!-- AI Plan Input -->
+    <div class="modal-overlay" id="aiPlanOverlay" onclick="if(event.target===this)closeAIPlan()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">AI Plan</div>
+                <button class="modal-close" onclick="closeAIPlan()">✕</button>
+            </div>
+
+            <div class="ai-form-label">Days per week</div>
+            <div class="ai-stepper">
+                <button class="ai-stepper-btn" onclick="aiAdjustDays(-1)">−</button>
+                <div class="ai-stepper-val" id="aiDaysVal">4</div>
+                <button class="ai-stepper-btn" onclick="aiAdjustDays(1)">+</button>
+            </div>
+
+            <div class="ai-form-label">Level</div>
+            <div class="ai-segmented" id="aiLevelSeg">
+                <button class="ai-seg-btn" data-val="beginner" onclick="aiSetLevel('beginner')">Beginner</button>
+                <button class="ai-seg-btn active" data-val="intermediate" onclick="aiSetLevel('intermediate')">Intermediate</button>
+                <button class="ai-seg-btn" data-val="advanced" onclick="aiSetLevel('advanced')">Advanced</button>
+            </div>
+
+            <div class="ai-form-label">Focus muscles <span class="ai-form-hint">(optional)</span></div>
+            <div class="ai-chip-row" id="aiFocusChips"></div>
+
+            <div class="ai-form-label">Notes <span class="ai-form-hint">(optional)</span></div>
+            <textarea class="ai-notes" id="aiNotesInput" maxlength="200" rows="2"
+                      placeholder="e.g. no machines, weak rear delts, 60-min cap"></textarea>
+
+            <button class="create-btn" id="aiGenerateBtn" onclick="aiGenerate()">
+                <i class="bi bi-stars"></i> Generate Plan
+            </button>
+            <div class="ai-error" id="aiError"></div>
+        </div>
+    </div>
+
+    <!-- AI Plan Preview -->
+    <div class="modal-overlay" id="aiPreviewOverlay" onclick="if(event.target===this)closeAIPreview()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title" id="aiPreviewTitle">Preview</div>
+                <button class="modal-close" onclick="closeAIPreview()">✕</button>
+            </div>
+            <div class="ai-preview-name-row">
+                <input class="plan-name-input" id="aiPreviewName" maxlength="40"/>
+            </div>
+            <div class="ai-preview-list" id="aiPreviewList"></div>
+            <div class="ai-preview-actions">
+                <button class="ai-preview-regen" onclick="aiRegenerate()"><i class="bi bi-arrow-clockwise"></i> Regenerate</button>
+                <button class="create-btn ai-preview-save" onclick="aiSaveGenerated()">Save Plan</button>
+            </div>
         </div>
     </div>
 

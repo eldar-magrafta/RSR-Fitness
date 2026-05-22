@@ -9,6 +9,7 @@ import { openModal, findExercise } from './exercises.js';
 import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
 import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
+import { generatePlan, MUSCLE_GROUP_OPTIONS } from './ai.js';
 
 // ── Plans List ──
 
@@ -22,7 +23,7 @@ export function renderPlans() {
         <div class="empty-icon">📋</div>
         <div class="empty-title">No Plans Yet</div>
         <div class="empty-sub">Create your first workout plan and add exercises from any muscle group.</div>
-        <button class="empty-cta" onclick="openCreatePlan()">+ Create Plan</button>
+        <button class="empty-cta" onclick="openCreatePlanChoice()">+ Create Plan</button>
       </div>`;
   } else {
     container.innerHTML = '<div class="plans-list" id="plansList"></div>';
@@ -77,6 +78,135 @@ export function createPlan() {
   plans.push(newPlan);
   savePlans(plans);
   closeCreatePlan();
+  showPlanDetail(newPlan.id);
+}
+
+// ── Mode picker ──
+export function openCreatePlanChoice() {
+  document.getElementById('createPlanChoiceOverlay').classList.add('open');
+}
+export function closeCreatePlanChoice() {
+  document.getElementById('createPlanChoiceOverlay').classList.remove('open');
+}
+
+// ── AI plan generator ──
+const _aiState = {
+  days: 4,
+  level: 'intermediate',
+  focus: new Set(),
+  generated: null,
+};
+
+export function openAIPlan() {
+  document.getElementById('aiNotesInput').value = '';
+  document.getElementById('aiError').textContent = '';
+  _aiState.focus = new Set();
+  _renderAIFocusChips();
+  document.getElementById('aiDaysVal').textContent = _aiState.days;
+  _aiSetLevelUI(_aiState.level);
+  document.getElementById('aiPlanOverlay').classList.add('open');
+}
+export function closeAIPlan() {
+  document.getElementById('aiPlanOverlay').classList.remove('open');
+}
+
+export function aiAdjustDays(delta) {
+  _aiState.days = Math.max(2, Math.min(6, _aiState.days + delta));
+  document.getElementById('aiDaysVal').textContent = _aiState.days;
+}
+
+export function aiSetLevel(level) {
+  _aiState.level = level;
+  _aiSetLevelUI(level);
+}
+function _aiSetLevelUI(level) {
+  document.querySelectorAll('#aiLevelSeg .ai-seg-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.val === level);
+  });
+}
+
+function _renderAIFocusChips() {
+  const row = document.getElementById('aiFocusChips');
+  row.innerHTML = MUSCLE_GROUP_OPTIONS.map(g => {
+    const active = _aiState.focus.has(g.key) ? 'active' : '';
+    return `<button class="ai-chip ${active}" data-key="${g.key}" onclick="aiToggleFocus('${g.key}')">${g.label}</button>`;
+  }).join('');
+}
+export function aiToggleFocus(key) {
+  if (_aiState.focus.has(key)) _aiState.focus.delete(key);
+  else _aiState.focus.add(key);
+  _renderAIFocusChips();
+}
+
+export async function aiGenerate() {
+  const btn = document.getElementById('aiGenerateBtn');
+  const errEl = document.getElementById('aiError');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-stars"></i> Generating...';
+  try {
+    const plan = await generatePlan({
+      daysPerWeek: _aiState.days,
+      level: _aiState.level,
+      focusGroups: [..._aiState.focus],
+      notes: document.getElementById('aiNotesInput').value.trim().slice(0, 200),
+    });
+    if (!plan.exercises.length) throw new Error('Generated plan was empty');
+    _aiState.generated = plan;
+    closeAIPlan();
+    _showAIPreview(plan);
+  } catch (e) {
+    errEl.textContent = e.message || 'Generation failed';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-stars"></i> Generate Plan';
+  }
+}
+
+function _showAIPreview(plan) {
+  document.getElementById('aiPreviewName').value = plan.name;
+  const list = document.getElementById('aiPreviewList');
+  list.innerHTML = plan.exercises.map((it, i) => {
+    if (it && typeof it === 'object' && it.title) {
+      return `<div class="ai-preview-section">${escHtml(it.text)}</div>`;
+    }
+    return `
+      <div class="ai-preview-row" data-idx="${i}">
+        <span class="ai-preview-name">${escHtml(it)}</span>
+        <button class="ai-preview-del" onclick="aiRemoveItem(${i})" title="Remove"><i class="bi bi-x"></i></button>
+      </div>`;
+  }).join('');
+  document.getElementById('aiPreviewOverlay').classList.add('open');
+}
+
+export function closeAIPreview() {
+  document.getElementById('aiPreviewOverlay').classList.remove('open');
+}
+
+export function aiRemoveItem(idx) {
+  if (!_aiState.generated) return;
+  _aiState.generated.exercises.splice(idx, 1);
+  _showAIPreview(_aiState.generated);
+}
+
+export function aiRegenerate() {
+  closeAIPreview();
+  openAIPlan();
+}
+
+export function aiSaveGenerated() {
+  if (!_aiState.generated) return;
+  const name = document.getElementById('aiPreviewName').value.trim().slice(0, 40) || _aiState.generated.name;
+  const plans = getPlans();
+  const newPlan = {
+    id: 'plan_' + Date.now(),
+    name,
+    exercises: _aiState.generated.exercises,
+  };
+  plans.push(newPlan);
+  savePlans(plans);
+  _aiState.generated = null;
+  closeAIPreview();
   showPlanDetail(newPlan.id);
 }
 

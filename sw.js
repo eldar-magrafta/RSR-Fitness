@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v90';
+const CACHE = 'trainer-v91';
 
 const CORE = [
   './',
@@ -37,6 +37,7 @@ const CORE = [
   './css/musclebalance.css',
   './js/session.js',
   './css/session.css',
+  './js/ai.js',
   './assets/fonts/bootstrap-icons.css',
   './assets/fonts/fonts/bootstrap-icons.woff2',
   './assets/fonts/fonts/bootstrap-icons.woff',
