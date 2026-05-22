@@ -87,7 +87,7 @@ function toPlanShape(raw, idx) {
   const exercises = [];
   raw.days.forEach((day, i) => {
     const title = String(day.title || `Day ${i + 1}`).slice(0, 80);
-    exercises.push({ title: true, text: title });
+    exercises.push({ title });
     (day.exercises || []).forEach(rawName => {
       const canonical = idx.lowerToCanonical[String(rawName).toLowerCase().trim()];
       if (canonical) exercises.push(canonical);
