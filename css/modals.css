@@ -6,6 +6,9 @@
   backdrop-filter: blur(8px);
 }
 .modal-overlay.open { display: flex; }
+/* Exercise detail modal must sit above any other modal overlay
+   (e.g. opened from the AI preview list). */
+#modalOverlay { z-index: 200; }
 .modal {
   background: var(--card); border-radius: 28px 28px 0 0; width: 100%;
   max-height: 92vh; overflow-y: auto;
