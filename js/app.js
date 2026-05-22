@@ -17,7 +17,7 @@ import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
-import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle, syncWaterSettingsDisplay } from './water.js';
+import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
 import { sessionFocus, sessionAddSet, sessionDeleteSet, sessionUpdateSet, sessionRestAdjust, sessionRestSkip, sessionRestTogglePause, sessionFinish, sessionHandleBack } from './session.js';
 import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
@@ -386,15 +386,6 @@ function hideSettingsMenu() {
   document.getElementById('settingsPanel').classList.remove('open');
 }
 
-function showWaterSettingsMenu() {
-  document.getElementById('waterSettingsPanel').classList.add('open');
-  syncWaterSettingsDisplay();
-}
-
-function hideWaterSettingsMenu() {
-  document.getElementById('waterSettingsPanel').classList.remove('open');
-}
-
 function showThemeSettingsMenu() {
   document.getElementById('themeSettingsPanel').classList.add('open');
 }
@@ -461,8 +452,6 @@ window.showClearDataMenu = showClearDataMenu;
 window.hideClearDataMenu = hideClearDataMenu;
 window.showSettingsMenu = showSettingsMenu;
 window.hideSettingsMenu = hideSettingsMenu;
-window.showWaterSettingsMenu = showWaterSettingsMenu;
-window.hideWaterSettingsMenu = hideWaterSettingsMenu;
 window.showThemeSettingsMenu = showThemeSettingsMenu;
 window.hideThemeSettingsMenu = hideThemeSettingsMenu;
 window.openClearAllData = openClearAllData;

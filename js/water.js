@@ -183,6 +183,25 @@ export function renderWaterView() {
         <div class="water-avg-label">Avg / day · this month</div>
         <div class="water-avg-val">${fmtAvg(avgMonth)}</div>
       </div>
+    </div>
+    <div class="water-settings-section">
+      <div class="water-settings-title">Settings</div>
+      <div class="water-settings-row">
+        <span class="water-settings-label">Daily Target</span>
+        <div class="settings-stepper">
+          <button class="settings-stepper-btn" onclick="waterAdjustTarget(-0.25)">−</button>
+          <div class="settings-stepper-val">${target.toFixed(2)}L</div>
+          <button class="settings-stepper-btn" onclick="waterAdjustTarget(0.25)">+</button>
+        </div>
+      </div>
+      <div class="water-settings-row">
+        <span class="water-settings-label">Bottle Size</span>
+        <div class="settings-stepper">
+          <button class="settings-stepper-btn" onclick="waterAdjustBottle(-50)">−</button>
+          <div class="settings-stepper-val">${bottleMl}ml</div>
+          <button class="settings-stepper-btn" onclick="waterAdjustBottle(50)">+</button>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -234,15 +253,7 @@ function showWaterCelebration() {
 export function waterAdjustTarget(delta) {
   const target = Math.max(0.5, getTarget() + delta);
   setTarget(target);
-  syncWaterSettingsDisplay();
   if (state.navContext === 'water') renderWaterView();
-}
-
-export function syncWaterSettingsDisplay() {
-  const t = document.getElementById('settingsWaterTarget');
-  if (t) t.textContent = `${getTarget().toFixed(2)}L`;
-  const b = document.getElementById('settingsWaterBottle');
-  if (b) b.textContent = `${getBottleSize()}ml`;
 }
 
 export function waterAddBottle() {
@@ -254,6 +265,5 @@ export function waterAdjustBottle(delta) {
   const current = getBottleSize();
   const next = Math.max(100, Math.min(2000, current + delta));
   setBottleSize(next);
-  syncWaterSettingsDisplay();
   if (state.navContext === 'water') renderWaterView();
 }

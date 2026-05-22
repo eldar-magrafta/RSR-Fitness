@@ -61,6 +61,32 @@
   font-size:1.4rem; font-weight:800; color:var(--accent);
 }
 
+.water-settings-section {
+  background:var(--card); border:1px solid var(--border-med);
+  border-radius:14px; padding:14px 16px; margin-bottom:24px;
+}
+.water-settings-title {
+  font-size:0.75rem; font-weight:700; color:var(--text-secondary);
+  text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;
+}
+.water-settings-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 0;
+}
+.water-settings-row + .water-settings-row {
+  border-top:1px solid var(--border-med);
+  margin-top:4px; padding-top:14px;
+}
+.water-settings-label {
+  font-size:0.92rem; font-weight:600; color:var(--text);
+}
+.water-settings-section .settings-stepper {
+  width:auto;
+}
+.water-settings-section .settings-stepper-val {
+  min-width:64px; font-size:1rem;
+}
+
 .water-quick-btn-bottle {
   background:rgba(0,229,255,0.14); border-color:rgba(0,229,255,0.35);
 }
