@@ -135,6 +135,18 @@
   border-bottom-color: rgba(0,229,255,0.4);
 }
 .session-set-x { color: var(--text-secondary); font-size: 0.85rem; }
+.session-set-save {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: rgba(0,229,255,0.12);
+  border: 1.5px solid var(--accent);
+  cursor: pointer; flex-shrink: 0;
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem;
+}
+.session-set-save:active {
+  background: rgba(0,229,255,0.28);
+}
 .session-set-del {
   width: 26px; height: 26px; border-radius: 50%;
   background: transparent; border: 1.5px solid var(--border-med);

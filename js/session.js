@@ -96,8 +96,8 @@ export function renderSession() {
   if (!s) return;
 
   const totalEx = s.items.filter(i => i.kind === 'ex').length;
-  const doneEx = s.items.filter(i => i.kind === 'ex' && i.sets.some(isSetFilled)).length;
-  const doneSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
+  const doneEx = s.items.filter(i => i.kind === 'ex' && i.sets.some(isSetCommitted)).length;
+  const doneSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetCommitted).length : sum, 0);
   const elapsedMin = Math.floor((Date.now() - s.startedAt) / 60000);
 
   let html = `
@@ -116,7 +116,7 @@ export function renderSession() {
       return;
     }
     const isCurrent = idx === s.currentIdx;
-    const hasLogged = it.sets.some(set => isSetFilled(set));
+    const hasLogged = it.sets.some(isSetCommitted);
     const stateCls = isCurrent ? 'current' : hasLogged ? 'done' : 'upcoming';
     const found = findExercise(it.name);
     const groupName = found ? found.groupName : '';
@@ -128,7 +128,7 @@ export function renderSession() {
       : (isCloudThumb ? '<div class="session-card-thumb-ph"></div>' : '');
 
     if (!isCurrent) {
-      const filled = it.sets.filter(isSetFilled);
+      const filled = it.sets.filter(isSetCommitted);
       const summary = filled.length
         ? filled.map(s2 => `${s2.w}×${s2.r}`).join(' · ')
         : groupName;
@@ -177,17 +177,22 @@ export function renderSession() {
 
 function renderSetRow(exIdx, sIdx, set, exName) {
   const filled = isSetFilled(set);
+  const committed = !!set.committed;
   const last = exName ? getLog(exName) : null;
   const lastSet = last && last.setList.length ? last.setList[Math.min(sIdx, last.setList.length - 1)] : null;
   const wPlaceholder = lastSet && lastSet.w > 0 ? `Last: ${lastSet.w}kg` : 'kg';
   const rPlaceholder = lastSet && lastSet.r > 0 ? `Last: ${lastSet.r} reps` : 'reps';
+  const saveBtn = filled && !committed
+    ? `<button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>`
+    : '';
   return `
-    <div class="session-set-row ${filled ? 'done' : ''}">
+    <div class="session-set-row ${committed ? 'done' : ''}">
       <input class="session-set-input" type="number" inputmode="decimal" placeholder="${wPlaceholder}"
              value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)"/>
       <span class="session-set-x">×</span>
       <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPlaceholder}"
              value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)"/>
+      ${saveBtn}
       <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
     </div>`;
 }
@@ -196,6 +201,10 @@ function isSetFilled(set) {
   const w = String(set.w ?? '').trim();
   const r = String(set.r ?? '').trim();
   return w !== '' && r !== '' && parseFloat(w) > 0 && parseInt(r) > 0;
+}
+
+function isSetCommitted(set) {
+  return !!set.committed && isSetFilled(set);
 }
 
 // ── Set actions ──
@@ -238,9 +247,24 @@ export function sessionUpdateSet(exIdx, sIdx, field, value) {
   if (!set) return;
   const wasFilled = isSetFilled(set);
   set[field] = value;
+  // Editing a committed set un-commits it until the user re-saves.
+  if (set.committed) set.committed = false;
   saveSession(s);
-  if (!wasFilled && isSetFilled(set)) startRest(s.restSec);
-  // No re-render; input is already live
+  // Toggle the save button visibility when the filled-state crosses the threshold.
+  if (wasFilled !== isSetFilled(set)) renderSession();
+}
+
+export function sessionSaveSet(exIdx, sIdx) {
+  const s = loadSession();
+  if (!s) return;
+  const ex = s.items[exIdx];
+  if (!ex || ex.kind !== 'ex') return;
+  const set = ex.sets[sIdx];
+  if (!set || !isSetFilled(set) || set.committed) return;
+  set.committed = true;
+  saveSession(s);
+  startRest(s.restSec);
+  renderSession();
 }
 
 // ── Rest timer ──
@@ -366,7 +390,15 @@ export function sessionFinish() {
   const s = loadSession();
   if (!s) return;
 
-  const completedSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
+  // On finish, treat any filled-but-unsaved row as saved so the user
+  // doesn't lose data they typed but forgot to confirm.
+  s.items.forEach(it => {
+    if (it.kind !== 'ex') return;
+    it.sets.forEach(set => { if (isSetFilled(set)) set.committed = true; });
+  });
+  saveSession(s);
+
+  const completedSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetCommitted).length : sum, 0);
   if (completedSets === 0) {
     openConfirmDialog({
       title: 'Discard Workout?',
@@ -391,7 +423,7 @@ function commitSession(s) {
 
   s.items.forEach(it => {
     if (it.kind !== 'ex') return;
-    const doneSets = it.sets.filter(isSetFilled);
+    const doneSets = it.sets.filter(isSetCommitted);
     if (!doneSets.length) return;
 
     const sets = doneSets.map(x => ({ w: String(x.w), r: String(x.r) }));
@@ -424,7 +456,7 @@ function exitSession() {
 }
 
 function showSessionToast(s, newPRs) {
-  const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetFilled).length : sum, 0);
+  const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetCommitted).length : sum, 0);
   const minutes = Math.max(1, Math.floor((Date.now() - s.startedAt) / 60000));
   const toast = document.createElement('div');
   toast.className = 'session-finish-toast';
@@ -442,7 +474,7 @@ function showSessionToast(s, newPRs) {
 export function sessionHandleBack() {
   const s = loadSession();
   if (!s) return false;
-  const anyDone = s.items.some(it => it.kind === 'ex' && it.sets.some(isSetFilled));
+  const anyDone = s.items.some(it => it.kind === 'ex' && it.sets.some(isSetCommitted));
   if (!anyDone) {
     exitSession();
     return true;
