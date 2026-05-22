@@ -224,8 +224,12 @@ export function sessionAddSet(exIdx) {
   const ex = s.items[exIdx];
   if (!ex || ex.kind !== 'ex') return;
   ex.sets.push({ w: '', r: '' });
+  const newSIdx = ex.sets.length - 1;
   saveSession(s);
   renderSession();
+  const row = document.querySelector(`[data-set-row="${exIdx}_${newSIdx}"]`);
+  const input = row && row.querySelector('.session-set-input');
+  if (input) input.focus();
 }
 
 export function sessionDeleteSet(exIdx, sIdx) {
