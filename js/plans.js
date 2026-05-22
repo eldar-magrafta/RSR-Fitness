@@ -167,16 +167,41 @@ export async function aiGenerate() {
 function _showAIPreview(plan) {
   document.getElementById('aiPreviewName').value = plan.name;
   const list = document.getElementById('aiPreviewList');
-  list.innerHTML = plan.exercises.map((it, i) => {
+  list.innerHTML = '';
+  plan.exercises.forEach((it, i) => {
     if (it && typeof it === 'object' && it.title) {
-      return `<div class="ai-preview-section">${escHtml(it.title)}</div>`;
+      const sec = document.createElement('div');
+      sec.className = 'ai-preview-section';
+      sec.textContent = it.title;
+      list.appendChild(sec);
+      return;
     }
-    return `
-      <div class="ai-preview-row" data-idx="${i}">
-        <span class="ai-preview-name">${escHtml(it)}</span>
-        <button class="ai-preview-del" onclick="aiRemoveItem(${i})" title="Remove"><i class="bi bi-x"></i></button>
-      </div>`;
-  }).join('');
+    const exName = it;
+    const found = findExercise(exName);
+    const thumbSrc = found ? (found.ex.thumb || found.ex.gif || '') : '';
+    const isCloud = thumbSrc.startsWith('cloud:');
+    const showThumb = thumbSrc && !isCloud;
+    const sub = found ? found.groupName : '';
+    const row = document.createElement('div');
+    row.className = 'plan-ex-item ai-preview-ex';
+    row.innerHTML = `
+      ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="plan-ex-thumb-ph"></div>'}
+      <div class="plan-ex-info">
+        <div class="plan-ex-name">${escHtml(exName)}</div>
+        <div class="plan-ex-sub">${escHtml(sub)}</div>
+      </div>
+      <button class="plan-ex-remove" title="Remove">−</button>`;
+    if (found) {
+      row.querySelector('.plan-ex-info').onclick = () => openModal(found.ex, found.groupName, false);
+      const thumbEl = row.querySelector('.plan-ex-thumb');
+      if (thumbEl) thumbEl.onclick = () => openModal(found.ex, found.groupName, false);
+    }
+    row.querySelector('.plan-ex-remove').onclick = (e) => {
+      e.stopPropagation();
+      aiRemoveItem(i);
+    };
+    list.appendChild(row);
+  });
   document.getElementById('aiPreviewOverlay').classList.add('open');
 }
 

@@ -238,7 +238,7 @@
 /* ── AI preview ── */
 .ai-preview-name-row { margin-bottom: 6px; }
 .ai-preview-list {
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 10px;
   max-height: 50vh; overflow-y: auto;
   margin-bottom: 16px;
 }
