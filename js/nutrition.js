@@ -298,8 +298,8 @@ export function renderNLPicker() {
   const filter = (document.getElementById('nlSearchInput').value || '').toLowerCase();
   const all = getAllIngs();
   const filtered = filter ? all.filter(i => i.name.toLowerCase().includes(filter)) : all;
-  const cats = ['protein', 'dairy', 'carbs', 'fats', 'vegetables', 'other', 'custom'];
-  const catNames = { protein: 'Protein', dairy: 'Dairy', carbs: 'Carbs', fats: 'Fats', vegetables: 'Vegetables', other: 'Other', custom: 'Custom' };
+  const cats = ['protein', 'dairy', 'grains', 'fruits', 'vegetables', 'legumes', 'nuts-and-seeds', 'oils-and-condiments', 'drinks', 'custom'];
+  const catNames = { protein: 'Proteins', dairy: 'Dairy', grains: 'Grains', fruits: 'Fruits', vegetables: 'Vegetables', legumes: 'Legumes', 'nuts-and-seeds': 'Nuts & Seeds', 'oils-and-condiments': 'Oils & Condiments', drinks: 'Drinks', custom: 'Custom' };
   let html = '';
   cats.forEach(cat => {
     const items = filtered.filter(i => i.cat === cat);
