@@ -35,7 +35,6 @@
 .nl-meal-card:active { transform:scale(0.98); box-shadow:0 0 16px rgba(0,229,255,0.06); }
 .nl-meal-has-img { display:flex; align-items:center; gap:13px; padding:12px 14px; }
 .nl-meal-card-img { width:68px; height:68px; border-radius:14px; object-fit:cover; flex-shrink:0; }
-.nl-meal-card-placeholder { width:68px; height:68px; border-radius:14px; background:var(--subtle-bg); flex-shrink:0; }
 .nl-meal-card-body { flex:1; min-width:0; }
 .nl-detail-photo-wrap { position:relative; margin-bottom:16px; }
 .nl-detail-photo-img { width:100%; max-height:210px; object-fit:cover; border-radius:18px; display:block; cursor:pointer; }
