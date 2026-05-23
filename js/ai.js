@@ -75,7 +75,7 @@ Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 }`;
 }
 
-async function callGemini(prompt, extraParts = []) {
+async function callGemini(prompt, extraParts = [], temperature = 0.7) {
   const parts = [{ text: prompt }, ...extraParts];
   const res = await fetch(ENDPOINT, {
     method: 'POST',
@@ -83,7 +83,7 @@ async function callGemini(prompt, extraParts = []) {
     body: JSON.stringify({
       contents: [{ parts }],
       generationConfig: {
-        temperature: 0.7,
+        temperature,
         responseMimeType: 'application/json',
       },
     }),
@@ -167,21 +167,61 @@ function buildIngredientIndex() {
   const allNames = NL_INGREDIENTS.map(i => i.name);
   const lowerToCanonical = {};
   NL_INGREDIENTS.forEach(i => { lowerToCanonical[i.name.toLowerCase()] = i; });
-  return { allNames, lowerToCanonical };
+  // Group by category for the prompt — easier for Gemini to scan.
+  const byCat = {};
+  NL_INGREDIENTS.forEach(i => {
+    if (!byCat[i.cat]) byCat[i.cat] = [];
+    byCat[i.cat].push(i.name);
+  });
+  return { allNames, lowerToCanonical, byCat };
 }
 
 function buildMealVisionPrompt(idx) {
-  const list = idx.allNames.map(n => `- ${n}`).join('\n');
-  return `You are analyzing a photo of a meal. Identify each visible ingredient and estimate its weight in grams as eaten on the plate.
+  const catLabel = {
+    protein: 'PROTEINS',
+    dairy: 'DAIRY & EGGS',
+    grains: 'GRAINS & STARCHES',
+    fruits: 'FRUITS',
+    vegetables: 'VEGETABLES',
+    legumes: 'LEGUMES',
+    'nuts-and-seeds': 'NUTS & SEEDS',
+    'oils-and-condiments': 'OILS, SAUCES & CONDIMENTS',
+    drinks: 'DRINKS',
+  };
+  const catOrder = ['protein', 'dairy', 'grains', 'fruits', 'vegetables', 'legumes', 'nuts-and-seeds', 'oils-and-condiments', 'drinks'];
+  const grouped = catOrder
+    .filter(c => idx.byCat[c])
+    .map(c => `[${catLabel[c] || c.toUpperCase()}]\n${idx.byCat[c].map(n => `- ${n}`).join('\n')}`)
+    .join('\n\n');
+  return `You are analyzing a photo of a meal. Identify each visible ingredient and estimate its weight in grams as it appears on the plate.
+
+HOW TO READ THE LIST BELOW:
+Items are grouped by category. When you see something on the plate, locate the right category first, then pick the closest matching name.
+
+DECOMPOSITION RULE:
+If a dish is composite (e.g. burrito, salad bowl, pasta with sauce, sandwich), break it into its visible constituent parts and list each separately. Do NOT return a single "Burrito" or "Salad" entry — return the rice, beans, cheese, tortilla, lettuce, dressing, etc., individually.
+
+COOKING STATE:
+Most items in the list say "(cooked)" — these are the cooked-weight values. If the food on the plate is cooked, use the cooked entry. Use raw entries only if the food is visibly raw (e.g. salad greens, fruit, sashimi).
+
+PORTION CALIBRATION (use as anchors):
+- Cooked rice / pasta: a fist (closed) ≈ 150g; a typical restaurant serving ≈ 200–250g
+- Cooked meat / fish: a deck of cards ≈ 85g; a chicken breast ≈ 120–180g; a salmon fillet ≈ 150g
+- Bread: a slice ≈ 30g; a bagel ≈ 100g; a tortilla ≈ 30–50g
+- Eggs: medium ≈ 50g, large ≈ 60g
+- Oil / butter / sauce visible on plate: 1 tbsp ≈ 14g; a generous drizzle ≈ 10–20g; a sauce pool ≈ 30–60g
+- Cheese shred or slice: 1 slice ≈ 20g; a sprinkle ≈ 15–30g
+- Vegetables (cooked): half a cup ≈ 80g; a typical side ≈ 100–150g
 
 CONSTRAINTS:
-1. For "ingredients", you MUST only use names from the EXACT list below. Use the names verbatim — no paraphrasing, no prefixes, no suffixes.
-2. If you see something on the plate that has no close match in the list, put a short plain-language label for it in the "skipped" array (e.g. "kimchi", "halloumi", "pad thai noodles"). Do not invent macros for skipped items. Keep skipped labels under 30 characters.
-3. Estimate grams realistically based on visible portion size. Typical references: a chicken breast is 120–180g, a slice of bread is 30g, a cup of rice (cooked) is 160g, a medium egg is 50g.
+1. For "ingredients", you MUST only use names from the list below. Use the names verbatim — no paraphrasing, no prefixes, no suffixes.
+2. If something on the plate genuinely has no analog in the list, put a short plain-language label for it in "skipped" (e.g. "kimchi", "halloumi"). Do NOT skip items that have a reasonable analog — try the categorized list first. Do NOT invent macros for skipped items. Keep skipped labels under 30 characters.
+3. Round grams to the nearest 5g. Do not return 0g.
 4. Pick a concise meal name (≤ 30 chars) that describes the dish.
 
-ALLOWED INGREDIENT NAMES:
-${list}
+ALLOWED INGREDIENT NAMES (grouped by category):
+
+${grouped}
 
 Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 {
@@ -208,9 +248,9 @@ export async function identifyMealFromPhoto(dataUrl) {
   const parts = [{ inlineData: inline }];
   let raw;
   try {
-    raw = await callGemini(prompt, parts);
+    raw = await callGemini(prompt, parts, 0.25);
   } catch (e) {
-    if (e instanceof SyntaxError) raw = await callGemini(prompt + '\n\nReturn pure JSON only.', parts);
+    if (e instanceof SyntaxError) raw = await callGemini(prompt + '\n\nReturn pure JSON only.', parts, 0.25);
     else throw e;
   }
   if (!raw || !Array.isArray(raw.ingredients)) {
