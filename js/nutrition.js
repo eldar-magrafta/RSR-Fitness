@@ -26,14 +26,24 @@ function _cloudImgTag(cls, collection, docId) {
   return `<img class="${cls}" data-cloud-src="${key}" src="" alt="" decoding="async">`;
 }
 
+// Inline SVG plate-and-cutlery glyph — used when a meal has no image, or when
+// its image src 404s. Inlining avoids a network round-trip and licensing risk.
+const MEAL_PLACEHOLDER_SVG = `<svg class="nl-meal-card-placeholder" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="2.5" fill="none"/>
+  <circle cx="32" cy="32" r="13" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
+  <path d="M14 14 L14 28 M11 14 L17 14 M14 28 C14 30 12 32 12 36 L16 36 C16 32 14 30 14 28 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M50 14 C46 14 44 18 44 22 C44 24 46 26 48 26 L48 50 L52 50 L52 14 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>`;
+
 function _mealCardImg(m) {
   if (m.image && _isCloudMarker(m.image)) {
     return _cloudImgTag('nl-meal-card-img', 'meal-photos', _cloudDocId(m.image));
   } else if (m.image) {
-    return `<img class="nl-meal-card-img" src="${m.image}" alt="" decoding="async">`;
+    return `<img class="nl-meal-card-img" src="${m.image}" alt="" decoding="async" onerror="this.outerHTML=window.nlMealPlaceholderSVG">`;
   }
-  return `<div class="nl-meal-card-placeholder"></div>`;
+  return MEAL_PLACEHOLDER_SVG;
 }
+window.nlMealPlaceholderSVG = MEAL_PLACEHOLDER_SVG;
 
 function _resolveCloudImages(container) {
   container.querySelectorAll('[data-cloud-src]').forEach(el => {

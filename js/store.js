@@ -179,20 +179,6 @@ export function bwHasPhoto(val) { return bwGetPhotos(val).length > 0; }
 // ── Nutrition Lab Meals ──
 const DEFAULT_MEALS = [
   {
-    id: 'default_meal_1',
-    name: 'High-Protein Breakfast',
-    type: 'saved',
-    image: 'assets/foods/saved-meals/Egg-Savory-Oats.webp',
-    ingredients: [
-      {name:'Eggs (whole, cooked)',  grams:150, p:13,   c:1.1,  f:11,  cal:155, img:'assets/foods/dairy/eggs.jpg'},
-      {name:'Oats',                  grams:80,  p:13.2, c:67.7, f:6.5, cal:382, img:'assets/foods/grains/oats.jpg'},
-      {name:'Greek Yogurt',          grams:150, p:10,   c:3.6,  f:0.7, cal:61,  img:'assets/foods/dairy/greek-yogurt.jpg'},
-    ],
-    notes: '',
-    favorite: false,
-    createdAt: '2025-01-01',
-  },
-  {
     id: 'default_meal_2',
     name: 'Chicken & Rice',
     type: 'saved',
@@ -220,6 +206,38 @@ const DEFAULT_MEALS = [
     favorite: false,
     createdAt: '2025-01-01',
   },
+  {
+    id: 'default_meal_4',
+    name: 'Pizza Slice',
+    type: 'saved',
+    image: 'assets/foods/saved-meals/pizza-slice.jpg',
+    ingredients: [
+      {name:'White Bread',    grams:80,  p:9,   c:49,  f:3.2, cal:212, img:'assets/foods/grains/white-bread.jpg'},
+      {name:'Tomato Sauce',   grams:30,  p:1.6, c:6.7, f:0.3, cal:9,   img:'assets/foods/oils-and-condiments/tomato-sauce.jpg'},
+      {name:'Mozzarella',     grams:40,  p:22,  c:2.2, f:22,  cal:120, img:'assets/foods/dairy/mozzarella.jpg'},
+      {name:'Olive Oil',      grams:5,   p:0,   c:0,   f:100, cal:44,  img:'assets/foods/oils-and-condiments/olive-oil.jpg'},
+    ],
+    notes: '',
+    favorite: false,
+    createdAt: '2025-01-01',
+  },
+  {
+    id: 'default_meal_5',
+    name: 'Burger',
+    type: 'saved',
+    image: 'assets/foods/saved-meals/burger.jpg',
+    ingredients: [
+      {name:'White Bread',             grams:90,  p:9,    c:49, f:3.2, cal:239, img:'assets/foods/grains/white-bread.jpg'},
+      {name:'Ground Beef lean (cooked)', grams:120, p:26,   c:0,  f:15,  cal:305, img:'assets/foods/meat/ground-beef.jpg'},
+      {name:'Cheddar Cheese',          grams:20,  p:25,   c:1.3,f:33,  cal:80,  img:'assets/foods/dairy/cheddar-cheese.jpg'},
+      {name:'Lettuce',                 grams:15,  p:1.4,  c:2.9,f:0.2, cal:2,   img:'assets/foods/vegetables/lettuce.jpg'},
+      {name:'Tomato',                  grams:25,  p:0.9,  c:3.9,f:0.2, cal:5,   img:'assets/foods/vegetables/tomato.jpg'},
+      {name:'Ketchup',                 grams:15,  p:1,    c:26, f:0.2, cal:17,  img:'assets/foods/oils-and-condiments/ketchup.jpg'},
+    ],
+    notes: '',
+    favorite: false,
+    createdAt: '2025-01-01',
+  },
 ];
 
 export function getNLMeals() {
@@ -232,6 +250,10 @@ export function getNLMeals() {
     meals.forEach(m => {
       const def = DEFAULT_MEALS.find(d => d.id === m.id);
       if (def?.image && !m.image) { m.image = def.image; changed = true; }
+    });
+    // Migrate: add any new default meals introduced after first install.
+    DEFAULT_MEALS.forEach(def => {
+      if (!meals.some(m => m.id === def.id)) { meals.push(def); changed = true; }
     });
     if (changed) saveNLMeals(meals);
     return meals;

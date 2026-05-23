@@ -211,6 +211,28 @@ const OILS_AND_CONDIMENTS = [
   {name:'Cocoa Powder (unsweetened)',cat:'oils-and-condiments',p:20,c:58,f:14,cal:228,img:'cocoa-powder.jpg'},
   {name:'Dark Chocolate (70-85%)',cat:'oils-and-condiments',p:7.8,c:46,f:43,cal:598,img:'dark-chocolate.jpg'},
   {name:'Milk Chocolate',cat:'oils-and-condiments',p:7.7,c:59,f:30,cal:535,img:'milk-chocolate.jpg'},
+  {name:'Tomato Sauce',cat:'oils-and-condiments',p:1.6,c:6.7,f:0.3,cal:30,img:'tomato-sauce.jpg'},
+  {name:'Ketchup',cat:'oils-and-condiments',p:1,c:26,f:0.2,cal:112,img:'ketchup.jpg'},
+  {name:'Mustard',cat:'oils-and-condiments',p:4.4,c:5.3,f:4,cal:67,img:'mustard.jpg'},
+  {name:'Mayonnaise',cat:'oils-and-condiments',p:1,c:0.6,f:75,cal:680,img:'mayonnaise.jpg'},
+  {name:'Pesto',cat:'oils-and-condiments',p:4,c:6,f:50,cal:418,img:'pesto.jpg'},
+  {name:'BBQ Sauce',cat:'oils-and-condiments',p:0.8,c:40,f:0.6,cal:172,img:'bbq-sauce.jpg'},
+  {name:'Hot Sauce (Sriracha)',cat:'oils-and-condiments',p:1.9,c:19,f:0.9,cal:93,img:'hot-sauce.jpg'},
+  {name:'Ranch Dressing',cat:'oils-and-condiments',p:1.1,c:6.7,f:50,cal:484,img:'ranch-dressing.jpg'},
+  {name:'Caesar Dressing',cat:'oils-and-condiments',p:1.5,c:4.5,f:50,cal:480,img:'caesar-dressing.jpg'},
+  {name:'Guacamole',cat:'oils-and-condiments',p:2,c:7,f:14,cal:160,img:'guacamole.jpg'},
+  {name:'Tzatziki',cat:'oils-and-condiments',p:4,c:4,f:8,cal:110,img:'tzatziki.jpg'},
+  {name:'Tartar Sauce',cat:'oils-and-condiments',p:0.7,c:4,f:53,cal:503,img:'tartar-sauce.jpg'},
+  {name:'Teriyaki Sauce',cat:'oils-and-condiments',p:5.9,c:16,f:0,cal:89,img:'teriyaki-sauce.jpg'},
+  {name:'Fish Sauce',cat:'oils-and-condiments',unit:'ml',p:8.5,c:4,f:0,cal:50,img:'fish-sauce.jpg'},
+  {name:'Oyster Sauce',cat:'oils-and-condiments',p:1.4,c:13,f:0.3,cal:51,img:'oyster-sauce.jpg'},
+  {name:'Worcestershire Sauce',cat:'oils-and-condiments',unit:'ml',p:0,c:19,f:0,cal:78,img:'worcestershire.jpg'},
+  {name:'Balsamic Vinegar',cat:'oils-and-condiments',unit:'ml',p:0.5,c:17,f:0,cal:88,img:'balsamic-vinegar.jpg'},
+  {name:'Black Pepper',cat:'oils-and-condiments',p:10,c:64,f:3.3,cal:251,img:'black-pepper.jpg'},
+  {name:'Curry Paste',cat:'oils-and-condiments',p:4,c:13,f:13,cal:180,img:'curry-paste.jpg'},
+  {name:'Alfredo Sauce',cat:'oils-and-condiments',p:4,c:5,f:18,cal:195,img:'alfredo-sauce.jpg'},
+  {name:'Sweetened Condensed Milk',cat:'oils-and-condiments',p:7.9,c:54,f:8.7,cal:321,img:'condensed-milk.jpg'},
+  {name:'Powdered Sugar',cat:'oils-and-condiments',p:0,c:100,f:0,cal:389,img:'powdered-sugar.jpg'},
 ];
 
 // All drinks are per 100ml.
@@ -235,6 +257,19 @@ const DRINKS = [
   {name:'7UP',cat:'drinks',unit:'ml',p:0,c:10.5,f:0,cal:42,img:'7up.jpg'},
   {name:'Red Bull',cat:'drinks',unit:'ml',p:0.4,c:11,f:0,cal:46,img:'red-bull.jpg'},
   {name:'Gatorade',cat:'drinks',unit:'ml',p:0,c:6,f:0,cal:24,img:'gatorade.jpg'},
+  // Alcohol — macros per 100ml from FatSecret/USDA averages.
+  {name:'Beer (regular, ~5% ABV)',cat:'drinks',unit:'ml',p:0.5,c:3.6,f:0,cal:43,img:'beer.jpg'},
+  {name:'Red Wine',cat:'drinks',unit:'ml',p:0.1,c:2.6,f:0,cal:85,img:'red-wine.jpg'},
+  {name:'White Wine',cat:'drinks',unit:'ml',p:0.1,c:2.6,f:0,cal:82,img:'white-wine.jpg'},
+  {name:'Rosé Wine',cat:'drinks',unit:'ml',p:0.1,c:2.9,f:0,cal:83,img:'rose-wine.jpg'},
+  {name:'Vodka (40% ABV)',cat:'drinks',unit:'ml',p:0,c:0,f:0,cal:231,img:'vodka.jpg'},
+  {name:'Whiskey (40% ABV)',cat:'drinks',unit:'ml',p:0,c:0,f:0,cal:250,img:'whiskey.jpg'},
+  {name:'Tequila (40% ABV)',cat:'drinks',unit:'ml',p:0,c:0,f:0,cal:231,img:'tequila.jpg'},
+  {name:'Rum (40% ABV)',cat:'drinks',unit:'ml',p:0,c:0,f:0,cal:231,img:'rum.jpg'},
+  {name:'Gin (40% ABV)',cat:'drinks',unit:'ml',p:0,c:0,f:0,cal:231,img:'gin.jpg'},
+  // Non-alcoholic additions
+  {name:'Iced Tea (sweetened)',cat:'drinks',unit:'ml',p:0,c:8,f:0,cal:32,img:'iced-tea.jpg'},
+  {name:'Hot Chocolate',cat:'drinks',unit:'ml',p:3.5,c:10.7,f:3.5,cal:86,img:'hot-chocolate.jpg'},
 ];
 
 const withDir = (arr, dir) => arr.map(x => ({...x, img: dir + x.img}));
