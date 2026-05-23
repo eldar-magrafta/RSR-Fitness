@@ -94,6 +94,11 @@
                 <span class="burger-item-label">Theme</span>
                 <span style="opacity:0.4;">›</span>
             </div>
+            <div class="burger-item" onclick="showWorkoutSettingsMenu()">
+                <span class="burger-item-icon">⏱️</span>
+                <span class="burger-item-label">Workout</span>
+                <span style="opacity:0.4;">›</span>
+            </div>
             <div class="burger-item" onclick="showClearDataMenu()">
                 <span class="burger-item-icon">🗑️</span>
                 <span class="burger-item-label">Clear Data</span>
@@ -131,6 +136,23 @@
                         <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="ultraviolet" onclick="setTheme('ultraviolet')"></div><div class="theme-label">Violet</div></div>
                         <div class="theme-swatch-wrap"><div class="theme-swatch" data-theme="light" onclick="setTheme('light')"></div><div class="theme-label">Light</div></div>
                     </div>
+                </div>
+            </div>
+            <div class="burger-sub-panel" id="workoutSettingsPanel">
+                <div class="burger-sub-back" onclick="hideWorkoutSettingsMenu()">← Back</div>
+                <div class="burger-header">Workout</div>
+                <div class="burger-item" style="flex-direction:column;align-items:flex-start;gap:10px;">
+                    <span class="burger-item-label" style="font-size:0.75rem;opacity:0.6;">Default rest time</span>
+                    <div class="ai-stepper">
+                        <button class="ai-stepper-btn" onclick="adjustDefaultRest(-15)">−</button>
+                        <div class="ai-stepper-val" id="prefRestVal" style="min-width:60px;">2:30</div>
+                        <button class="ai-stepper-btn" onclick="adjustDefaultRest(15)">+</button>
+                    </div>
+                </div>
+                <div class="burger-item" onclick="toggleAutoStartTimer()">
+                    <span class="burger-item-icon">⏯️</span>
+                    <span class="burger-item-label">Auto-start timer on save</span>
+                    <span class="pref-toggle" id="prefAutoStartToggle"></span>
                 </div>
             </div>
         </div>

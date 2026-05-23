@@ -4,7 +4,7 @@
 // existing exercise-history pipeline.
 
 import { state } from './state.js';
-import { getPlan, getExHist, saveExHist, getLog } from './store.js';
+import { getPlan, getExHist, saveExHist, getLog, getPrefs } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { escHtml, openConfirmDialog } from './utils.js';
@@ -12,12 +12,12 @@ import { checkForNewPR, showNewPRToast } from './prs.js';
 import { renderPlans, showPlanDetail } from './plans.js';
 
 const STORAGE_KEY = 'trainer_active_session';
-const DEFAULT_REST_SEC = 150;
+const FALLBACK_REST_SEC = 150;
 
 let _restInterval = null;
 let _restEndAt = 0;
 let _restPausedMs = 0;
-let _restTotalSec = DEFAULT_REST_SEC;
+let _restTotalSec = FALLBACK_REST_SEC;
 let _wakeLock = null;
 
 // ── Persistence ──
@@ -59,7 +59,7 @@ export function startSession(planId) {
     startedAt: Date.now(),
     items,
     currentIdx: items.findIndex(i => i.kind === 'ex'),
-    restSec: DEFAULT_REST_SEC,
+    restSec: getPrefs().defaultRestSec,
   };
   if (session.currentIdx >= 0) session.items[session.currentIdx].sets.push({ w: '', r: '' });
   saveSession(session);
@@ -272,7 +272,7 @@ export function sessionSaveSet(exIdx, sIdx) {
   if (!set || !isSetFilled(set) || set.committed) return;
   set.committed = true;
   saveSession(s);
-  startRest(s.restSec);
+  if (getPrefs().autoStartTimer) startRest(s.restSec);
   renderSession();
 }
 

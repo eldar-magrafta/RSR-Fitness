@@ -2,7 +2,7 @@
 // Imports all modules, registers window globals for inline handlers, runs init.
 
 import { state, resetTransientState } from './state.js';
-import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clearAllExerciseData as clearExData, saveBWEmpty, saveUserTheme } from './store.js';
+import { migrateOldExLogs, getNLMeals, saveNLMeals, migrateMacroGoalsToMap, clearAllExerciseData as clearExData, saveBWEmpty, saveUserTheme, getPrefs, savePrefs } from './store.js';
 import { initFirebase, onAuthChange, loadFromCloud, signOutUser, deleteCollection } from './cloud.js';
 import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage } from './storage.js';
 import { showView, setHeader } from './navigation.js';
@@ -409,6 +409,44 @@ function hideThemeSettingsMenu() {
   document.getElementById('themeSettingsPanel').classList.remove('open');
 }
 
+function showWorkoutSettingsMenu() {
+  renderWorkoutPrefs();
+  document.getElementById('workoutSettingsPanel').classList.add('open');
+}
+
+function hideWorkoutSettingsMenu() {
+  document.getElementById('workoutSettingsPanel').classList.remove('open');
+}
+
+function fmtRest(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function renderWorkoutPrefs() {
+  const prefs = getPrefs();
+  document.getElementById('prefRestVal').textContent = fmtRest(prefs.defaultRestSec);
+  const toggle = document.getElementById('prefAutoStartToggle');
+  toggle.classList.toggle('on', !!prefs.autoStartTimer);
+  toggle.textContent = prefs.autoStartTimer ? 'On' : 'Off';
+}
+
+function adjustDefaultRest(delta) {
+  const prefs = getPrefs();
+  const next = Math.max(15, Math.min(600, prefs.defaultRestSec + delta));
+  prefs.defaultRestSec = next;
+  savePrefs(prefs);
+  renderWorkoutPrefs();
+}
+
+function toggleAutoStartTimer() {
+  const prefs = getPrefs();
+  prefs.autoStartTimer = !prefs.autoStartTimer;
+  savePrefs(prefs);
+  renderWorkoutPrefs();
+}
+
 function openClearAllData() {
   openConfirmDialog({
     title: 'Delete ALL Data?',
@@ -469,6 +507,10 @@ window.showSettingsMenu = showSettingsMenu;
 window.hideSettingsMenu = hideSettingsMenu;
 window.showThemeSettingsMenu = showThemeSettingsMenu;
 window.hideThemeSettingsMenu = hideThemeSettingsMenu;
+window.showWorkoutSettingsMenu = showWorkoutSettingsMenu;
+window.hideWorkoutSettingsMenu = hideWorkoutSettingsMenu;
+window.adjustDefaultRest = adjustDefaultRest;
+window.toggleAutoStartTimer = toggleAutoStartTimer;
 window.openClearAllData = openClearAllData;
 
 // ═══════════════════════════════════════════

@@ -393,3 +393,18 @@ export function saveCustomExercises(list) {
   safeSetItem('trainer_custom_exercises', v);
   _cloudSave('sections', 'customexercises', v);
 }
+
+// ── Prefs (rest timer default, auto-start timer, etc.) ──
+const PREFS_DEFAULTS = {
+  defaultRestSec: 150,
+  autoStartTimer: true,
+};
+export function getPrefs() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('trainer_prefs')) || {};
+    return { ...PREFS_DEFAULTS, ...stored };
+  } catch { return { ...PREFS_DEFAULTS }; }
+}
+export function savePrefs(prefs) {
+  safeSetItem('trainer_prefs', JSON.stringify(prefs));
+}
