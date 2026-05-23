@@ -231,6 +231,7 @@ export async function identifyMealFromPhoto(dataUrl) {
       grams,
       p: ing.p, c: ing.c, f: ing.f, cal: ing.cal,
       cat: ing.cat,
+      img: ing.img,
     });
   });
   const skippedFromModel = Array.isArray(raw.skipped)
