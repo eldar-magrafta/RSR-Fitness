@@ -5,6 +5,7 @@
 // generated plans always render with images and link to history.
 
 import { exerciseData } from '../data/exercises.js';
+import { NL_INGREDIENTS } from '../data/ingredients.js';
 
 const ENDPOINT = 'https://rsr-fitness-ai.magraftaeldar.workers.dev/';
 
@@ -74,12 +75,13 @@ Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 }`;
 }
 
-async function callGemini(prompt) {
+async function callGemini(prompt, extraParts = []) {
+  const parts = [{ text: prompt }, ...extraParts];
   const res = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
+      contents: [{ parts }],
       generationConfig: {
         temperature: 0.7,
         responseMimeType: 'application/json',
@@ -97,7 +99,7 @@ async function callGemini(prompt) {
   }
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('AI returned no plan. Please try again.');
+  if (!text) throw new Error('AI returned no response. Please try again.');
   return JSON.parse(text);
 }
 
@@ -154,6 +156,104 @@ export const INJURY_OPTIONS = [
   { key: 'elbows', label: 'Elbows' },
   { key: 'neck', label: 'Neck' },
 ];
+
+// ── Meal from photo ──
+// Sends a meal photo to Gemini and asks it to return a list of
+// ingredients drawn from data/ingredients.js with rough gram weights.
+// The caller wraps the result into a logged meal so the user can edit
+// quantities and add/remove items before anything is final.
+
+function buildIngredientIndex() {
+  const allNames = NL_INGREDIENTS.map(i => i.name);
+  const lowerToCanonical = {};
+  NL_INGREDIENTS.forEach(i => { lowerToCanonical[i.name.toLowerCase()] = i; });
+  return { allNames, lowerToCanonical };
+}
+
+function buildMealVisionPrompt(idx) {
+  const list = idx.allNames.map(n => `- ${n}`).join('\n');
+  return `You are analyzing a photo of a meal. Identify each visible ingredient and estimate its weight in grams as eaten on the plate.
+
+CONSTRAINTS:
+1. For "ingredients", you MUST only use names from the EXACT list below. Use the names verbatim — no paraphrasing, no prefixes, no suffixes.
+2. If you see something on the plate that has no close match in the list, put a short plain-language label for it in the "skipped" array (e.g. "kimchi", "halloumi", "pad thai noodles"). Do not invent macros for skipped items. Keep skipped labels under 30 characters.
+3. Estimate grams realistically based on visible portion size. Typical references: a chicken breast is 120–180g, a slice of bread is 30g, a cup of rice (cooked) is 160g, a medium egg is 50g.
+4. Pick a concise meal name (≤ 30 chars) that describes the dish.
+
+ALLOWED INGREDIENT NAMES:
+${list}
+
+Return ONLY valid JSON in this exact shape (no markdown, no commentary):
+{
+  "name": "<meal name>",
+  "ingredients": [
+    { "name": "<exact name from the list>", "grams": <integer> },
+    ...
+  ],
+  "skipped": ["<plain-language label>", ...]
+}`;
+}
+
+// Strip the data: prefix and return { mimeType, data } for Gemini.
+function dataUrlToInlineData(dataUrl) {
+  const m = /^data:([^;]+);base64,(.+)$/.exec(dataUrl);
+  if (!m) throw new Error('Photo could not be processed.');
+  return { mimeType: m[1], data: m[2] };
+}
+
+export async function identifyMealFromPhoto(dataUrl) {
+  const idx = buildIngredientIndex();
+  const prompt = buildMealVisionPrompt(idx);
+  const inline = dataUrlToInlineData(dataUrl);
+  const parts = [{ inlineData: inline }];
+  let raw;
+  try {
+    raw = await callGemini(prompt, parts);
+  } catch (e) {
+    if (e instanceof SyntaxError) raw = await callGemini(prompt + '\n\nReturn pure JSON only.', parts);
+    else throw e;
+  }
+  if (!raw || !Array.isArray(raw.ingredients)) {
+    throw new Error('Could not read ingredients from the photo. Try a clearer shot.');
+  }
+  const ingredients = [];
+  const droppedByClient = [];
+  raw.ingredients.forEach(it => {
+    const rawName = String(it.name || '').trim();
+    const ing = idx.lowerToCanonical[rawName.toLowerCase()];
+    const grams = Math.max(1, Math.min(2000, Math.round(Number(it.grams) || 0)));
+    if (!ing || !grams) {
+      if (rawName) droppedByClient.push(rawName);
+      return;
+    }
+    ingredients.push({
+      name: ing.name,
+      grams,
+      p: ing.p, c: ing.c, f: ing.f, cal: ing.cal,
+      cat: ing.cat,
+    });
+  });
+  const skippedFromModel = Array.isArray(raw.skipped)
+    ? raw.skipped.map(s => String(s).trim().slice(0, 30)).filter(Boolean)
+    : [];
+  // Combine model-flagged skips and client-side drops, dedup case-insensitively.
+  const seen = new Set();
+  const skipped = [...skippedFromModel, ...droppedByClient].filter(label => {
+    const k = label.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  if (!ingredients.length) {
+    const tail = skipped.length ? ` AI saw: ${skipped.join(', ')} — none of these are in the database yet.` : '';
+    throw new Error('No matching ingredients identified. Try a clearer shot.' + tail);
+  }
+  return {
+    name: String(raw.name || 'Meal').slice(0, 30),
+    ingredients,
+    skipped,
+  };
+}
 
 export const MUSCLE_GROUP_OPTIONS = [
   { key: 'chest', label: 'Chest' },

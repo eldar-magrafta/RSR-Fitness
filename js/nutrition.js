@@ -7,6 +7,7 @@ import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate
 import { showView, setHeader } from './navigation.js';
 import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog, debounce } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
+import { identifyMealFromPhoto } from './ai.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
@@ -208,6 +209,20 @@ function renderNLMealDetail() {
     saveAsBtn.style.display = (meal.type === 'logged' && meal.ingredients && meal.ingredients.length > 0) ? '' : 'none';
   }
 
+  // AI-skipped banner — shows ingredients Gemini saw but couldn't match.
+  const skippedEl = document.getElementById('nlAISkippedBanner');
+  if (skippedEl) {
+    if (meal._aiSkipped && meal._aiSkipped.length) {
+      const items = meal._aiSkipped.map(s => escHtml(s)).join(', ');
+      skippedEl.innerHTML = `<div class="nl-ai-skipped">
+        <div class="nl-ai-skipped-icon"><i class="bi bi-info-circle"></i></div>
+        <div class="nl-ai-skipped-text"><strong>AI also saw:</strong> ${items}<br><span class="nl-ai-skipped-hint">Not in our database — add manually if needed.</span></div>
+        <button class="nl-ai-skipped-close" onclick="nlDismissAISkipped()" title="Dismiss">×</button>
+      </div>`;
+    } else {
+      skippedEl.innerHTML = '';
+    }
+  }
   document.getElementById('nlMealChart').innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
   document.getElementById('nlTotals').innerHTML = `
     <div class="nl-total-item"><div class="nl-total-val color-accent">${t.cal}</div><div class="nl-total-label">Calories</div></div>
@@ -429,6 +444,70 @@ export function nlCreateMeal() {
   const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: date };
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
   nlCloseCreate(); nlShowMeal(meal.id);
+}
+
+export function nlDismissAISkipped() {
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal) return;
+  delete meal._aiSkipped;
+  saveNLMeals(meals);
+  renderNLMealDetail();
+}
+
+export function nlIdentifyMealFromPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  input.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = async () => {
+      const MAX = 800; let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+      else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = canvas.toDataURL('image/jpeg', 0.78);
+      const loader = document.getElementById('aiLoadingOverlay');
+      const msg = loader.querySelector('.ai-loading-msg');
+      const prevMsg = msg.textContent;
+      msg.textContent = 'Reading your plate…';
+      loader.classList.add('open');
+      try {
+        const result = await identifyMealFromPhoto(b64);
+        const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
+        const date = type === 'logged' ? (state.nlSelectedDate || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
+        const meal = {
+          id: 'meal_' + Date.now(),
+          name: result.name,
+          type,
+          ingredients: result.ingredients,
+          notes: '',
+          favorite: false,
+          createdAt: date,
+        };
+        if (result.skipped && result.skipped.length) meal._aiSkipped = result.skipped;
+        const docId = meal.id;
+        try {
+          await savePhoto('meal-photos', docId, b64);
+          meal.image = 'cloud:' + docId;
+          _cloudImgCache.set(`meal-photos/${docId}`, b64);
+        } catch {
+          meal.image = b64;
+        }
+        const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
+        nlCloseCreate();
+        nlShowMeal(meal.id);
+      } catch (err) {
+        alert(err.message || 'Could not identify meal.');
+      } finally {
+        loader.classList.remove('open');
+        msg.textContent = prevMsg;
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 export function openDeleteMealConfirm(mealId) {

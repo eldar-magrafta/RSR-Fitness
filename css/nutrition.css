@@ -65,6 +65,27 @@
 .nl-pie-svg { transform:rotate(-90deg); }
 .nl-chart-legend { display:flex; flex-direction:column; gap:8px; font-size:0.88rem; }
 .nl-chart-empty { color:var(--muted); font-size:0.9rem; text-align:center; padding:30px; }
+.nl-ai-skipped {
+  display:flex; align-items:flex-start; gap:10px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(139,92,246,0.4);
+  border-radius: 14px; padding: 12px 14px;
+  margin: 10px 0 14px;
+}
+.nl-ai-skipped-icon {
+  font-size: 1.05rem; line-height: 1.4;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.nl-ai-skipped-text { flex: 1; font-size: 0.85rem; line-height: 1.5; color: var(--text); }
+.nl-ai-skipped-hint { color: var(--muted); font-size: 0.78rem; }
+.nl-ai-skipped-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 1.3rem; line-height: 1; padding: 0 4px; cursor: pointer;
+  flex-shrink: 0; align-self: flex-start;
+}
+.nl-ai-skipped-close:active { color: var(--text); }
 .nl-totals {
   display:flex; justify-content:space-around;
   background:var(--card); border-radius:18px; padding:14px 8px;
