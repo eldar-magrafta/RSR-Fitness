@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getBWData, saveBWData, bwGetWeight, bwGetPhotos, bwHasPhoto, saveBWEmpty, getWeightGoal, saveWeightGoal, getUserHeight, saveUserHeight, clearUserHeight } from './store.js';
-import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
+import { dateToStr, fmtDateLabel, resizeImage, MONTHS, initSheetSwipe, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto, isBase64 } from './storage.js';
 import { getUid } from './cloud.js';
 
@@ -229,7 +229,7 @@ export function openBWDeleteConfirm() {
 }
 
 export function bwPrevMonth() {
-  if (state.bwCalYear <= 2026 && state.bwCalMon === 0) return;
+  if (state.bwCalYear <= MIN_CAL_YEAR && state.bwCalMon === 0) return;
   if (state.bwCalMon === 0) { state.bwCalMon = 11; state.bwCalYear--; } else state.bwCalMon--;
   renderBWCalendar();
 }

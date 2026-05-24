@@ -240,19 +240,41 @@ const DEFAULT_MEALS = [
   },
 ];
 
+// Track default meals the user has explicitly deleted, so the "add new defaults"
+// migration below doesn't resurrect them on every reload. Without this, deleting
+// any default meal would respawn it the next time the app boots.
+function getDeletedDefaultMealIds() {
+  try { return new Set(JSON.parse(localStorage.getItem('trainer_deleted_default_meals')) || []); }
+  catch { return new Set(); }
+}
+function saveDeletedDefaultMealIds(set) {
+  const v = JSON.stringify([...set]);
+  safeSetItem('trainer_deleted_default_meals', v);
+  _cloudSave('sections', 'deleteddefaultmeals', v);
+}
+export function markDefaultMealDeleted(id) {
+  if (!DEFAULT_MEALS.some(d => d.id === id)) return;
+  const set = getDeletedDefaultMealIds();
+  set.add(id);
+  saveDeletedDefaultMealIds(set);
+}
+
 export function getNLMeals() {
   try {
     const raw = localStorage.getItem('trainer_meals');
     if (raw === null) { saveNLMeals(DEFAULT_MEALS); return DEFAULT_MEALS; }
     const meals = JSON.parse(raw) || [];
+    const deletedDefaults = getDeletedDefaultMealIds();
     // Migrate: patch default meal images if missing
     let changed = false;
     meals.forEach(m => {
       const def = DEFAULT_MEALS.find(d => d.id === m.id);
       if (def?.image && !m.image) { m.image = def.image; changed = true; }
     });
-    // Migrate: add any new default meals introduced after first install.
+    // Migrate: add any new default meals introduced after first install,
+    // but skip ones the user previously deleted.
     DEFAULT_MEALS.forEach(def => {
+      if (deletedDefaults.has(def.id)) return;
       if (!meals.some(m => m.id === def.id)) { meals.push(def); changed = true; }
     });
     if (changed) saveNLMeals(meals);
@@ -260,7 +282,10 @@ export function getNLMeals() {
   } catch { return []; }
 }
 export function saveNLMeals(m) {
-  const v = JSON.stringify(m);
+  // _cachedTotals is a runtime calc cache (see nutrition.js _mealTotals). It
+  // gets mutated onto meal objects, so we strip it before persisting to keep
+  // localStorage and Firestore free of derived data.
+  const v = JSON.stringify(m, (key, val) => key === '_cachedTotals' ? undefined : val);
   safeSetItem('trainer_meals', v);
   _debouncedCloudSave('sections', 'meals', v);
 }
@@ -428,5 +453,7 @@ export function getPrefs() {
   } catch { return { ...PREFS_DEFAULTS }; }
 }
 export function savePrefs(prefs) {
-  safeSetItem('trainer_prefs', JSON.stringify(prefs));
+  const v = JSON.stringify(prefs);
+  safeSetItem('trainer_prefs', v);
+  _cloudSave('sections', 'prefs', v);
 }

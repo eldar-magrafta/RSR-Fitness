@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v113';
+const CACHE = 'trainer-v114';
 
 const CORE = [
   './',
@@ -343,10 +343,17 @@ self.addEventListener('activate', e => {
 // Network-first for everything else so code/data stays fresh.
 const ASSET_RE = /\.(?:gif|png|jpe?g|webp|svg|woff2?|ttf|otf)$/i;
 
+// Hosts whose responses must never be cached (auth tokens, Firestore, Worker proxy).
+// Their responses are user-specific and short-lived; caching them risks serving
+// stale auth state or another user's data.
+const NO_CACHE_HOST_RE = /(^|\.)(googleapis\.com|gstatic\.com|firebaseio\.com|firebase\.com|workers\.dev)$/i;
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
 
   const url = new URL(e.request.url);
+  if (NO_CACHE_HOST_RE.test(url.hostname)) return;
+
   if (ASSET_RE.test(url.pathname)) {
     e.respondWith(
       caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {

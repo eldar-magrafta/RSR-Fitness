@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getLog, getNotes, saveNotesData, deleteLastLog, getCustomExercises, saveCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { getPR, renderPRBadge, recalcPR } from './prs.js';
-import { debounce, openConfirmDialog } from './utils.js';
+import { debounce, openConfirmDialog, escHtml } from './utils.js';
 import { savePhotoDoc, loadPhotoDoc, deletePhotoDoc } from './cloud.js';
 
 export function findExercise(name) {
@@ -85,7 +85,7 @@ export const globalExSearchHandler = debounce(function() {
         const showThumb = thumbSrc && !isCloudThumb;
         item.innerHTML = `
           ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
-          <div class="ex-item-info"><span class="ex-name">${ex.name}</span>${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}<span class="ex-search-group">${group.name}</span></div>
+          <div class="ex-item-info"><span class="ex-name">${escHtml(ex.name)}</span>${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}<span class="ex-search-group">${escHtml(group.name)}</span></div>
           <span class="arrow">\u203a</span>`;
         if (isCloudThumb) {
           const parts = thumbSrc.slice(6).split('/');
@@ -150,7 +150,7 @@ function _renderGroupList(group, filter) {
     item.innerHTML = `
       ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
       <div class="ex-item-info">
-        <span class="ex-name">${ex.name}</span>
+        <span class="ex-name">${escHtml(ex.name)}</span>
         ${isCustom ? '<span class="ex-custom-badge">custom</span>' : ''}
       </div>
       ${isCustom ? '<button class="ex-del-btn" title="Delete"><i class="bi bi-trash3"></i></button>' : ''}
@@ -199,7 +199,7 @@ export function openModal(ex, muscleName, fromPlan = false) {
   document.getElementById('modalTitle').textContent = ex.name;
   document.getElementById('modalTag').textContent = muscleName;
   document.getElementById('modalDesc').textContent = ex.desc || '';
-  document.getElementById('modalTips').innerHTML = (ex.tips || []).map(t => `<li>${t}</li>`).join('');
+  document.getElementById('modalTips').innerHTML = (ex.tips || []).map(t => `<li>${escHtml(t)}</li>`).join('');
 
 
   // Support both <video> (.webm/.mp4) and <img> (.gif) — find whichever elements exist

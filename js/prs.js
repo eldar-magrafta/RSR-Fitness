@@ -2,7 +2,7 @@
 // Tracks, caches, and displays personal bests for every exercise.
 
 import { exerciseData } from '../data/exercises.js';
-import { getExHist, getPRs, savePRs } from './store.js';
+import { getExHist, getPRs, savePRs, getCustomExercises } from './store.js';
 import { exHistMaxWeight } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 import { state } from './state.js';
@@ -19,23 +19,25 @@ function bestRepsAtWeight(entry, weight) {
 /** Rebuild the full PR cache from all exercise history. Call once at init. */
 export function rebuildAllPRs() {
   const prs = {};
-  Object.values(exerciseData).forEach(group => {
-    group.exercises.forEach(ex => {
-      const hist = getExHist(ex.name);
-      let bestWeight = 0, bestDate = null, bestReps = 0, bestSets = 0;
-      Object.entries(hist).forEach(([dateStr, entry]) => {
-        const maxW = exHistMaxWeight(entry);
-        if (maxW > bestWeight) {
-          bestWeight = maxW;
-          bestDate = dateStr;
-          bestReps = bestRepsAtWeight(entry, maxW);
-          bestSets = entry.sets ? entry.sets.length : 1;
-        }
-      });
-      if (bestWeight > 0 && bestDate) {
-        prs[ex.name] = { weight: bestWeight, reps: bestReps, sets: bestSets, date: bestDate };
+  const allExercises = [
+    ...Object.values(exerciseData).flatMap(g => g.exercises),
+    ...getCustomExercises(),
+  ];
+  allExercises.forEach(ex => {
+    const hist = getExHist(ex.name);
+    let bestWeight = 0, bestDate = null, bestReps = 0, bestSets = 0;
+    Object.entries(hist).forEach(([dateStr, entry]) => {
+      const maxW = exHistMaxWeight(entry);
+      if (maxW > bestWeight) {
+        bestWeight = maxW;
+        bestDate = dateStr;
+        bestReps = bestRepsAtWeight(entry, maxW);
+        bestSets = entry.sets ? entry.sets.length : 1;
       }
     });
+    if (bestWeight > 0 && bestDate) {
+      prs[ex.name] = { weight: bestWeight, reps: bestReps, sets: bestSets, date: bestDate };
+    }
   });
   savePRs(prs);
   return prs;

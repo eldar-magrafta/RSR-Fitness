@@ -1,5 +1,9 @@
 // ── Utility Functions ──
 
+// Earliest year selectable in any in-app calendar (bodyweight, nutrition,
+// exercise log, history). Single source so the floor stays consistent.
+export const MIN_CAL_YEAR = 2026;
+
 export function debounce(fn, ms) {
   let timer;
   return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };

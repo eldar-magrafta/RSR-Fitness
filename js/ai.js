@@ -24,8 +24,13 @@ function buildExerciseIndex(customExercises = []) {
     allNames.push(c.name);
   });
   const lowerToCanonical = {};
-  allNames.forEach(n => { lowerToCanonical[n.toLowerCase()] = n; });
+  allNames.forEach(n => { lowerToCanonical[normalizeExName(n)] = n; });
   return { byGroup, allNames, lowerToCanonical };
+}
+
+// Strip whitespace, dashes, parens etc. so "Pull-Ups", "pull ups", "pullups" all match.
+function normalizeExName(s) {
+  return String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 function buildPrompt({ daysPerWeek, level, focusGroups, equipment, injuries, notes }, idx) {
@@ -114,7 +119,7 @@ function toPlanShape(raw, idx) {
     const title = String(day.title || `Day ${i + 1}`).slice(0, 80);
     exercises.push({ title });
     (day.exercises || []).forEach(rawName => {
-      const canonical = idx.lowerToCanonical[String(rawName).toLowerCase().trim()];
+      const canonical = idx.lowerToCanonical[normalizeExName(rawName)];
       if (canonical) exercises.push(canonical);
     });
   });

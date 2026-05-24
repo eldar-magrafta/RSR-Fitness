@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getExHist, saveExHist } from './store.js';
-import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid, openConfirmDialog } from './utils.js';
+import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
@@ -130,7 +130,7 @@ function renderExHistCal() {
 }
 
 export function exHistPrevMonth() {
-  if (state.exHistCalYear <= 2026 && state.exHistCalMon === 0) return;
+  if (state.exHistCalYear <= MIN_CAL_YEAR && state.exHistCalMon === 0) return;
   if (state.exHistCalMon === 0) { state.exHistCalMon = 11; state.exHistCalYear--; } else state.exHistCalMon--;
   renderExHistCal();
 }

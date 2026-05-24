@@ -433,7 +433,7 @@ export function showPlanDetail(planId) {
         <span class="drag-handle">\u2807</span>
         ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : (isCloud ? '<div class="plan-ex-thumb-ph"></div>' : '')}
         <div class="plan-ex-info">
-          <div class="plan-ex-name">${exName}</div>
+          <div class="plan-ex-name">${escHtml(exName)}</div>
           <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
         </div>
         <button class="plan-ex-remove" title="Remove">−</button>`;
@@ -582,10 +582,13 @@ export function showExercisePicker() {
         ${allExercises.map(ex => {
           const added = plan.exercises.some(i => i === ex.name);
           const isCustom = !group.exercises.includes(ex);
+          const safeName = escHtml(ex.name);
+          const jsName = ex.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safeJsName = escHtml(jsName);
           return `
             <div class="picker-ex-item">
-              <span class="picker-ex-name" onclick="previewExercise('${ex.name.replace(/'/g, "\\'")}')">${ex.name}${isCustom ? ' <span class="picker-custom-badge">custom</span>' : ''}</span>
-              <div class="picker-toggle ${added ? 'added' : ''}" data-ex-toggle="${ex.name}" onclick="toggleExerciseInPlan('${ex.name.replace(/'/g, "\\'")}', '${key}')">\u2713</div>
+              <span class="picker-ex-name" onclick="previewExercise('${safeJsName}')">${safeName}${isCustom ? ' <span class="picker-custom-badge">custom</span>' : ''}</span>
+              <div class="picker-toggle ${added ? 'added' : ''}" data-ex-toggle="${safeName}" onclick="toggleExerciseInPlan('${safeJsName}', '${key}')">\u2713</div>
             </div>`;
         }).join('')}
       </div>`;
@@ -633,8 +636,11 @@ export function toggleExerciseInPlan(exName, groupKey) {
 
   // Update badges for ALL groups that contain this exercise
   const updatedPlan = getPlan(state.currentPlanId);
+  const customs = getCustomExercises();
   Object.entries(exerciseData).forEach(([key, group]) => {
-    const count = group.exercises.filter(e => updatedPlan.exercises.some(i => i === e.name)).length;
+    const groupCustoms = customs.filter(c => c.group === key);
+    const allExercises = [...group.exercises, ...groupCustoms];
+    const count = allExercises.filter(e => updatedPlan.exercises.some(i => i === e.name)).length;
     const badge = document.querySelector(`[data-badge-group="${key}"]`);
     if (badge) {
       badge.textContent = count;

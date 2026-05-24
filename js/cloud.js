@@ -23,6 +23,8 @@ const SECTION_MAP = {
   userheight:    'trainer_user_height',
   usertheme:     'trainer_user_theme',
   customexercises: 'trainer_custom_exercises',
+  prefs:           'trainer_prefs',
+  deleteddefaultmeals: 'trainer_deleted_default_meals',
 };
 
 let db, auth;

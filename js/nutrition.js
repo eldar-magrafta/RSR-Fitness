@@ -3,9 +3,9 @@
 
 import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
-import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS } from './store.js';
+import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog, debounce } from './utils.js';
+import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog, debounce, MIN_CAL_YEAR } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 import { identifyMealFromPhoto } from './ai.js';
 
@@ -526,6 +526,7 @@ export function openDeleteMealConfirm(mealId) {
       if (m && m.image && _isCloudMarker(m.image)) {
         deletePhoto('meal-photos', _cloudDocId(m.image));
       }
+      markDefaultMealDeleted(mealId);
       saveNLMeals(getNLMeals().filter(x => x.id !== mealId));
       renderNLCalendar();
       renderNLMeals();
@@ -1214,7 +1215,7 @@ export function renderNLCalendar() {
 }
 
 export function nlPrevMonth() {
-  if (state.nlCalYear <= 2026 && state.nlCalMon === 0) return;
+  if (state.nlCalYear <= MIN_CAL_YEAR && state.nlCalMon === 0) return;
   if (state.nlCalMon === 0) { state.nlCalMon = 11; state.nlCalYear--; } else state.nlCalMon--;
   renderNLCalendar();
 }

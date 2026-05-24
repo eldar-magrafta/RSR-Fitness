@@ -545,8 +545,12 @@ if ('serviceWorker' in navigator) {
     // Force iOS to check for a new SW every time the app opens
     reg.update();
   });
-  // Auto-reload when a new Service Worker takes over (new code deployed)
-  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+  // Auto-reload when a new Service Worker takes over (new code deployed).
+  // Skip during an active workout — reload mid-set would lose unsaved sets.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (state.navContext === 'session') return;
+    window.location.reload();
+  });
 }
 
 // Apply theme early to prevent flash
@@ -569,7 +573,7 @@ initFirebase();
 onAuthChange(async (user) => {
   if (user) {
     // Block email/password users who haven't verified their email
-    if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+    if (!user.emailVerified && user.providerData.some(p => p.providerId === 'password')) {
       await signOutUser();
       showSignInScreen();
       document.getElementById('siError').textContent = 'Please verify your email before signing in. Check your inbox.';

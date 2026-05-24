@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getAllExHistByDate, clearAllExerciseData } from './store.js';
-import { MONTHS, renderCalendarGrid, openConfirmDialog } from './utils.js';
+import { MONTHS, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 import { deleteCollection } from './cloud.js';
 
@@ -85,7 +85,7 @@ function renderExLogDayDetail(dateStr, exercises) {
 }
 
 export function exLogPrevMonth() {
-  if (state.exLogCalYear <= 2020 && state.exLogCalMon === 0) return;
+  if (state.exLogCalYear <= MIN_CAL_YEAR && state.exLogCalMon === 0) return;
   if (state.exLogCalMon === 0) { state.exLogCalMon = 11; state.exLogCalYear--; }
   else state.exLogCalMon--;
   state.exLogSelectedDate = null;

@@ -201,7 +201,7 @@ function renderSetRow(exIdx, sIdx, set, exName) {
 function isSetFilled(set) {
   const w = String(set.w ?? '').trim();
   const r = String(set.r ?? '').trim();
-  return w !== '' && r !== '' && parseFloat(w) > 0 && parseInt(r) > 0;
+  return w !== '' && r !== '' && parseFloat(w) >= 0 && parseInt(r) > 0;
 }
 
 function isSetCommitted(set) {
