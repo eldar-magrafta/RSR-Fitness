@@ -2,6 +2,7 @@
 
 import { getBWData, bwGetWeight, getNLMeals, getExHist } from './store.js';
 import { exerciseData } from '../data/exercises.js';
+import { todayStr } from './utils.js';
 
 export function exportData() {
   if (typeof XLSX === 'undefined') {
@@ -111,6 +112,5 @@ export function exportData() {
   XLSX.utils.book_append_sheet(wb, mlSheet, 'Meal Logs');
 
   // ── Download ──
-  const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `RSR-Fitness-Export-${today}.xlsx`);
+  XLSX.writeFile(wb, `RSR-Fitness-Export-${todayStr()}.xlsx`);
 }

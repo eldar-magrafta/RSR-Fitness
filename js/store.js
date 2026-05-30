@@ -3,19 +3,30 @@
 // Every save also calls _cloudSave() in the background for Firestore sync.
 // The cloud module registers its save function via setCloudSaver().
 
+import { dateToStr } from './utils.js';
+
 let _cloudSave = () => {};
 
 export function setCloudSaver(fn) { _cloudSave = fn; }
 
+// localStorage write that survives quota exceedance. Returns true on success.
+// On quota error: logs, dispatches a global event so the UI can warn the user,
+// and returns false so callers can avoid acting as if persistence succeeded.
+let _quotaWarned = false;
 function safeSetItem(key, value) {
   try {
     localStorage.setItem(key, value);
+    return true;
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
       console.warn('localStorage quota exceeded for key:', key);
-    } else {
-      throw e;
+      if (!_quotaWarned) {
+        _quotaWarned = true;
+        try { window.dispatchEvent(new CustomEvent('rsr-quota-exceeded', { detail: { key } })); } catch {}
+      }
+      return false;
     }
+    throw e;
   }
 }
 
@@ -80,7 +91,7 @@ export function migrateOldExLogs() {
           const existing = JSON.parse(localStorage.getItem(histKey) || '{}');
           const parsed = new Date(old.date);
           if (!isNaN(parsed)) {
-            const ds = parsed.toISOString().slice(0, 10);
+            const ds = dateToStr(parsed);
             if (!existing[ds]) {
               existing[ds] = { w: old.weight, r: old.reps };
               safeSetItem(histKey, JSON.stringify(existing));

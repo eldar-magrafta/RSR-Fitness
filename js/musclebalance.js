@@ -4,6 +4,7 @@ import { state } from './state.js';
 import { exerciseData } from '../data/exercises.js';
 import { getExHist } from './store.js';
 import { showView, setHeader } from './navigation.js';
+import { dateToStr } from './utils.js';
 
 function getDateRange(range) {
   const now = new Date();
@@ -15,8 +16,7 @@ function getDateRange(range) {
     start = new Date(now);
     start.setDate(now.getDate() - 29);
   }
-  const toStr = d => d.toISOString().slice(0, 10);
-  return { startDate: toStr(start), endDate: toStr(now) };
+  return { startDate: dateToStr(start), endDate: dateToStr(now) };
 }
 
 function computeBalance(range) {

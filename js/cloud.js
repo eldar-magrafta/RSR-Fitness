@@ -139,7 +139,9 @@ const _photoCache = new Map();
 const _PHOTO_CACHE_MAX = 100;
 
 function _photoCacheSet(key, val) {
-  if (_photoCache.size >= _PHOTO_CACHE_MAX && !_photoCache.has(key)) {
+  // Re-set on existing key so insertion order tracks recency (Map preserves it).
+  if (_photoCache.has(key)) _photoCache.delete(key);
+  else if (_photoCache.size >= _PHOTO_CACHE_MAX) {
     const oldest = _photoCache.keys().next().value;
     _photoCache.delete(oldest);
   }
@@ -147,10 +149,11 @@ function _photoCacheSet(key, val) {
 }
 
 export async function savePhotoDoc(collectionName, docId, base64) {
-  if (!_uid || !db) return;
+  if (!_uid || !db) throw new Error('not signed in');
   _photoCacheSet(`${collectionName}/${docId}`, base64);
-  try { await setDoc(doc(db, 'users', _uid, collectionName, docId), { value: base64 }); }
-  catch { /* offline — will be synced via migration on next login */ }
+  // Don't swallow — caller (e.g. migration) needs to know if the cloud write
+  // failed so it can leave the source data in place and retry next time.
+  await setDoc(doc(db, 'users', _uid, collectionName, docId), { value: base64 });
 }
 
 export async function loadPhotoDoc(collectionName, docId) {

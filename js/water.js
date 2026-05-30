@@ -2,6 +2,7 @@
 
 import { state } from './state.js';
 import { showView, setHeader } from './navigation.js';
+import { todayStr } from './utils.js';
 
 const STORAGE_KEY_TARGET = 'trainer_water_target';
 const STORAGE_KEY_INTAKE = 'trainer_water_intake';
@@ -27,7 +28,7 @@ function setBottleSize(ml) {
 }
 
 function getTodayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return todayStr();
 }
 
 function getDailyLog() {

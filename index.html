@@ -36,10 +36,10 @@
 
     <!-- Header -->
     <div class="header">
-        <button class="back-btn" id="backBtn" onclick="handleBack()">‹</button>
+        <button class="back-btn" id="backBtn" onclick="handleBack()" aria-label="Go back">‹</button>
         <span class="header-title" id="headerTitle">Exercises</span>
-        <button class="header-action" id="headerAction"></button>
-        <button class="burger-btn" id="burgerBtn" onclick="toggleBurgerMenu()">☰</button>
+        <button class="header-action" id="headerAction" aria-label="Header action"></button>
+        <button class="burger-btn" id="burgerBtn" onclick="toggleBurgerMenu()" aria-label="Open menu">☰</button>
         <span id="cloudSyncStatus" class="cloud-sync-dot" title="Synced"></span>
     </div>
 
@@ -209,9 +209,9 @@
         </div>
         <div class="bw-goal-row" id="bwGoalRow"></div>
         <div class="bw-cal-header">
-            <button class="bw-cal-nav" onclick="bwPrevMonth()">‹</button>
+            <button class="bw-cal-nav" onclick="bwPrevMonth()" aria-label="Previous month">‹</button>
             <span class="bw-cal-month-lbl" id="bwCalMonthLbl"></span>
-            <button class="bw-cal-nav" onclick="bwNextMonth()">›</button>
+            <button class="bw-cal-nav" onclick="bwNextMonth()" aria-label="Next month">›</button>
         </div>
         <div class="bw-cal-grid" id="bwCalGrid"></div>
         <div id="bmiCard"></div>
@@ -231,7 +231,7 @@
     <div class="bw-overlay" id="bwOverlay" onclick="handleBWOverlay(event)">
         <div class="bw-sheet" id="bwSheet">
             <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="closeBWEntry()">&times;</button>
+            <button class="sheet-close-btn" onclick="closeBWEntry()" aria-label="Close">&times;</button>
             <div class="bw-sheet-dateLbl" id="bwSheetDate"></div>
             <div class="sheet-row" style="margin-bottom:4px;">
                 <div class="bw-sheet-title" style="margin-bottom:0;">Log Body Weight</div>
@@ -284,11 +284,11 @@
 
     <!-- Full-size photo viewer -->
     <div class="bw-viewer" id="bwViewer" onclick="closeBWViewer()">
-        <button class="bw-viewer-close" onclick="closeBWViewer()">✕</button>
+        <button class="bw-viewer-close" onclick="closeBWViewer()" aria-label="Close viewer">✕</button>
         <img id="bwViewerImg"/>
     </div>
     <div class="bw-viewer" id="nlMealPhotoViewer" onclick="nlCloseMealPhotoViewer()">
-        <button class="bw-viewer-close" onclick="nlCloseMealPhotoViewer()">✕</button>
+        <button class="bw-viewer-close" onclick="nlCloseMealPhotoViewer()" aria-label="Close viewer">✕</button>
         <img id="nlMealPhotoViewerImg"/>
     </div>
 
@@ -371,9 +371,9 @@
         </div>
         <div class="bw-cal-wrap">
             <div class="bw-cal-header">
-                <button class="bw-cal-nav" onclick="exHistPrevMonth()">‹</button>
+                <button class="bw-cal-nav" onclick="exHistPrevMonth()" aria-label="Previous month">‹</button>
                 <span class="bw-cal-title" id="exHistCalTitle"></span>
-                <button class="bw-cal-nav" onclick="exHistNextMonth()">›</button>
+                <button class="bw-cal-nav" onclick="exHistNextMonth()" aria-label="Next month">›</button>
             </div>
             <div class="bw-cal-grid" id="exHistCalGrid"></div>
         </div>
@@ -388,9 +388,9 @@
     <div class="view" id="exerciseLogView">
         <div class="bw-cal-wrap">
             <div class="bw-cal-header">
-                <button class="bw-cal-nav" onclick="exLogPrevMonth()">&#8249;</button>
+                <button class="bw-cal-nav" onclick="exLogPrevMonth()" aria-label="Previous month">&#8249;</button>
                 <span class="bw-cal-title" id="exLogCalTitle"></span>
-                <button class="bw-cal-nav" onclick="exLogNextMonth()">&#8250;</button>
+                <button class="bw-cal-nav" onclick="exLogNextMonth()" aria-label="Next month">&#8250;</button>
             </div>
             <div class="bw-cal-grid" id="exLogCalGrid"></div>
         </div>
@@ -419,7 +419,7 @@
     <div class="bw-overlay" id="exHistEntryOverlay" onclick="if(event.target===this)closeExHistEntry()">
         <div class="bw-sheet" id="exHistEntrySheet">
             <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="closeExHistEntry()">&times;</button>
+            <button class="sheet-close-btn" onclick="closeExHistEntry()" aria-label="Close">&times;</button>
             <div class="bw-sheet-dateLbl" id="exHistEntryDate"></div>
             <div class="sheet-row" style="margin-bottom:4px;">
                 <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
@@ -820,7 +820,7 @@
     <div class="bw-overlay" id="nlSavedPickerOverlay" onclick="if(event.target===this)closeSavedMealPicker()">
         <div class="bw-sheet" id="nlSavedPickerSheet">
             <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="closeSavedMealPicker()">&times;</button>
+            <button class="sheet-close-btn" onclick="closeSavedMealPicker()" aria-label="Close">&times;</button>
             <div class="bw-sheet-title">Choose a Saved Meal</div>
             <input class="nl-search" type="text" id="nlSavedMealSearch" placeholder="Search saved meals…" oninput="nlFilterSavedMeals()">
             <div id="nlSavedPickerList" style="max-height:55vh;overflow-y:auto;"></div>
@@ -831,7 +831,7 @@
     <div class="bw-overlay" id="barcodeResultOverlay" onclick="if(event.target===this)nlCloseBarcodeResult()">
         <div class="bw-sheet" id="barcodeResultSheet">
             <div class="bw-sheet-handle"></div>
-            <button class="sheet-close-btn" onclick="nlCloseBarcodeResult()">&times;</button>
+            <button class="sheet-close-btn" onclick="nlCloseBarcodeResult()" aria-label="Close">&times;</button>
             <div id="barcodeResultContent"></div>
         </div>
     </div>

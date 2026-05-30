@@ -505,5 +505,5 @@
   background:var(--green); box-shadow:0 0 6px rgba(0,232,123,0.4);
 }
 .nl-week-day.is-selected.has-data::after { background:#060611; box-shadow:none; }
-.nl-week-day.is-future { opacity:0.55; }
+.nl-week-day.is-future { opacity:0.55; pointer-events:none; cursor:default; }
 

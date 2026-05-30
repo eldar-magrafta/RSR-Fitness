@@ -8,7 +8,7 @@ import { migratePhotosToStorage, preloadPhotoCache, migrateMealPhotosToStorage }
 import { showView, setHeader } from './navigation.js';
 import { buildHome, showExercises, openModal, closeModal, setOnModalClose, handleOverlayClick, autoSaveExNotes, initModalSwipe, deleteExLog, globalExSearchHandler, groupExSearchHandler, openCustomExModal, closeCustomExModal, customExImageSelected, removeCustomExImage, saveCustomEx, deleteCustomEx } from './exercises.js';
 import { renderPlans, openCreatePlan, closeCreatePlan, handleCreateOverlayClick, createPlan, setPlanEditMode, savePlanName, openDeletePlanConfirm, showPlanDetail, openRemoveExConfirm, openAddTitle, closeAddTitle, handleTitleOverlayClick, saveTitle, showExercisePicker, togglePickerGroup, toggleExerciseInPlan, previewExercise, openCreatePlanChoice, closeCreatePlanChoice, openAIPlan, closeAIPlan, aiAdjustDays, aiSetLevel, aiToggleFocus, aiToggleEquipment, aiToggleInjury, aiGenerate, closeAIPreview, aiRemoveItem, aiRegenerate, aiSaveGenerated } from './plans.js';
-import { openConfirmDialog, closeConfirmDialog, runConfirmDialog } from './utils.js';
+import { openConfirmDialog, closeConfirmDialog, runConfirmDialog, dateToStr } from './utils.js';
 import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, closeBWEntry, handleBWOverlay, saveBWEntry, openDeleteBWConfirm, bwOnFileSelect, bwRemovePhoto, bwViewPhoto, closeBWViewer, openBWDeleteConfirm, initBWSheetSwipe, bmiPromptHeight, bwEditGoal, bwClearGoal, closeHeightSheet, saveHeightFromSheet, clearHeightFromSheet, closeGoalSheet, saveGoalFromSheet, clearGoalFromSheet } from './bodyweight.js';
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, nlIdentifyMealFromPhoto, nlDismissAISkipped, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlSaveAsSavedMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, initMacroGoalsSwipe, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, nlFilterSavedMeals, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs, nlSearchBarcode, nlCloseBarcodeResult, nlSaveBarcodeAsCustom, nlToggleCreateChoice, nlCloseCreateChoice, nlShowBarcodeInput, nlBarcodePhotoSelected, nlRemoveBarcodePhoto, nlOpenBarcodeScanner, nlCloseBarcodeScanner, nlBarcodeScanFile } from './nutrition.js';
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
@@ -64,7 +64,7 @@ function switchTab(tab) {
     state.navContext = 'nutrition';
     // Reset calendar to today
     const now = new Date();
-    state.nlSelectedDate = now.toISOString().slice(0, 10);
+    state.nlSelectedDate = dateToStr(now);
     state.nlCalYear = now.getFullYear();
     state.nlCalMon = now.getMonth();
     renderNLCalendar();
@@ -555,6 +555,16 @@ if ('serviceWorker' in navigator) {
 
 // Apply theme early to prevent flash
 applyStoredTheme();
+
+// One-time warning when localStorage fills up — silent failure was masking data loss.
+window.addEventListener('rsr-quota-exceeded', () => {
+  const toast = document.createElement('div');
+  toast.className = 'pr-toast';
+  toast.style.background = 'linear-gradient(135deg, #ff3d71, #c93764)';
+  toast.textContent = '⚠ Local storage full — recent changes may not be saved. Try removing old meal photos.';
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+});
 
 // Register swipe dismissals once — before Firebase, so they never accumulate
 initModalSwipe();

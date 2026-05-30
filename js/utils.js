@@ -51,10 +51,14 @@ export function initSheetSwipe(overlayId, sheetId, closeFn) {
   });
 }
 
-/** Format a Date to 'YYYY-MM-DD' string */
+/** Format a Date to 'YYYY-MM-DD' string in local time. */
 export function dateToStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+/** Today's date as 'YYYY-MM-DD' in the user's local timezone.
+ * Use this instead of `new Date().toISOString().slice(0,10)`, which returns UTC. */
+export function todayStr() { return dateToStr(new Date()); }
 
 /** Format 'YYYY-MM-DD' to readable label like 'Mon, 3 Apr' */
 export function fmtDateLabel(dateStr) {

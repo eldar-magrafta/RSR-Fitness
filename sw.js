@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v114';
+const CACHE = 'trainer-v115';
 
 const CORE = [
   './',
@@ -346,7 +346,7 @@ const ASSET_RE = /\.(?:gif|png|jpe?g|webp|svg|woff2?|ttf|otf)$/i;
 // Hosts whose responses must never be cached (auth tokens, Firestore, Worker proxy).
 // Their responses are user-specific and short-lived; caching them risks serving
 // stale auth state or another user's data.
-const NO_CACHE_HOST_RE = /(^|\.)(googleapis\.com|gstatic\.com|firebaseio\.com|firebase\.com|workers\.dev)$/i;
+const NO_CACHE_HOST_RE = /(^|\.)(googleapis\.com|gstatic\.com|firebaseio\.com|firebase\.com|workers\.dev|openfoodfacts\.org)$/i;
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;

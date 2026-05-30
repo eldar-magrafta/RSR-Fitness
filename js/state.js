@@ -28,7 +28,10 @@ export const state = {
   nlCustomPhotoBase64: null,
   nlCalYear: new Date().getFullYear(),
   nlCalMon: new Date().getMonth(),
-  nlSelectedDate: new Date().toISOString().slice(0, 10),
+  nlSelectedDate: (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })(),
 
   // Exercise History
   exHistRange: 0,

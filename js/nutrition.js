@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR } from './utils.js';
+import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 import { identifyMealFromPhoto } from './ai.js';
 
@@ -84,8 +84,7 @@ function nlRenderPie(p, c, f) {
 export function nlSetViewMode(mode) {
   if (mode === 'today') {
     const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);
-    state.nlSelectedDate = todayStr;
+    state.nlSelectedDate = todayStr();
     state.nlCalYear = now.getFullYear();
     state.nlCalMon = now.getMonth();
   }
@@ -110,7 +109,7 @@ export function nlSetViewMode(mode) {
 
 export function renderNLMeals() {
   const list = document.getElementById('nlMealList');
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayStr();
   let meals = getNLMeals();
 
   // Filter by view mode
@@ -472,7 +471,7 @@ export function nlCreateMeal() {
   const name = document.getElementById('nlMealNameInput').value.trim().slice(0, 100);
   if (!name) return;
   const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
-  const date = type === 'logged' ? (state.nlSelectedDate || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
+  const date = type === 'logged' ? (state.nlSelectedDate || todayStr()) : todayStr();
   const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: date };
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
   nlCloseCreate(); nlShowMeal(meal.id);
@@ -508,7 +507,7 @@ export function nlIdentifyMealFromPhoto(input) {
       try {
         const result = await identifyMealFromPhoto(b64);
         const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
-        const date = type === 'logged' ? (state.nlSelectedDate || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
+        const date = type === 'logged' ? (state.nlSelectedDate || todayStr()) : todayStr();
         const meal = {
           id: 'meal_' + Date.now(),
           name: result.name,
@@ -596,7 +595,7 @@ export function nlToggleFav(id) {
 export function nlDuplicateMeal() {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
-  const dup = { id: 'meal_' + Date.now(), name: meal.name + ' (copy)', type: meal.type || 'logged', ingredients: meal.ingredients.map(i => ({ ...i })), notes: meal.notes, favorite: false, createdAt: new Date().toISOString().slice(0, 10) };
+  const dup = { id: 'meal_' + Date.now(), name: meal.name + ' (copy)', type: meal.type || 'logged', ingredients: meal.ingredients.map(i => ({ ...i })), notes: meal.notes, favorite: false, createdAt: todayStr() };
   if (meal.image) dup.image = meal.image;
   meals.push(dup); saveNLMeals(meals); nlShowMeal(dup.id);
 }
@@ -611,7 +610,7 @@ export function nlSaveAsSavedMeal() {
     ingredients: meal.ingredients.map(i => ({ ...i })),
     notes: meal.notes || '',
     favorite: false,
-    createdAt: new Date().toISOString().slice(0, 10)
+    createdAt: todayStr()
   };
   if (meal.image) saved.image = meal.image;
   meals.push(saved);
@@ -881,7 +880,7 @@ export function nlDeleteCustomConfirm(idx) {
 // ── Macro Goals ──
 
 function nlCalcDailyTotals() {
-  const date = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const date = state.nlSelectedDate || todayStr();
   const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged' && m.createdAt === date);
   let p = 0, c = 0, f = 0, cal = 0;
   meals.forEach(m => { const t = nlCalcTotals(m); p += t.p; c += t.c; f += t.f; cal += t.cal; });
@@ -891,7 +890,7 @@ function nlCalcDailyTotals() {
 export function renderMacroGoals() {
   const section = document.getElementById('macroGoalsSection');
   if (!section) return;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayStr();
   const viewDate = state.nlSelectedDate || today;
   const isToday = viewDate === today;
 
@@ -1022,7 +1021,7 @@ export function setQuickCal(val) {
 }
 
 export function openMacroGoalsModal() {
-  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const viewDate = state.nlSelectedDate || todayStr();
   // Get existing goals for this date (inherit/default), but treat null (cleared) as no existing goal
   let goals = getGoalsForDate(viewDate);
   if (goals && goals.calories > 0) {
@@ -1113,7 +1112,7 @@ export function saveMacroGoalsFromModal() {
   const fat = Math.round((cal * normalizedF / 100) / 9);
   const goals = { calories: cal, protein, carbs, fat };
 
-  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const viewDate = state.nlSelectedDate || todayStr();
   setGoalForDate(viewDate, goals);
 
   closeMacroGoalsModal();
@@ -1121,14 +1120,14 @@ export function saveMacroGoalsFromModal() {
 }
 
 export function clearDateGoal() {
-  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const viewDate = state.nlSelectedDate || todayStr();
   setGoalForDate(viewDate, null);
   closeMacroGoalsModal();
   renderMacroGoals();
 }
 
 export function resumeDateGoal() {
-  const viewDate = state.nlSelectedDate || new Date().toISOString().slice(0, 10);
+  const viewDate = state.nlSelectedDate || todayStr();
   removeGoalEntry(viewDate);
   renderMacroGoals();
 }
@@ -1192,7 +1191,7 @@ export function pickSavedMeal(id) {
     ingredients: meal.ingredients.map(i => ({ ...i })),
     notes: '',
     favorite: false,
-    createdAt: state.nlSelectedDate || new Date().toISOString().slice(0, 10)
+    createdAt: state.nlSelectedDate || todayStr()
   };
   if (meal.image) logged.image = meal.image;
   meals.push(logged);
@@ -1369,9 +1368,14 @@ export function nlCloseBarcodeScanner() {
   if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
   if (_scannerStream) { _scannerStream.getTracks().forEach(t => t.stop()); _scannerStream = null; }
   const video = document.getElementById('barcodeScannerVideo');
-  video.srcObject = null;
-  document.getElementById('barcodeScannerOverlay').classList.remove('open');
+  if (video) video.srcObject = null;
+  const overlay = document.getElementById('barcodeScannerOverlay');
+  if (overlay) overlay.classList.remove('open');
 }
+
+// Stop the camera + interval if the page is being hidden/closed without
+// the user explicitly tapping the close button.
+window.addEventListener('pagehide', () => { if (_scannerInterval || _scannerStream) nlCloseBarcodeScanner(); });
 
 export async function nlBarcodeScanFile(input) {
   if (!input.files || !input.files[0]) return;

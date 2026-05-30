@@ -7,7 +7,7 @@ import { state } from './state.js';
 import { getPlan, getExHist, saveExHist, getLog, getPrefs } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
-import { escHtml, openConfirmDialog } from './utils.js';
+import { escHtml, openConfirmDialog, dateToStr } from './utils.js';
 import { checkForNewPR, showNewPRToast } from './prs.js';
 import { renderPlans, showPlanDetail } from './plans.js';
 
@@ -449,7 +449,7 @@ export function sessionFinish() {
 }
 
 function commitSession(s) {
-  const dateStr = new Date(s.startedAt).toISOString().slice(0, 10);
+  const dateStr = dateToStr(new Date(s.startedAt));
   const newPRs = [];
 
   s.items.forEach(it => {

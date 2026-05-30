@@ -3,12 +3,12 @@
 
 import { state } from './state.js';
 import { getExHist, saveExHist } from './store.js';
-import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR } from './utils.js';
+import { MONTHS, exHistMaxWeight, initSheetSwipe, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR, dateToStr } from './utils.js';
 import { closeModal } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
 
-function exHistToStr(d) { return d.toISOString().slice(0, 10); }
+const exHistToStr = dateToStr;
 
 export function openExHistory() {
   const exName = state.currentExerciseName;
