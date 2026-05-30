@@ -103,6 +103,7 @@ export function nlSetViewMode(mode) {
   if (mode === 'today') renderNLCalendar();
   renderNLMeals();
   if (mode === 'today') renderMacroGoals();
+  if (mode === 'today') _updateNLFabForDate();
 }
 
 // ── Meal List ──
@@ -129,12 +130,14 @@ export function renderNLMeals() {
     return 0;
   });
   if (meals.length === 0) {
-    const isToday = (state.nlSelectedDate || today) === today;
+    const viewDate = state.nlSelectedDate || today;
+    const isToday = viewDate === today;
+    const isFuture = viewDate > today;
     let emptyMsg;
     if (state.nlViewMode === 'today') {
-      emptyMsg = isToday
-        ? 'No meals logged today.<br>Tap + to log a meal, or eat a saved meal.'
-        : 'No meals logged on this date.';
+      if (isToday) emptyMsg = 'No meals logged today.<br>Tap + to log a meal, or eat a saved meal.';
+      else if (isFuture) emptyMsg = "Future date — meal logging is locked.<br>Set goals here, log meals when the day arrives.";
+      else emptyMsg = 'No meals logged on this date.';
     } else {
       emptyMsg = state.nlFavOnly ? 'No favorite meals yet.<br>Star a meal to see it here.' : 'No saved meals yet.<br>Tap + to create a reusable meal.';
     }
@@ -1412,11 +1415,23 @@ function _shiftSelectedDate(days) {
   state.nlCalMon = cur.getMonth();
 }
 
+// Logging meals for future days doesn't make sense — hide the FAB on the
+// nutrition view when the selected day is in the future. Today and past
+// days both keep the FAB so users can log meals retroactively.
+function _updateNLFabForDate() {
+  if (state.navContext !== 'nutrition' || state.nlViewMode !== 'today') return;
+  const fab = document.getElementById('fab');
+  if (!fab) return;
+  const isFuture = (state.nlSelectedDate || todayStr()) > todayStr();
+  fab.classList.toggle('hidden', isFuture);
+}
+
 export function nlPrevMonth() {
   _shiftSelectedDate(-7);
   renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
+  _updateNLFabForDate();
 }
 
 export function nlNextMonth() {
@@ -1424,6 +1439,7 @@ export function nlNextMonth() {
   renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
+  _updateNLFabForDate();
 }
 
 export function nlSelectDate(dateStr) {
@@ -1434,6 +1450,7 @@ export function nlSelectDate(dateStr) {
   renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
+  _updateNLFabForDate();
 }
 
 // ── Barcode Scanner (photo-based with BarcodeDetector + WASM polyfill) ──
