@@ -3,7 +3,7 @@
 
 import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
-import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted } from './store.js';
+import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted, getUserHeight, getBWData, bwGetWeight, getUserProfile, saveUserProfile } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
@@ -1130,6 +1130,139 @@ export function resumeDateGoal() {
   const viewDate = state.nlSelectedDate || todayStr();
   removeGoalEntry(viewDate);
   renderMacroGoals();
+}
+
+// ── Macro Calculator Wizard ──
+// Mifflin-St Jeor BMR × activity multiplier ± goal adjustment.
+// Protein at 1.8 g/kg, fat at 25% of kcal, carbs fill the remainder.
+
+const _ACTIVITY_MULTIPLIERS = { sedentary: 1.2, light: 1.375, moderate: 1.55, heavy: 1.725 };
+const _GOAL_ADJUSTMENTS = { cut: -500, maintain: 0, bulk: 300 };
+
+let _wizardState = { sex: null, activity: null, goal: null };
+
+function _latestBodyWeight() {
+  const data = getBWData();
+  const entries = Object.entries(data)
+    .map(([d, v]) => [d, bwGetWeight(v)])
+    .filter(([, w]) => w > 0)
+    .sort(([a], [b]) => b.localeCompare(a));
+  return entries.length ? entries[0][1] : null;
+}
+
+function _calcMacros({ weight, height, age, sex, activity, goal }) {
+  if (!weight || !height || !age || !sex || !activity || !goal) return null;
+  const bmr = sex === 'female'
+    ? 10 * weight + 6.25 * height - 5 * age - 161
+    : 10 * weight + 6.25 * height - 5 * age + 5;
+  const tdee = bmr * (_ACTIVITY_MULTIPLIERS[activity] || 1.2);
+  const cal = Math.max(1200, Math.round(tdee + (_GOAL_ADJUSTMENTS[goal] || 0)));
+  const protein = Math.round(weight * 1.8);
+  const fat = Math.round((cal * 0.25) / 9);
+  const carbs = Math.max(0, Math.round((cal - protein * 4 - fat * 9) / 4));
+  return { calories: cal, protein, carbs, fat };
+}
+
+export function openMacroWizard() {
+  const profile = getUserProfile();
+  document.getElementById('mwWeight').value = profile.weight || _latestBodyWeight() || '';
+  document.getElementById('mwHeight').value = profile.height || getUserHeight() || '';
+  document.getElementById('mwAge').value = profile.age || '';
+  _wizardState = {
+    sex: profile.sex || null,
+    activity: profile.activity || null,
+    goal: profile.goal || null,
+  };
+  document.querySelectorAll('#mwSexSeg .mw-seg-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.sex === _wizardState.sex));
+  document.querySelectorAll('#mwActivityGroup .mw-opt').forEach(b =>
+    b.classList.toggle('active', b.dataset.activity === _wizardState.activity));
+  document.querySelectorAll('#mwGoalGroup .mw-goal').forEach(b =>
+    b.classList.toggle('active', b.dataset.goal === _wizardState.goal));
+  document.getElementById('macroWizardOverlay').classList.add('open');
+  updateMacroWizard();
+}
+
+export function closeMacroWizard() {
+  document.getElementById('macroWizardOverlay').classList.remove('open');
+}
+
+export function setMacroWizardSex(sex) {
+  _wizardState.sex = sex;
+  document.querySelectorAll('#mwSexSeg .mw-seg-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.sex === sex));
+  updateMacroWizard();
+}
+
+export function setMacroWizardActivity(activity) {
+  _wizardState.activity = activity;
+  document.querySelectorAll('#mwActivityGroup .mw-opt').forEach(b =>
+    b.classList.toggle('active', b.dataset.activity === activity));
+  updateMacroWizard();
+}
+
+export function setMacroWizardGoal(goal) {
+  _wizardState.goal = goal;
+  document.querySelectorAll('#mwGoalGroup .mw-goal').forEach(b =>
+    b.classList.toggle('active', b.dataset.goal === goal));
+  updateMacroWizard();
+}
+
+function _readWizardInputs() {
+  return {
+    weight: parseFloat(document.getElementById('mwWeight').value) || 0,
+    height: parseFloat(document.getElementById('mwHeight').value) || 0,
+    age: parseInt(document.getElementById('mwAge').value) || 0,
+    sex: _wizardState.sex,
+    activity: _wizardState.activity,
+    goal: _wizardState.goal,
+  };
+}
+
+export function updateMacroWizard() {
+  const result = _calcMacros(_readWizardInputs());
+  const apply = document.getElementById('mwApplyBtn');
+  if (!result) {
+    document.getElementById('mwResCal').textContent = '—';
+    document.getElementById('mwResP').textContent = '—';
+    document.getElementById('mwResC').textContent = '—';
+    document.getElementById('mwResF').textContent = '—';
+    apply.disabled = true;
+    return;
+  }
+  document.getElementById('mwResCal').textContent = result.calories;
+  document.getElementById('mwResP').textContent = `${result.protein}g`;
+  document.getElementById('mwResC').textContent = `${result.carbs}g`;
+  document.getElementById('mwResF').textContent = `${result.fat}g`;
+  apply.disabled = false;
+}
+
+export function applyMacroWizard() {
+  const inputs = _readWizardInputs();
+  const result = _calcMacros(inputs);
+  if (!result) return;
+
+  // Persist profile so the wizard pre-fills next time.
+  saveUserProfile({
+    weight: inputs.weight,
+    height: inputs.height,
+    age: inputs.age,
+    sex: inputs.sex,
+    activity: inputs.activity,
+    goal: inputs.goal,
+  });
+
+  // Push the computed values into the existing macro goals modal so the user
+  // can tweak the split before saving. This avoids duplicating the save flow.
+  document.getElementById('goalCalInput').value = result.calories;
+  const pCal = result.protein * 4, cCal = result.carbs * 4, fCal = result.fat * 9;
+  const total = pCal + cCal + fCal;
+  if (total > 0) {
+    _pPct = Math.max(5, Math.min(90, Math.round(pCal / total * 100)));
+    _cPct = Math.max(5, Math.min(95 - _pPct, Math.round(cCal / total * 100)));
+  }
+  _updateMacroSliderUI();
+  closeMacroWizard();
 }
 
 // ── FAB Choice + Saved Meal Picker ──

@@ -308,6 +308,70 @@
 }
 .macro-clear-btn:active { color:var(--accent); border-color:var(--accent); }
 
+/* ── Macro Calculator Wizard ── */
+.mw-launch-btn {
+  width:100%; background:linear-gradient(135deg, rgba(0,229,255,0.10), rgba(139,92,246,0.10));
+  border:1px solid rgba(0,229,255,0.35); color:var(--accent);
+  padding:11px; border-radius:13px; font-size:0.88rem; font-weight:700;
+  font-family:inherit; cursor:pointer; margin-bottom:14px;
+}
+.mw-launch-btn:active { background:rgba(0,229,255,0.18); }
+
+.mw-row { display:flex; gap:10px; margin-bottom:12px; }
+.mw-row-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; }
+.mw-field { flex:1; min-width:0; }
+.mw-field input {
+  width:100%; box-sizing:border-box; background:var(--subtle-bg);
+  border:1px solid var(--border-med); color:var(--text); padding:11px;
+  border-radius:12px; font-size:1rem; font-weight:700; font-family:inherit;
+  outline:none; text-align:center; transition:border-color 0.2s;
+}
+.mw-field input:focus { border-color:var(--accent); box-shadow:0 0 12px rgba(0,229,255,0.08); }
+
+.mw-seg {
+  display:flex; background:var(--subtle-bg); border:1px solid var(--border-med);
+  border-radius:12px; padding:3px; gap:3px;
+}
+.mw-seg-btn {
+  flex:1; background:none; border:none; color:var(--muted);
+  padding:8px; border-radius:9px; font-size:0.85rem; font-weight:700;
+  font-family:inherit; cursor:pointer; transition:all 0.15s;
+}
+.mw-seg-btn.active { background:var(--card); color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.08); }
+
+.mw-stack { display:flex; flex-direction:column; gap:6px; }
+.mw-opt {
+  width:100%; text-align:left; background:var(--subtle-bg);
+  border:1px solid var(--border-med); color:var(--text);
+  padding:10px 14px; border-radius:12px; font-family:inherit; cursor:pointer;
+  transition:all 0.15s;
+}
+.mw-opt-name { font-weight:700; font-size:0.92rem; }
+.mw-opt-sub { font-size:0.75rem; color:var(--muted); margin-top:2px; }
+.mw-opt.active { border-color:var(--accent); background:rgba(0,229,255,0.06); box-shadow:0 0 12px rgba(0,229,255,0.08); }
+.mw-opt.active .mw-opt-name { color:var(--accent); }
+
+.mw-goal {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  background:var(--subtle-bg); border:1px solid var(--border-med); color:var(--text);
+  padding:12px 6px; border-radius:12px; font-size:0.82rem; font-weight:700;
+  font-family:inherit; cursor:pointer; transition:all 0.15s;
+}
+.mw-goal span:first-child { font-size:1.4rem; line-height:1; }
+.mw-goal.active { border-color:var(--accent); background:rgba(0,229,255,0.06); color:var(--accent); box-shadow:0 0 12px rgba(0,229,255,0.08); }
+
+.mw-result {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:14px; margin:14px 0 14px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.mw-result-cal { display:flex; flex-direction:column; align-items:flex-start; }
+.mw-result-cal span { font-size:1.6rem; font-weight:800; color:var(--accent); line-height:1; }
+.mw-result-cal small { font-size:0.7rem; color:var(--muted); margin-top:3px; letter-spacing:0.4px; text-transform:uppercase; }
+.mw-result-macros { display:flex; flex-direction:column; gap:5px; font-size:0.82rem; color:var(--muted); }
+.mw-result-macros div { display:flex; align-items:center; gap:6px; }
+.mw-result-macros b { color:var(--text); font-weight:800; min-width:38px; text-align:right; }
+
 /* ── FAB Choice ── */
 .nl-fab-choice-btn {
   width:100%; background:var(--card); border:1px solid var(--border-med);

@@ -765,9 +765,10 @@
                 <div class="modal-title">Daily Goals</div>
                 <button class="modal-close" onclick="closeMacroGoalsModal()">✕</button>
             </div>
-            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Set calories first, then adjust macro
+            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Set calories first, then adjust macro
                 split
             </div>
+            <button class="mw-launch-btn" onclick="openMacroWizard()">🧮 Calculate for me</button>
             <label class="macro-input-label">Daily Calories</label>
             <input type="number" id="goalCalInput" class="macro-cal-input" placeholder="2000" inputmode="numeric" oninput="onMacroCalInput()"/>
             <div class="macro-cal-quick">
@@ -800,6 +801,85 @@
             <button class="create-btn" onclick="saveMacroGoalsFromModal()">Save Goals</button>
             <button class="macro-clear-btn" id="macroClearBtn" onclick="clearDateGoal()">Clear Goal for This Day
             </button>
+        </div>
+    </div>
+
+    <!-- Macro Calculator Wizard -->
+    <div class="modal-overlay" id="macroWizardOverlay" onclick="if(event.target===this)closeMacroWizard()">
+        <div class="modal" id="macroWizardModal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Calculate Goals</div>
+                <button class="modal-close" onclick="closeMacroWizard()" aria-label="Close">✕</button>
+            </div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">
+                Answer 4 quick questions and we'll compute calories &amp; macros for you using
+                Mifflin-St Jeor + a 1.8 g/kg protein target.
+            </div>
+
+            <div class="mw-row">
+                <div class="mw-field">
+                    <label class="macro-input-label">Weight (kg)</label>
+                    <input id="mwWeight" type="number" inputmode="decimal" step="0.1" oninput="updateMacroWizard()"/>
+                </div>
+                <div class="mw-field">
+                    <label class="macro-input-label">Height (cm)</label>
+                    <input id="mwHeight" type="number" inputmode="numeric" oninput="updateMacroWizard()"/>
+                </div>
+            </div>
+            <div class="mw-row">
+                <div class="mw-field">
+                    <label class="macro-input-label">Age</label>
+                    <input id="mwAge" type="number" inputmode="numeric" oninput="updateMacroWizard()"/>
+                </div>
+                <div class="mw-field">
+                    <label class="macro-input-label">Sex</label>
+                    <div class="mw-seg" id="mwSexSeg">
+                        <button class="mw-seg-btn" data-sex="male" onclick="setMacroWizardSex('male')">Male</button>
+                        <button class="mw-seg-btn" data-sex="female" onclick="setMacroWizardSex('female')">Female</button>
+                    </div>
+                </div>
+            </div>
+
+            <label class="macro-input-label" style="margin-top:8px;">Activity level</label>
+            <div class="mw-stack" id="mwActivityGroup">
+                <button class="mw-opt" data-activity="sedentary" onclick="setMacroWizardActivity('sedentary')">
+                    <div class="mw-opt-name">Sedentary</div><div class="mw-opt-sub">Desk job, no exercise</div>
+                </button>
+                <button class="mw-opt" data-activity="light" onclick="setMacroWizardActivity('light')">
+                    <div class="mw-opt-name">Light</div><div class="mw-opt-sub">1–3 workouts / week</div>
+                </button>
+                <button class="mw-opt" data-activity="moderate" onclick="setMacroWizardActivity('moderate')">
+                    <div class="mw-opt-name">Moderate</div><div class="mw-opt-sub">3–5 workouts / week</div>
+                </button>
+                <button class="mw-opt" data-activity="heavy" onclick="setMacroWizardActivity('heavy')">
+                    <div class="mw-opt-name">Heavy</div><div class="mw-opt-sub">6–7 workouts / week</div>
+                </button>
+            </div>
+
+            <label class="macro-input-label" style="margin-top:14px;">Goal</label>
+            <div class="mw-row mw-row-3" id="mwGoalGroup">
+                <button class="mw-goal" data-goal="cut" onclick="setMacroWizardGoal('cut')">
+                    <span>📉</span><span>Cut</span>
+                </button>
+                <button class="mw-goal" data-goal="maintain" onclick="setMacroWizardGoal('maintain')">
+                    <span>⚖️</span><span>Maintain</span>
+                </button>
+                <button class="mw-goal" data-goal="bulk" onclick="setMacroWizardGoal('bulk')">
+                    <span>📈</span><span>Bulk</span>
+                </button>
+            </div>
+
+            <div class="mw-result" id="mwResult">
+                <div class="mw-result-cal"><span id="mwResCal">—</span><small>kcal / day</small></div>
+                <div class="mw-result-macros">
+                    <div><span class="macro-dot bg-protein"></span>P <b id="mwResP">—</b></div>
+                    <div><span class="macro-dot bg-carbs"></span>C <b id="mwResC">—</b></div>
+                    <div><span class="macro-dot bg-fat"></span>F <b id="mwResF">—</b></div>
+                </div>
+            </div>
+
+            <button class="create-btn" id="mwApplyBtn" onclick="applyMacroWizard()" disabled>Use These Goals</button>
         </div>
     </div>
 

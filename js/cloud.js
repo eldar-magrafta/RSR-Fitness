@@ -25,6 +25,7 @@ const SECTION_MAP = {
   customexercises: 'trainer_custom_exercises',
   prefs:           'trainer_prefs',
   deleteddefaultmeals: 'trainer_deleted_default_meals',
+  userprofile:     'trainer_user_profile',
 };
 
 let db, auth;

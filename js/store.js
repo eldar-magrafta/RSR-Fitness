@@ -177,6 +177,19 @@ export function clearUserHeight() {
   _cloudSave('sections', 'userheight', 'null');
 }
 
+// ── User Profile (age / sex / activity / goal) ──
+// Used by the macro calculator wizard. Stored as one JSON blob so we don't
+// add four more localStorage keys + sync sections.
+export function getUserProfile() {
+  try { return JSON.parse(localStorage.getItem('trainer_user_profile')) || {}; }
+  catch { return {}; }
+}
+export function saveUserProfile(profile) {
+  const v = JSON.stringify(profile || {});
+  safeSetItem('trainer_user_profile', v);
+  _cloudSave('sections', 'userprofile', v);
+}
+
 // Backward-compat helpers (old entries are plain numbers, new are {w,p} objects)
 export function bwGetWeight(val) { return typeof val === 'object' && val ? Number(val.w) : Number(val); }
 // Returns array of photo markers (e.g. ['cloud','cloud']) or empty array
