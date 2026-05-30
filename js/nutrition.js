@@ -1059,9 +1059,12 @@ export function closeMacroGoalsModal() {
   document.getElementById('macroGoalsOverlay').classList.remove('open');
 }
 
-export function initMacroGoalsSwipe() {
-  const overlay = document.getElementById('macroGoalsOverlay');
-  const modal = document.getElementById('macroGoalsModal');
+// Wire swipe-down-to-dismiss on a modal. The user must start the swipe in
+// the top 72px of the modal so scrolling the body doesn't trigger dismissal.
+function _initSwipeDismiss(overlayId, modalId, onClose) {
+  const overlay = document.getElementById(overlayId);
+  const modal = document.getElementById(modalId);
+  if (!overlay || !modal) return;
   let _md = null;
   modal.addEventListener('touchstart', e => {
     const touch = e.touches[0];
@@ -1084,12 +1087,17 @@ export function initMacroGoalsSwipe() {
     overlay.style.background = '';
     if (dy > 110) {
       modal.style.transform = 'translateY(110%)';
-      setTimeout(() => { modal.style.transform = ''; closeMacroGoalsModal(); }, 240);
+      setTimeout(() => { modal.style.transform = ''; onClose(); }, 240);
     } else {
       modal.style.transform = '';
     }
     _md = null;
   });
+}
+
+export function initMacroGoalsSwipe() {
+  _initSwipeDismiss('macroGoalsOverlay', 'macroGoalsModal', closeMacroGoalsModal);
+  _initSwipeDismiss('macroWizardOverlay', 'macroWizardModal', closeMacroWizard);
 }
 
 export function saveMacroGoalsFromModal() {
