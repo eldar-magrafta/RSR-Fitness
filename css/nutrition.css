@@ -461,3 +461,49 @@
 .barcode-product-macros .val { font-weight:800; display:block; font-size:1rem; }
 .barcode-product-macros .lbl { font-size:0.7rem; color:var(--muted); }
 
+/* Compact week-strip calendar (Today tab) */
+.nl-week-cal {
+  display:flex; align-items:stretch; gap:6px;
+  margin-bottom:16px;
+}
+.nl-week-nav {
+  flex:0 0 28px; background:var(--card); border:1px solid var(--border);
+  color:var(--muted); border-radius:12px; font-size:1.1rem; line-height:1;
+  cursor:pointer; padding:0; font-family:inherit;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.nl-week-nav:active { color:var(--accent); border-color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.12); }
+.nl-week-strip {
+  flex:1; display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;
+}
+.nl-week-day {
+  background:var(--card); border:1px solid var(--border); color:var(--text);
+  border-radius:12px; padding:6px 0 7px; cursor:pointer; font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  position:relative; transition:all 0.15s;
+}
+.nl-week-day:active { background:var(--subtle-bg-hover); }
+.nl-week-dow {
+  font-size:0.58rem; color:var(--muted); font-weight:700;
+  letter-spacing:0.4px; text-transform:uppercase;
+}
+.nl-week-num { font-size:0.95rem; font-weight:700; line-height:1.1; }
+.nl-week-day.is-today {
+  background:rgba(0,229,255,0.10); border-color:rgba(0,229,255,0.35);
+}
+.nl-week-day.is-today .nl-week-num { color:var(--accent); }
+.nl-week-day.is-selected {
+  background:var(--accent); border-color:var(--accent);
+  box-shadow:0 0 14px rgba(0,229,255,0.28);
+}
+.nl-week-day.is-selected .nl-week-num,
+.nl-week-day.is-selected .nl-week-dow { color:#060611; }
+.nl-week-day.has-data::after {
+  content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%);
+  width:4px; height:4px; border-radius:50%;
+  background:var(--green); box-shadow:0 0 6px rgba(0,232,123,0.4);
+}
+.nl-week-day.is-selected.has-data::after { background:#060611; box-shadow:none; }
+.nl-week-day.is-future { opacity:0.55; }
+

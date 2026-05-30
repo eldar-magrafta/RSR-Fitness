@@ -298,13 +298,10 @@
             <button class="nl-view-btn active" id="nlViewToday" onclick="nlSetViewMode('today')">Today</button>
             <button class="nl-view-btn" id="nlViewSaved" onclick="nlSetViewMode('saved')">Saved Meals</button>
         </div>
-        <div id="nlCalSection">
-            <div class="bw-cal-header">
-                <button class="bw-cal-nav" onclick="nlPrevMonth()">‹</button>
-                <span class="bw-cal-month-lbl" id="nlCalMonthLbl"></span>
-                <button class="bw-cal-nav" onclick="nlNextMonth()">›</button>
-            </div>
-            <div class="bw-cal-grid" id="nlCalGrid"></div>
+        <div id="nlCalSection" class="nl-week-cal">
+            <button class="nl-week-nav" onclick="nlPrevMonth()" aria-label="Previous week">‹</button>
+            <div class="nl-week-strip" id="nlCalGrid"></div>
+            <button class="nl-week-nav" onclick="nlNextMonth()" aria-label="Next week">›</button>
         </div>
         <div id="macroGoalsSection"></div>
         <div class="nl-sort-row">

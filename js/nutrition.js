@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, MONTHS, escHtml, resizeImage, renderCalendarGrid, openConfirmDialog, debounce, MIN_CAL_YEAR } from './utils.js';
+import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 import { identifyMealFromPhoto } from './ai.js';
 
@@ -1228,30 +1228,70 @@ export function openDeleteAllMealLogs() {
 
 // ── Nutrition Calendar ──
 
+const _DOW_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function _parseISODate(ds) {
+  const [y, m, d] = ds.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function _formatISODate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Anchor week on the selected date so the user always sees the date they're viewing.
+// Strip shows 3 days before, the selected day, and 3 days after.
 export function renderNLCalendar() {
   const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged');
   const mealDates = new Set(meals.map(m => m.createdAt));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayStr = _formatISODate(today);
+  const selected = state.nlSelectedDate || todayStr;
+  const center = _parseISODate(selected);
 
-  document.getElementById('nlCalMonthLbl').textContent = `${MONTHS[state.nlCalMon]} ${state.nlCalYear}`;
-  document.getElementById('nlCalGrid').innerHTML = renderCalendarGrid(state.nlCalYear, state.nlCalMon, {
-    hasData: ds => mealDates.has(ds),
-    selected: state.nlSelectedDate,
-    markFuture: false,
-    markPast: true,
-    onClick: 'nlSelectDate',
-  });
+  let html = '';
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(center); d.setDate(center.getDate() + i);
+    const ds = _formatISODate(d);
+    const isToday = ds === todayStr;
+    const isSelected = ds === selected;
+    const isFuture = d > today;
+    const hasData = mealDates.has(ds);
+    const cls = ['nl-week-day',
+      isToday ? 'is-today' : '',
+      isSelected ? 'is-selected' : '',
+      isFuture ? 'is-future' : '',
+      hasData ? 'has-data' : '',
+    ].filter(Boolean).join(' ');
+    html += `<button class="${cls}" onclick="nlSelectDate('${ds}')">
+      <span class="nl-week-dow">${_DOW_SHORT[d.getDay()]}</span>
+      <span class="nl-week-num">${d.getDate()}</span>
+    </button>`;
+  }
+  document.getElementById('nlCalGrid').innerHTML = html;
+}
+
+function _shiftSelectedDate(days) {
+  const cur = _parseISODate(state.nlSelectedDate || _formatISODate(new Date()));
+  cur.setDate(cur.getDate() + days);
+  if (cur.getFullYear() < MIN_CAL_YEAR || cur.getFullYear() > 2035) return;
+  state.nlSelectedDate = _formatISODate(cur);
+  state.nlCalYear = cur.getFullYear();
+  state.nlCalMon = cur.getMonth();
 }
 
 export function nlPrevMonth() {
-  if (state.nlCalYear <= MIN_CAL_YEAR && state.nlCalMon === 0) return;
-  if (state.nlCalMon === 0) { state.nlCalMon = 11; state.nlCalYear--; } else state.nlCalMon--;
+  _shiftSelectedDate(-7);
   renderNLCalendar();
+  renderNLMeals();
+  renderMacroGoals();
 }
 
 export function nlNextMonth() {
-  if (state.nlCalYear >= 2035 && state.nlCalMon === 11) return;
-  if (state.nlCalMon === 11) { state.nlCalMon = 0; state.nlCalYear++; } else state.nlCalMon++;
+  _shiftSelectedDate(7);
   renderNLCalendar();
+  renderNLMeals();
+  renderMacroGoals();
 }
 
 export function nlSelectDate(dateStr) {
