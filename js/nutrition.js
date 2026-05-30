@@ -244,7 +244,7 @@ function renderNLMealDetail() {
           ? _cloudImgTag('nl-ing-img', 'custom-ing-photos', _cloudDocId(ing.img))
           : `<img class="nl-ing-img" src="${ing.img}" loading="lazy" decoding="async">`)
         : `<div class="nl-ing-initial">${escHtml(ing.name[0])}</div>`;
-      return `<div class="nl-ing-card">
+      return `<div class="nl-ing-card" data-ing-idx="${idx}">
         <div class="nl-ing-top">${imgHtml}<div class="nl-ing-name">${escHtml(ing.name)}</div><button class="nl-ing-remove" onclick="nlRemoveIng(${idx})"><i class="bi bi-trash3"></i></button></div>
         <div class="nl-ing-controls">
           <button class="nl-ing-btn" onclick="nlAdjustIng(${idx},-10)">−</button>
@@ -268,9 +268,37 @@ function renderNLMealDetail() {
 export function nlAdjustIng(idx, delta) {
   const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
   if (!meal || !meal.ingredients[idx]) return;
-  meal.ingredients[idx].grams = Math.max(10, meal.ingredients[idx].grams + delta);
+  const ing = meal.ingredients[idx];
+  ing.grams = Math.max(10, ing.grams + delta);
   nlInvalidateTotalsCache(meal);
-  saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
+  saveNLMeals(meals);
+
+  // Update only the affected card + totals/chart in-place to avoid full re-render flicker.
+  const card = document.querySelector(`.nl-ing-card[data-ing-idx="${idx}"]`);
+  if (card) {
+    const m = ing.grams / 100;
+    const gramsEl = card.querySelector('.nl-ing-grams');
+    if (gramsEl) gramsEl.textContent = `${ing.grams}${ingUnit(ing)}`;
+    const spans = card.querySelectorAll('.nl-ing-macros span');
+    if (spans.length === 4) {
+      spans[0].textContent = `${(ing.p * m).toFixed(1)}g`;
+      spans[1].textContent = `${(ing.c * m).toFixed(1)}g`;
+      spans[2].textContent = `${(ing.f * m).toFixed(1)}g`;
+      spans[3].textContent = `${Math.round(ing.cal * m)}`;
+    }
+    const t = nlCalcTotals(meal);
+    const chart = document.getElementById('nlMealChart');
+    if (chart) chart.innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
+    const totals = document.getElementById('nlTotals');
+    if (totals) totals.innerHTML = `
+    <div class="nl-total-item"><div class="nl-total-val color-accent">${t.cal}</div><div class="nl-total-label">Calories</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-protein">${t.p}g</div><div class="nl-total-label">Protein</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-carbs">${t.c}g</div><div class="nl-total-label">Carbs</div></div>
+    <div class="nl-total-item"><div class="nl-total-val color-fat">${t.f}g</div><div class="nl-total-label">Fat</div></div>`;
+  } else {
+    renderNLMealDetail();
+  }
+  renderMacroGoals();
 }
 
 export function nlRemoveIng(idx) {
