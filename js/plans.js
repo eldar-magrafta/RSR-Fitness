@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getPlans, savePlans, getPlan, getLog, getCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { openModal, findExercise } from './exercises.js';
-import { escHtml, openConfirmDialog, initDragReorder } from './utils.js';
+import { escHtml, openConfirmDialog, initDragReorder, initSheetSwipe } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
 import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
 import { generatePlan, MUSCLE_GROUP_OPTIONS, EQUIPMENT_OPTIONS, INJURY_OPTIONS } from './ai.js';
@@ -647,5 +647,15 @@ export function toggleExerciseInPlan(exName, groupKey) {
       badge.classList.toggle('visible', count > 0);
     }
   });
+}
+
+// Wire swipe-down-to-dismiss for every plan-related bottom sheet that has
+// an X close button. Called once at app startup.
+export function initPlanSheetSwipes() {
+  initSheetSwipe('addTitleOverlay', 'addTitleModal', closeAddTitle);
+  initSheetSwipe('createPlanChoiceOverlay', 'createPlanChoiceModal', closeCreatePlanChoice);
+  initSheetSwipe('createPlanOverlay', 'createPlanModal', closeCreatePlan);
+  initSheetSwipe('aiPlanOverlay', 'aiPlanModal', closeAIPlan);
+  initSheetSwipe('aiPreviewOverlay', 'aiPreviewModal', closeAIPreview);
 }
 

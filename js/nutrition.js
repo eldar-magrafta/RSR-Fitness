@@ -1098,6 +1098,12 @@ function _initSwipeDismiss(overlayId, modalId, onClose) {
 export function initMacroGoalsSwipe() {
   _initSwipeDismiss('macroGoalsOverlay', 'macroGoalsModal', closeMacroGoalsModal);
   _initSwipeDismiss('macroWizardOverlay', 'macroWizardModal', closeMacroWizard);
+  // Other nutrition-tab sheets that have an X close button.
+  _initSwipeDismiss('nlCreateOverlay', 'nlCreateModal', nlCloseCreate);
+  _initSwipeDismiss('nlCustomOverlay', 'nlCustomModal', nlCloseCustom);
+  _initSwipeDismiss('nlRenameOverlay', 'nlRenameModal', nlCloseRename);
+  _initSwipeDismiss('nlSavedPickerOverlay', 'nlSavedPickerSheet', closeSavedMealPicker);
+  _initSwipeDismiss('barcodeResultOverlay', 'barcodeResultSheet', nlCloseBarcodeResult);
 }
 
 export function saveMacroGoalsFromModal() {

@@ -538,7 +538,7 @@
 
     <!-- Add Title Modal -->
     <div class="modal-overlay" id="addTitleOverlay" onclick="handleTitleOverlayClick(event)">
-        <div class="modal">
+        <div class="modal" id="addTitleModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">Add Section Title</div>
@@ -553,7 +553,7 @@
 
     <!-- Create Plan Mode Picker -->
     <div class="modal-overlay" id="createPlanChoiceOverlay" onclick="if(event.target===this)closeCreatePlanChoice()">
-        <div class="modal">
+        <div class="modal" id="createPlanChoiceModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">New Plan</div>
@@ -576,7 +576,7 @@
 
     <!-- Create Plan Modal -->
     <div class="modal-overlay" id="createPlanOverlay" onclick="handleCreateOverlayClick(event)">
-        <div class="modal">
+        <div class="modal" id="createPlanModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">New Plan</div>
@@ -591,7 +591,7 @@
 
     <!-- AI Plan Input -->
     <div class="modal-overlay" id="aiPlanOverlay" onclick="if(event.target===this)closeAIPlan()">
-        <div class="modal">
+        <div class="modal" id="aiPlanModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">AI Plan</div>
@@ -640,7 +640,7 @@
 
     <!-- AI Plan Preview -->
     <div class="modal-overlay" id="aiPreviewOverlay" onclick="if(event.target===this)closeAIPreview()">
-        <div class="modal">
+        <div class="modal" id="aiPreviewModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title" id="aiPreviewTitle">Preview</div>
@@ -683,7 +683,7 @@
 
     <!-- NL Create Meal Modal -->
     <div class="modal-overlay" id="nlCreateOverlay" onclick="if(event.target===this)nlCloseCreate()">
-        <div class="modal">
+        <div class="modal" id="nlCreateModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">New Meal</div>
@@ -702,7 +702,7 @@
 
     <!-- NL Custom Ingredient Modal -->
     <div class="modal-overlay" id="nlCustomOverlay" onclick="if(event.target===this)nlCloseCustom()">
-        <div class="modal">
+        <div class="modal" id="nlCustomModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title" id="nlCustomModalTitle">Custom Ingredient</div>
@@ -744,7 +744,7 @@
 
     <!-- Rename Meal Modal -->
     <div class="modal-overlay" id="nlRenameOverlay" onclick="if(event.target===this)nlCloseRename()">
-        <div class="modal">
+        <div class="modal" id="nlRenameModal">
             <div class="modal-handle"></div>
             <div class="modal-header">
                 <div class="modal-title">Rename Meal</div>
