@@ -1239,19 +1239,19 @@ function _formatISODate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Anchor week on the selected date so the user always sees the date they're viewing.
-// Strip shows 3 days before, the selected day, and 3 days after.
+// Show the Sun–Sat week that contains the selected date.
 export function renderNLCalendar() {
   const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged');
   const mealDates = new Set(meals.map(m => m.createdAt));
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const todayStr = _formatISODate(today);
   const selected = state.nlSelectedDate || todayStr;
-  const center = _parseISODate(selected);
+  const sel = _parseISODate(selected);
+  const weekStart = new Date(sel); weekStart.setDate(sel.getDate() - sel.getDay());
 
   let html = '';
-  for (let i = -3; i <= 3; i++) {
-    const d = new Date(center); d.setDate(center.getDate() + i);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
     const ds = _formatISODate(d);
     const isToday = ds === todayStr;
     const isSelected = ds === selected;
