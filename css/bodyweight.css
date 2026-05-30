@@ -198,7 +198,7 @@
 .bw-sheet-title { font-size: 1.15rem; font-weight: 800; text-align: center; margin-bottom: 24px; }
 .bw-input-row {
   background: var(--subtle-bg); border-radius: 18px; display: flex;
-  align-items: center; gap: 10px; padding: 16px 20px; margin-bottom: 20px;
+  align-items: center; gap: 10px; padding: 16px 20px; margin: 0 auto 20px;
   border: 1px solid var(--border);
   width: 260px; max-width: 100%; box-sizing: border-box;
 }
@@ -216,15 +216,17 @@
 }
 @keyframes bw-spin { to { transform: rotate(360deg); } }
 .bw-btn-save {
-  width: 100%; background: linear-gradient(135deg, var(--green), #00c9a7);
+  display: block; width: 260px; max-width: 100%; margin: 0 auto 10px;
+  background: linear-gradient(135deg, var(--green), #00c9a7);
   border: none; color: #fff; padding: 16px; border-radius: 16px;
-  font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; margin-bottom: 10px;
+  font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer;
   box-shadow: 0 4px 16px rgba(0,232,123,0.2);
 }
 .bw-btn-save:active { opacity: 0.85; }
 .bw-btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 .bw-btn-del {
-  width: 100%; background: none; border: 1px solid rgba(255,61,113,0.25);
+  width: 260px; max-width: 100%; margin: 0 auto;
+  background: none; border: 1px solid rgba(255,61,113,0.25);
   color: var(--carbs); padding: 14px; border-radius: 16px;
   font-size: 0.95rem; font-weight: 600; font-family: inherit; cursor: pointer; display: none;
 }
@@ -232,8 +234,11 @@
 .bw-btn-del:active { background: rgba(255,61,113,0.08); }
 
 /* ── Photo ── */
-.bw-photo-area { margin-bottom: 20px; }
-.bw-photos-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bw-photo-area { margin-bottom: 20px; display: flex; justify-content: center; }
+.bw-photos-row {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  justify-content: center; width: 260px; max-width: 100%;
+}
 .bw-add-photo-btn-small {
   width: 80px; height: 80px; background: var(--subtle-bg);
   border: 1px dashed var(--border-med); color: var(--muted);
