@@ -134,13 +134,16 @@ function renderBWChart() {
   const yS = v => P.t + cH - ((v - minV) / spread) * cH;
   const pts = entries.map(([d, v], i) => ({ x: xS(i), y: yS(v), d, v }));
 
-  let linePath = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const p = pts[i - 1], c = pts[i];
-    const cx1 = p.x + (c.x - p.x) / 3, cx2 = c.x - (c.x - p.x) / 3;
-    linePath += ` C ${cx1} ${p.y}, ${cx2} ${c.y}, ${c.x} ${c.y}`;
-  }
-  const areaPath = linePath + ` L ${pts[pts.length - 1].x} ${H - P.b} L ${pts[0].x} ${H - P.b} Z`;
+  // 7-day centered moving average over the raw weights — smooths out the
+  // day-to-day noise without lying about any individual measurement.
+  const winRadius = 3;
+  const movingAvg = vals.map((_, i) => {
+    const a = Math.max(0, i - winRadius), b = Math.min(vals.length - 1, i + winRadius);
+    let sum = 0, n = 0;
+    for (let j = a; j <= b; j++) { sum += vals[j]; n++; }
+    return sum / n;
+  });
+  const avgPath = movingAvg.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xS(i).toFixed(1)} ${yS(v).toFixed(1)}`).join(' ');
 
   const yLbls = [minV, (minV + maxV) / 2, maxV].map(v =>
     `<text x="${P.l - 6}" y="${yS(v)}" text-anchor="end" dominant-baseline="middle" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${v.toFixed(1)}</text>`
@@ -156,7 +159,7 @@ function renderBWChart() {
   }).join('');
 
   const dots = pts.map(p =>
-    `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="var(--accent)" stroke="var(--card)" stroke-width="2"/>`
+    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="var(--accent)" opacity="0.85"/>`
   ).join('');
 
   const goalLine = goal ? `<line x1="${P.l}" y1="${yS(goal)}" x2="${W - P.r}" y2="${yS(goal)}" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7"/>
@@ -164,17 +167,11 @@ function renderBWChart() {
 
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H);
   svg.innerHTML = `
-    <defs>
-      <linearGradient id="bwG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgba(233,69,96,0.38)"/>
-        <stop offset="100%" stop-color="rgba(233,69,96,0.0)"/>
-      </linearGradient>
-    </defs>
     <line x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}" stroke="${chartGrid}" stroke-width="1"/>
     ${goalLine}
-    <path d="${areaPath}" fill="url(#bwG)"/>
-    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${yLbls}${xLbls}${dots}`;
+    <path d="${avgPath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    ${dots}
+    ${yLbls}${xLbls}`;
 
   const clean = svg.cloneNode(true);
   svg.parentNode.replaceChild(clean, svg);

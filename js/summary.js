@@ -129,30 +129,28 @@ function renderMiniChart(entries) {
   const yS = v => P.t + cH - ((v - minV) / spread) * cH;
   const pts = entries.map(([d, v], i) => ({ x: xS(i), y: yS(v), d, v }));
 
-  let linePath = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const p = pts[i - 1], c = pts[i];
-    const cx1 = p.x + (c.x - p.x) / 3, cx2 = c.x - (c.x - p.x) / 3;
-    linePath += ` C ${cx1} ${p.y}, ${cx2} ${c.y}, ${c.x} ${c.y}`;
-  }
-  const areaPath = linePath + ` L ${pts[pts.length - 1].x} ${H - P.b} L ${pts[0].x} ${H - P.b} Z`;
+  // Centered moving-average trend line (matches the main BW chart treatment).
+  const winRadius = 3;
+  const ma = vals.map((_, i) => {
+    const a = Math.max(0, i - winRadius), b = Math.min(vals.length - 1, i + winRadius);
+    let sum = 0, n = 0;
+    for (let j = a; j <= b; j++) { sum += vals[j]; n++; }
+    return sum / n;
+  });
+  const avgPath = ma.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xS(i).toFixed(1)} ${yS(v).toFixed(1)}`).join(' ');
 
   const yLbls = [minV, maxV].map(v =>
     `<text x="${P.l - 4}" y="${yS(v)}" text-anchor="end" dominant-baseline="middle" fill="var(--muted)" font-size="8" font-family="-apple-system,sans-serif">${v.toFixed(1)}</text>`
   ).join('');
 
   const dots = pts.map(p =>
-    `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="var(--accent)" stroke="var(--card)" stroke-width="1.5"/>`
+    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="var(--accent)" opacity="0.85"/>`
   ).join('');
 
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block;">
-    <defs><linearGradient id="smG" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(233,69,96,0.3)"/>
-      <stop offset="100%" stop-color="rgba(233,69,96,0.0)"/>
-    </linearGradient></defs>
-    <path d="${areaPath}" fill="url(#smG)"/>
-    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${yLbls}${dots}
+    <path d="${avgPath}" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    ${dots}
+    ${yLbls}
   </svg>`;
 }
 

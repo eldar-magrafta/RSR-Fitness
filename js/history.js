@@ -62,23 +62,37 @@ function renderExHistChart() {
   const W = 340, H = 140, pad = 30, pT = 15, pB = 22;
   const vals = entries.map(e => e[1]);
   let mn = Math.min(...vals), mx = Math.max(...vals);
-  if (mn === mx) { mn -= 5; mx += 5; }
-  const rng = mx - mn || 1;
-  const xStep = (W - pad * 2) / (entries.length - 1);
+  // Bars start at zero so heights are visually comparable (a 100 kg session
+  // shouldn't look 5× a 95 kg one). But if all values are huge, anchor a bit
+  // below min so bars aren't comically tall.
+  const baseline = mn > 20 ? Math.floor(mn - (mx - mn || 5) * 0.4) : 0;
+  if (mx === baseline) { mx = baseline + 5; }
+  const rng = mx - baseline || 1;
+  const cW = W - pad * 2;
+  const slot = cW / entries.length;
+  const barW = Math.min(22, Math.max(4, slot * 0.7));
+  const yScale = v => pT + (1 - (v - baseline) / rng) * (H - pT - pB);
 
   const pts = entries.map(([d, v], i) => {
-    const x = pad + i * xStep;
-    const y = pT + (1 - (v - mn) / rng) * (H - pT - pB);
+    const x = pad + slot * (i + 0.5);  // bar center
+    const y = yScale(v);
     const raw = entries[i][2];
     return { x, y, d, v, raw };
   });
 
-  const line = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
-  const area = line + ` L${pts[pts.length - 1].x.toFixed(1)},${H - pB} L${pts[0].x.toFixed(1)},${H - pB} Z`;
-  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="var(--accent)"/>`).join('');
+  const bars = pts.map(p => {
+    const h = Math.max(2, (H - pB) - p.y);
+    return `<rect x="${(p.x - barW / 2).toFixed(1)}" y="${p.y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" ry="3" fill="var(--accent)" opacity="0.78"><title>${p.v}kg · ${p.d}</title></rect>`;
+  }).join('');
 
-  const gridLines = [0, 0.25, 0.5, 0.75, 1].map(f => {
-    const v = mn + f * rng;
+  // PR-of-window highlight: tallest bar gets a brighter top dot.
+  const topIdx = vals.indexOf(mx);
+  const topDot = topIdx >= 0
+    ? `<circle cx="${pts[topIdx].x.toFixed(1)}" cy="${(pts[topIdx].y - 4).toFixed(1)}" r="2.5" fill="var(--fat)"/>`
+    : '';
+
+  const gridLines = [0, 0.5, 1].map(f => {
+    const v = baseline + f * rng;
     const y = pT + (1 - f) * (H - pT - pB);
     return `<line x1="${pad}" x2="${W - pad}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${chartGrid}"/>
       <text x="${pad - 4}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="${chartLbl}" font-size="8">${Math.round(v)}</text>`;
@@ -90,7 +104,7 @@ function renderExHistChart() {
     return `<text x="${p.x.toFixed(1)}" y="${H - 4}" text-anchor="middle" fill="${chartLbl}" font-size="8">${d}/${m}/${y.slice(2)}</text>`;
   }).join('');
 
-  svg.innerHTML = `${gridLines}<path d="${area}" fill="url(#exGrad)" opacity="0.25"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>${dots}${xLabels}<defs><linearGradient id="exGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>`;
+  svg.innerHTML = `${gridLines}${bars}${topDot}${xLabels}`;
 
   function showTip(clientX) {
     const rect = svg.getBoundingClientRect();
