@@ -23,7 +23,7 @@ function _cloudImgTag(cls, collection, docId) {
   const key = `${collection}/${docId}`;
   const cached = _cloudImgCache.get(key);
   if (cached) return `<img class="${cls}" src="${cached}" alt="" decoding="async">`;
-  return `<img class="${cls}" data-cloud-src="${key}" src="" alt="" decoding="async">`;
+  return `<img class="${cls} cloud-loading" data-cloud-src="${key}" src="" alt="" decoding="async">`;
 }
 
 // Fallback thumbnail when a meal has no image, or when its image src 404s.
@@ -50,6 +50,7 @@ function _resolveCloudImages(container) {
         _cloudImgCache.set(key, base64);
         el.src = base64;
       }
+      el.classList.remove('cloud-loading');
     });
   });
 }

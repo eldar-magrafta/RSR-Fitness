@@ -39,6 +39,9 @@ function switchTab(tab) {
   document.getElementById('tabPlans').classList.toggle('active', tab === 'plans');
   document.getElementById('tabWeight').classList.toggle('active', tab === 'weight');
   document.getElementById('tabNutrition').classList.toggle('active', tab === 'nutrition');
+  // Drives the sliding underline animation in css/base.css.
+  const tabIndex = { exercises: 0, plans: 1, weight: 2, nutrition: 3 }[tab];
+  if (tabIndex != null) document.querySelector('.tab-bar').setAttribute('data-active', String(tabIndex));
 
   if (tab === 'exercises') {
     showView('homeView');

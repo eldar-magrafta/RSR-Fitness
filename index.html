@@ -196,6 +196,7 @@
                 <div class="bw-range-row">
                     <button class="bw-range-btn active" data-days="30" onclick="setBWRange(30,this)">1M</button>
                     <button class="bw-range-btn" data-days="90" onclick="setBWRange(90,this)">3M</button>
+                    <button class="bw-range-btn" data-days="365" onclick="setBWRange(365,this)">1Y</button>
                     <button class="bw-range-btn" data-days="0" onclick="setBWRange(0,this)">All</button>
                 </div>
             </div>
@@ -358,6 +359,7 @@
                 <div class="bw-range-row">
                     <button class="bw-range-btn active" onclick="setExHistRange(30,this)">1M</button>
                     <button class="bw-range-btn" onclick="setExHistRange(90,this)">3M</button>
+                    <button class="bw-range-btn" onclick="setExHistRange(365,this)">1Y</button>
                     <button class="bw-range-btn" onclick="setExHistRange(0,this)">All</button>
                 </div>
             </div>
@@ -448,7 +450,7 @@
     <button class="fab hidden" id="fab" onclick="handleFab()">+</button>
 
     <!-- Tab Bar -->
-    <div class="tab-bar">
+    <div class="tab-bar" data-active="0">
         <button class="tab-btn active" id="tabEx" onclick="switchTab('exercises')">
             <span class="tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M2 12h1" /><path d="M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2" /><path d="M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1" /><path d="M9 12h6" /><path d="M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1" /><path d="M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2" /><path d="M22 12h-1" /></svg></span><span>Exercises</span>
         </button>
@@ -1004,6 +1006,11 @@
 <div id="loadingOverlay">
     <div class="auth-loading-spinner"></div>
     <div id="loadingMsg" class="auth-loading-msg">Loading…</div>
+    <div class="skeleton-stack" aria-hidden="true">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card skeleton-card-short"></div>
+    </div>
 </div>
 
 <!-- Sign Out Confirmation -->

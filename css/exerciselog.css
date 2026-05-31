@@ -64,7 +64,10 @@
   border-color: rgba(0,229,255,0.2);
   box-shadow: 0 0 10px rgba(0,229,255,0.04);
 }
-.prs-col-name { flex: 1; font-size: 0.9rem; font-weight: 700; }
+.prs-col-name { flex: 1; min-width: 0; font-size: 0.9rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prs-col-spark { width: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.prs-spark { display: block; }
+.prs-spark-empty { color: var(--text-faint); font-size: 0.85rem; }
 .prs-col-weight {
   width: 72px; text-align: right; font-size: 0.95rem;
   font-weight: 800; color: var(--accent);

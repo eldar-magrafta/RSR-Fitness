@@ -8,7 +8,7 @@ import { getPlan, getExHist, saveExHist, getLog, getPrefs } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
 import { escHtml, openConfirmDialog, dateToStr } from './utils.js';
-import { checkForNewPR, showNewPRToast } from './prs.js';
+import { checkForNewPR, showNewPRToast, wouldBeNewPR } from './prs.js';
 import { renderPlans, showPlanDetail } from './plans.js';
 
 const STORAGE_KEY = 'trainer_active_session';
@@ -270,10 +270,23 @@ export function sessionSaveSet(exIdx, sIdx) {
   if (!ex || ex.kind !== 'ex') return;
   const set = ex.sets[sIdx];
   if (!set || !isSetFilled(set) || set.committed) return;
+  const w = parseFloat(set.w) || 0;
+  const isPR = wouldBeNewPR(ex.name, w);
   set.committed = true;
   saveSession(s);
   if (getPrefs().autoStartTimer) startRest(s.restSec);
   renderSession();
+  // Re-find the row after re-render and flash either the commit pulse or
+  // the PR glow. The class auto-removes after the animation so it can fire
+  // again on a future commit.
+  requestAnimationFrame(() => {
+    const row = document.querySelector(`[data-set-row="${exIdx}_${sIdx}"]`);
+    if (!row) return;
+    const cls = isPR ? 'just-pr' : 'just-committed';
+    row.classList.add(cls);
+    const dur = isPR ? 1100 : 600;
+    setTimeout(() => row.classList.remove(cls), dur);
+  });
 }
 
 // ── Rest timer ──

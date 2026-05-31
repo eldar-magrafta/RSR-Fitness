@@ -180,17 +180,30 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   font-size: 0.65rem; font-family: 'Orbitron', sans-serif; letter-spacing: 0.5px;
   font-weight: 700; text-transform: uppercase;
-  transition: color 0.2s; position: relative;
+  transition: color 0.25s ease; position: relative;
 }
-.tab-btn .tab-icon { font-size: 1.35rem; filter: grayscale(1) brightness(0.5); transition: filter 0.2s; }
-.tab-btn.active .tab-icon { filter: none; }
+.tab-btn .tab-icon {
+  font-size: 1.35rem; filter: grayscale(1) brightness(0.5);
+  transition: filter 0.25s ease, transform 0.25s ease;
+  transform: scale(1);
+}
+.tab-btn.active .tab-icon { filter: none; transform: scale(1.08); }
 .tab-btn.active { color: var(--accent); }
-.tab-btn.active::after {
-  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 24px; height: 2px; border-radius: 1px;
+/* Animated underline that slides between active tabs. The `[data-active="X"]`
+ * attribute on .tab-bar (set by switchTab) drives the position. */
+.tab-bar::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 24px; height: 2px; border-radius: 0 0 2px 2px;
+  pointer-events: none;
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent), 0 0 16px rgba(0,229,255,0.3);
+  transform: translateX(calc(((100vw / 4) * (var(--tab-i, 0) + 0.5)) - 12px));
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
 }
+.tab-bar[data-active="0"] { --tab-i: 0; }
+.tab-bar[data-active="1"] { --tab-i: 1; }
+.tab-bar[data-active="2"] { --tab-i: 2; }
+.tab-bar[data-active="3"] { --tab-i: 3; }
 
 /* ── FAB ── */
 .fab {
@@ -428,3 +441,38 @@ body {
 .burger-divider { border-top: 1px solid var(--border); margin: 8px 0; }
 .burger-meta { padding: 8px 20px 4px; font-size: 0.75rem; color: var(--muted); }
 .burger-copyright { padding: 10px 20px 6px; font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+/* ── Skeleton placeholders ── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  position: relative; overflow: hidden;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(0,229,255,0.10) 50%,
+    rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.skeleton-stack {
+  width: min(320px, 80vw); display: flex; flex-direction: column; gap: 10px;
+  margin-top: 22px;
+}
+.skeleton-card { height: 56px; }
+.skeleton-card-short { height: 36px; width: 60%; align-self: center; }
+
+/* Images awaiting their cloud-resolved blob get a shimmer so the empty
+ * thumbnail slot doesn't read as broken. Falls back gracefully on unsupported
+ * browsers (animation is the only thing that's unique here). */
+img.cloud-loading {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(0,229,255,0.08) 50%,
+    rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
