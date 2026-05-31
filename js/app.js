@@ -482,11 +482,11 @@ function openClearAllData() {
   });
 }
 
-const THEME_CLASSES = ['light', 'theme-crimson', 'theme-golden', 'theme-ultraviolet', 'theme-forest', 'theme-mint', 'theme-carbon', 'theme-synthwave', 'theme-cyberpunk'];
+const THEME_CLASSES = ['light', 'theme-crimson', 'theme-golden', 'theme-ultraviolet', 'theme-mint', 'theme-carbon', 'theme-synthwave', 'theme-cyberpunk'];
 const THEME_META = {
   dark: '#060611', light: '#eef1fa',
   crimson: '#0b0608', golden: '#0a0804', ultraviolet: '#08061a',
-  forest: '#0a1410', mint: '#07140e', carbon: '#000000',
+  mint: '#07140e', carbon: '#000000',
   synthwave: '#0d0518', cyberpunk: '#0a0a14',
 };
 
@@ -506,6 +506,8 @@ function applyStoredTheme() {
     const old = localStorage.getItem('theme');
     if (old) { stored = old; localStorage.removeItem('theme'); }
   }
+  // Forest was removed; migrate any users still on it to Mint (closest match).
+  if (stored === 'forest') stored = 'mint';
   setTheme(stored || 'dark', true);
 }
 
