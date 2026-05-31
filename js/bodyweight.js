@@ -123,7 +123,11 @@ function renderBWChart() {
     return;
   }
 
-  const W = 340, H = 150, P = { t: 14, r: 18, b: 30, l: 42 };
+  // Sparkline rendering — no axes, no grid, no labels. Just a smooth line
+  // with a faint area fill, an end-point dot, and the optional goal line.
+  // Min/max labels float at top-right and bottom-right so users still have
+  // some scale reference without the full grid.
+  const W = 340, H = 90, P = { t: 6, r: 30, b: 6, l: 6 };
   const cW = W - P.l - P.r, cH = H - P.t - P.b;
   const vals = entries.map(([, v]) => v);
   const goal = getWeightGoal();
@@ -134,44 +138,37 @@ function renderBWChart() {
   const yS = v => P.t + cH - ((v - minV) / spread) * cH;
   const pts = entries.map(([d, v], i) => ({ x: xS(i), y: yS(v), d, v }));
 
-  // 7-day centered moving average over the raw weights — smooths out the
-  // day-to-day noise without lying about any individual measurement.
-  const winRadius = 3;
-  const movingAvg = vals.map((_, i) => {
-    const a = Math.max(0, i - winRadius), b = Math.min(vals.length - 1, i + winRadius);
-    let sum = 0, n = 0;
-    for (let j = a; j <= b; j++) { sum += vals[j]; n++; }
-    return sum / n;
-  });
-  const avgPath = movingAvg.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xS(i).toFixed(1)} ${yS(v).toFixed(1)}`).join(' ');
+  // Smoothed cubic-Bezier path through the points.
+  let linePath = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const cx1 = a.x + (b.x - a.x) / 3, cx2 = b.x - (b.x - a.x) / 3;
+    linePath += ` C ${cx1.toFixed(1)} ${a.y.toFixed(1)}, ${cx2.toFixed(1)} ${b.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+  const areaPath = linePath + ` L ${pts[pts.length - 1].x.toFixed(1)} ${(H - P.b).toFixed(1)} L ${pts[0].x.toFixed(1)} ${(H - P.b).toFixed(1)} Z`;
 
-  const yLbls = [minV, (minV + maxV) / 2, maxV].map(v =>
-    `<text x="${P.l - 6}" y="${yS(v)}" text-anchor="end" dominant-baseline="middle" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${v.toFixed(1)}</text>`
-  ).join('');
+  // Trend color: green if last >= first, otherwise carbs/red.
+  const trendingUp = vals[vals.length - 1] >= vals[0];
+  const stroke = trendingUp ? 'var(--green)' : 'var(--carbs)';
+  const fill = trendingUp ? 'rgba(0,232,123,0.14)' : 'rgba(255,61,113,0.14)';
 
-  const xIdxs = entries.length <= 3
-    ? entries.map((_, i) => i)
-    : [0, Math.floor((entries.length - 1) / 2), entries.length - 1];
-  const xLbls = [...new Set(xIdxs)].map(i => {
-    const [ds] = entries[i]; const [y, m, d] = ds.split('-');
-    const anchor = i === 0 ? 'start' : i === entries.length - 1 ? 'end' : 'middle';
-    return `<text x="${xS(i)}" y="${H - P.b + 13}" text-anchor="${anchor}" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${d}/${m}/${y.slice(2)}</text>`;
-  }).join('');
+  const last = pts[pts.length - 1];
+  const endDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="${stroke}"/>`;
 
-  const dots = pts.map(p =>
-    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="var(--accent)" opacity="0.85"/>`
-  ).join('');
+  // Compact min/max scale on the right edge so the sparkline still has context.
+  const scaleLbls = `
+    <text x="${W - 4}" y="${(yS(maxV) + 3).toFixed(1)}" text-anchor="end" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${maxV.toFixed(1)}</text>
+    <text x="${W - 4}" y="${(yS(minV) + 3).toFixed(1)}" text-anchor="end" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${minV.toFixed(1)}</text>`;
 
-  const goalLine = goal ? `<line x1="${P.l}" y1="${yS(goal)}" x2="${W - P.r}" y2="${yS(goal)}" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7"/>
-    <text x="${W - P.r + 4}" y="${yS(goal)}" dominant-baseline="middle" fill="var(--green)" font-size="8" font-family="-apple-system,sans-serif" opacity="0.8">${goal.toFixed(1)}</text>` : '';
+  const goalLine = goal ? `<line x1="${P.l}" y1="${yS(goal).toFixed(1)}" x2="${(W - P.r).toFixed(1)}" y2="${yS(goal).toFixed(1)}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>` : '';
 
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H);
   svg.innerHTML = `
-    <line x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}" stroke="${chartGrid}" stroke-width="1"/>
     ${goalLine}
-    <path d="${avgPath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-    ${dots}
-    ${yLbls}${xLbls}`;
+    <path d="${areaPath}" fill="${fill}"/>
+    <path d="${linePath}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${endDot}
+    ${scaleLbls}`;
 
   const clean = svg.cloneNode(true);
   svg.parentNode.replaceChild(clean, svg);
