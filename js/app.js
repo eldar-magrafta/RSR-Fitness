@@ -482,9 +482,9 @@ function openClearAllData() {
   });
 }
 
-const THEME_CLASSES = ['light', 'theme-crimson', 'theme-golden', 'theme-ultraviolet', 'theme-mint', 'theme-carbon', 'theme-synthwave', 'theme-cyberpunk'];
+const THEME_CLASSES = ['light', 'theme-slate', 'theme-crimson', 'theme-golden', 'theme-ultraviolet', 'theme-mint', 'theme-carbon', 'theme-synthwave', 'theme-cyberpunk'];
 const THEME_META = {
-  dark: '#060611', light: '#eef1fa',
+  dark: '#060611', light: '#eef1fa', slate: '#c9cdd8',
   crimson: '#0b0608', golden: '#0a0804', ultraviolet: '#08061a',
   mint: '#07140e', carbon: '#000000',
   synthwave: '#0d0518', cyberpunk: '#0a0a14',

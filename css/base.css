@@ -306,6 +306,45 @@ body {
 .light .cloud-sync-dot.error { box-shadow: 0 0 6px rgba(255,61,113,0.4); }
 
 /* ══════════════════════════════════════
+   Theme: Slate (dimmer light theme — soft slate-gray)
+   ══════════════════════════════════════ */
+.theme-slate {
+  --bg: #c9cdd8;
+  --card: #dde0e8;
+  --card2: #b8bdca;
+  --accent: #0091a5;
+  --green: #00b368;
+  --muted: #5a6580;
+  --text: #0a0e1a;
+  --text-secondary: rgba(10,14,26,0.62);
+  --text-faint: rgba(10,14,26,0.22);
+  --border: rgba(0,130,180,0.12);
+  --border-med: rgba(0,130,180,0.20);
+  --subtle-bg: rgba(0,130,180,0.06);
+  --subtle-bg-hover: rgba(0,130,180,0.12);
+  --chart-label: rgba(10,14,26,0.45);
+  --chart-grid: rgba(0,130,180,0.10);
+  background-image: none;
+}
+.theme-slate .header {
+  background: rgba(201,205,216,0.85);
+  box-shadow: 0 1px 12px rgba(0,130,180,0.07);
+}
+.theme-slate .back-btn { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.theme-slate .tab-bar {
+  background: rgba(201,205,216,0.92);
+  box-shadow: 0 -1px 12px rgba(0,0,0,0.06);
+}
+.theme-slate .burger-menu { box-shadow: -4px 0 24px rgba(0,0,0,0.10); }
+.theme-slate .fab { box-shadow: 0 4px 20px rgba(0,145,165,0.28), 0 0 30px rgba(139,92,246,0.10); }
+.theme-slate .modal-handle { background: rgba(0,0,0,0.16); }
+.theme-slate .modal-close { background: rgba(0,0,0,0.06); color: var(--text); }
+.theme-slate .confirm-btn-cancel { background: rgba(0,0,0,0.06); color: var(--text); }
+.theme-slate .muscle-icon-wrap { background: #b8bdca; }
+.theme-slate .bw-cal-day:active { background: rgba(0,0,0,0.06) !important; }
+.theme-slate .cloud-sync-dot.error { box-shadow: 0 0 6px rgba(255,61,113,0.4); }
+
+/* ══════════════════════════════════════
    Theme: Crimson Surge (red)
    ══════════════════════════════════════ */
 .theme-crimson {
@@ -537,6 +576,7 @@ body {
 .theme-swatch.active::after { opacity:1; }
 .theme-swatch[data-theme="dark"] { background:linear-gradient(135deg, #00e5ff, #8b5cf6); }
 .theme-swatch[data-theme="light"] { background:linear-gradient(135deg, #0091a5, #e2e7f4); }
+.theme-swatch[data-theme="slate"] { background:linear-gradient(135deg, #0091a5, #b8bdca); }
 .theme-swatch[data-theme="crimson"] { background:linear-gradient(135deg, #ff2d55, #ff6b35); }
 .theme-swatch[data-theme="golden"] { background:linear-gradient(135deg, #ffb800, #ff8c00); }
 .theme-swatch[data-theme="ultraviolet"] { background:linear-gradient(135deg, #bf5af2, #ff2dff); }
