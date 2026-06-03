@@ -124,9 +124,12 @@ function handleBack() {
     document.getElementById('fab').classList.add('hidden');
     state.navContext = 'nl-meal';
   } else if (state.navContext === 'ex-history') {
+    const origin = state.exHistOrigin;
     state.currentExerciseName = null;
     state.exHistSelectedDate = null;
-    if (state.currentPlanId) showPlanDetail(state.currentPlanId);
+    state.exHistOrigin = null;
+    if (origin === 'prs') openPRsView();
+    else if (state.currentPlanId) showPlanDetail(state.currentPlanId);
     else switchTab('exercises');
   } else if (state.navContext === 'nl-browse') {
     state.nlBrowseMode = false;

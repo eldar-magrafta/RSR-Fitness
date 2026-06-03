@@ -6,6 +6,7 @@ import { getExHist, getPRs, savePRs, getCustomExercises } from './store.js';
 import { exHistMaxWeight } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 import { state } from './state.js';
+import { openExHistory } from './history.js';
 
 /** Non-destructive check: would this weight be a new PR for this exercise?
  * Used by the session view to flash a gold glow on the row when the user
@@ -205,7 +206,7 @@ export function openPRsView() {
   entries.forEach((pr, i) => {
     const medal = i < 3 ? ['🥇','🥈','🥉'][i] : '';
     const spark = _renderPRSparkline(pr.name);
-    html += `<div class="prs-row${i < 3 ? ' prs-top' : ''}">
+    html += `<div class="prs-row prs-row-clickable${i < 3 ? ' prs-top' : ''}" data-pr-idx="${i}">
       <div class="prs-col-name">${medal ? medal + ' ' : ''}${pr.name}</div>
       <div class="prs-col-spark">${spark}</div>
       <div class="prs-col-weight">${pr.weight}<span class="prs-unit">kg</span></div>
@@ -215,4 +216,14 @@ export function openPRsView() {
 
   html += '</div>';
   container.innerHTML = html;
+
+  // Tapping a row opens that exercise's history, focused on the PR date.
+  // Names can contain characters unsafe for inline onclick, so bind here.
+  container.querySelectorAll('.prs-row-clickable').forEach(row => {
+    row.onclick = () => {
+      const pr = entries[parseInt(row.dataset.prIdx, 10)];
+      if (!pr) return;
+      openExHistory({ exerciseName: pr.name, jumpToDate: pr.date, origin: 'prs' });
+    };
+  });
 }

@@ -38,6 +38,7 @@ export const state = {
   exHistCalYear: new Date().getFullYear(),
   exHistCalMon: new Date().getMonth(),
   exHistSelectedDate: null,
+  exHistOrigin: null,   // nav context to return to on Back (e.g. 'prs')
 
   // Summary
   summaryRange: 'week',
@@ -75,6 +76,7 @@ export function resetTransientState() {
   state.bwSelDate = null;
   state.bwCurrentPhotos = [];
   state.exHistSelectedDate = null;
+  state.exHistOrigin = null;
   state.exLogSelectedDate = null;
   state._barcodeProduct = null;
   state._barcodePhotoBase64 = null;

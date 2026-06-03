@@ -10,21 +10,33 @@ import { checkForNewPR, showNewPRToast, recalcPR } from './prs.js';
 
 const exHistToStr = dateToStr;
 
-export function openExHistory() {
-  const exName = state.currentExerciseName;
+/**
+ * Open the exercise history view (chart + calendar).
+ * @param {object} [opts]
+ * @param {string} [opts.exerciseName] - Open history for this exercise. Defaults
+ *   to state.currentExerciseName (the exercise detail modal's "View History" flow).
+ * @param {string} [opts.jumpToDate] - YYYY-MM-DD to focus the calendar on and open
+ *   the entry sheet for (e.g. the date of a PR).
+ * @param {string} [opts.origin] - Nav context to return to on Back (e.g. 'prs').
+ */
+export function openExHistory(opts = {}) {
+  const exName = opts.exerciseName || state.currentExerciseName;
   closeModal(true);
   state.currentExerciseName = exName;
+  state.exHistOrigin = opts.origin || null;
   showView('exHistoryView');
   setHeader(exName, true);
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'ex-history';
   state.exHistRange = 0;
-  const now = new Date();
-  state.exHistCalYear = now.getFullYear();
-  state.exHistCalMon = now.getMonth();
+  const focus = opts.jumpToDate;
+  const base = focus ? new Date(focus + 'T00:00:00') : new Date();
+  state.exHistCalYear = base.getFullYear();
+  state.exHistCalMon = base.getMonth();
   document.querySelectorAll('#exHistoryView .bw-range-btn').forEach((b, i) => b.classList.toggle('active', i === 2));
   renderExHistChart();
   renderExHistCal();
+  if (focus) openExHistEntry(focus);
 }
 
 export function setExHistRange(days, btn) {

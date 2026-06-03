@@ -64,6 +64,8 @@
   border-color: rgba(0,229,255,0.2);
   box-shadow: 0 0 10px rgba(0,229,255,0.04);
 }
+.prs-row-clickable { cursor: pointer; }
+.prs-row-clickable:active { transform: scale(0.99); border-color: var(--accent); }
 .prs-col-name { flex: 1; min-width: 0; font-size: 0.9rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .prs-col-spark { width: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 .prs-spark { display: block; }
