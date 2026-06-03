@@ -36,7 +36,6 @@ export function openExHistory(opts = {}) {
   document.querySelectorAll('#exHistoryView .bw-range-btn').forEach((b, i) => b.classList.toggle('active', i === 2));
   renderExHistChart();
   renderExHistCal();
-  if (focus) openExHistEntry(focus);
 }
 
 export function setExHistRange(days, btn) {
