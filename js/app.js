@@ -13,7 +13,7 @@ import { buildWeightView, setBWRange, bwPrevMonth, bwNextMonth, openBWEntry, clo
 import { renderNLMeals, nlShowMeal, nlShowPicker, renderNLPicker, nlSearchPicker, nlPickIngredient, nlCloseAmount, nlSetGrams, nlAdjustPickerGrams, nlConfirmAddIng, nlOpenCreateModal, nlCloseCreate, nlCreateMeal, nlIdentifyMealFromPhoto, nlDismissAISkipped, openDeleteMealConfirm, nlToggleFav, nlDuplicateMeal, nlSaveAsSavedMeal, nlUploadMealPhoto, nlRemoveMealPhoto, nlOpenMealPhotoViewer, nlCloseMealPhotoViewer, nlSetSort, nlToggleFavFilter, nlBrowseFoods, nlOpenCustomModal, nlCloseCustom, nlCustomPhotoSelected, nlRemoveCustomPhoto, nlViewCustomPhoto, nlUpdateCustomCal, nlSaveCustom, nlDeleteCustomConfirm, nlAdjustIng, nlRemoveIng, nlSetMealSlot, nlAutoSaveNotes, renderMacroGoals, openMacroGoalsModal, closeMacroGoalsModal, saveMacroGoalsFromModal, initMacroGoalsSwipe, nlSetViewMode, renderNLCalendar, nlPrevMonth, nlNextMonth, nlSelectDate, onMacroCalInput, setQuickCal, clearDateGoal, resumeDateGoal, openNLFabChoice, closeNLFabChoice, openSavedMealPicker, closeSavedMealPicker, nlFilterSavedMeals, pickSavedMeal, nlOpenRenameModal, nlCloseRename, nlSaveRename, openDeleteAllMealLogs, nlSearchBarcode, nlCloseBarcodeResult, nlSaveBarcodeAsCustom, nlToggleCreateChoice, nlCloseCreateChoice, nlShowBarcodeInput, nlBarcodePhotoSelected, nlRemoveBarcodePhoto, nlOpenBarcodeScanner, nlCloseBarcodeScanner, nlBarcodeScanFile, openMacroWizard, closeMacroWizard, setMacroWizardSex, setMacroWizardActivity, setMacroWizardGoal, updateMacroWizard, applyMacroWizard } from './nutrition.js';
 import { openExHistory, setExHistRange, exHistPrevMonth, exHistNextMonth, exHistJumpToDate, renderExHistSets, openExHistEntry, closeExHistEntry, saveExHistEntry, openDeleteExHistConfirm, initExHistSheetSwipe, openDeleteAllExHist } from './history.js';
 import { rebuildAllPRs, openPRsView } from './prs.js';
-import { openSummary, setSummaryRange, setSummaryNutrMetric } from './summary.js';
+import { openSummary, setSummaryRange } from './summary.js';
 import { openExerciseLog, exLogPrevMonth, exLogNextMonth, exLogSelectDate, openDeleteAllExerciseData } from './exerciselog.js';
 import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
@@ -351,7 +351,6 @@ window.nlShowBarcodeInput = nlShowBarcodeInput;
 window.openSummary = openSummary;
 window.exportData = exportData;
 window.setSummaryRange = setSummaryRange;
-window.setSummaryNutrMetric = setSummaryNutrMetric;
 
 // Global Exercise Log
 window.openExerciseLog = openExerciseLog;

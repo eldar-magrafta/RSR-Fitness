@@ -66,14 +66,34 @@
 }
 .summary-cal-balance.deficit { color:var(--green); border-color:rgba(0,232,123,0.25); background:rgba(0,232,123,0.06); }
 .summary-cal-balance.surplus { color:var(--carbs); border-color:rgba(255,61,113,0.25); background:rgba(255,61,113,0.06); }
-.summary-nutr-metric-row { display:flex; gap:6px; margin-bottom:12px; }
-.summary-nutr-metric-btn {
-  flex:1; background:var(--subtle-bg); border:1px solid var(--border);
-  color:var(--text-secondary); border-radius:10px; padding:7px 4px;
-  font-size:0.74rem; font-weight:700; cursor:pointer; font-family:inherit;
-  transition:all 0.15s;
+
+/* ── Avg Daily Nutrition card ── */
+.summary-nutr-card-head {
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:8px; margin-bottom:14px;
 }
-.summary-nutr-metric-btn.active {
-  background:rgba(0,229,255,0.1); border-color:rgba(0,229,255,0.25); color:var(--accent);
+.summary-nutr-days {
+  font-size:0.7rem; color:var(--muted); font-weight:600;
+  text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap;
 }
-.summary-nutr-chart { width:100%; }
+.summary-nutr-body { display:flex; align-items:center; gap:16px; }
+.summary-cal-ring { flex-shrink:0; position:relative; line-height:0; }
+.summary-cal-ring-svg { display:block; filter:drop-shadow(0 0 6px rgba(0,229,255,0.18)); }
+.summary-macro-bars { flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; }
+.summary-macro-bar-head {
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:5px; gap:6px;
+}
+.summary-macro-bar-name {
+  font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:0.4px;
+}
+.summary-macro-bar-val { font-size:0.85rem; font-weight:800; }
+.summary-macro-goal { color:var(--muted); font-weight:600; font-size:0.78rem; }
+.summary-macro-bar-track {
+  height:7px; border-radius:4px; background:var(--subtle-bg); overflow:hidden;
+}
+.summary-macro-bar-fill {
+  height:100%; border-radius:4px; transition:width 0.5s ease;
+  box-shadow:0 0 8px currentColor;
+}
+.summary-cal-balance i { margin-right:5px; }
