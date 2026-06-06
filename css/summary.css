@@ -97,3 +97,40 @@
   box-shadow:0 0 8px currentColor;
 }
 .summary-cal-balance i { margin-right:5px; }
+
+/* ── Consistency heatmap ── */
+.summary-hm-stats { display:flex; gap:10px; margin-bottom:14px; }
+.summary-hm-stat {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+  background:var(--subtle-bg); border:1px solid var(--border);
+  border-radius:12px; padding:10px 6px;
+}
+.summary-hm-stat-val { font-size:1.15rem; font-weight:800; color:var(--accent); }
+.summary-hm-stat-lbl {
+  font-size:0.66rem; color:var(--muted); font-weight:600;
+  text-transform:uppercase; letter-spacing:0.4px;
+}
+.summary-hm-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px; }
+.summary-hm-grid { display:flex; gap:3px; width:max-content; }
+.summary-hm-dowcol, .summary-hm-coldays { display:flex; flex-direction:column; gap:3px; }
+.summary-hm-col { display:flex; flex-direction:column; gap:3px; }
+.summary-hm-dow, .summary-hm-month {
+  height:13px; font-size:0.6rem; color:var(--muted); font-weight:600;
+  display:flex; align-items:center; justify-content:center; line-height:1;
+}
+.summary-hm-month { justify-content:flex-start; white-space:nowrap; }
+.summary-hm-dow { width:13px; }
+.summary-hm-cell {
+  width:13px; height:13px; border-radius:3px; background:var(--subtle-bg);
+}
+.summary-hm-cell.is-future { background:transparent; }
+.summary-hm-cell[data-lv="0"] { background:var(--subtle-bg); }
+.summary-hm-cell[data-lv="1"] { background:rgba(0,229,255,0.28); }
+.summary-hm-cell[data-lv="2"] { background:rgba(0,229,255,0.5); }
+.summary-hm-cell[data-lv="3"] { background:rgba(0,229,255,0.74); }
+.summary-hm-cell[data-lv="4"] { background:var(--accent); box-shadow:0 0 6px rgba(0,229,255,0.5); }
+.summary-hm-legend {
+  display:flex; align-items:center; gap:4px; justify-content:flex-end;
+  margin-top:10px; font-size:0.66rem; color:var(--muted);
+}
+.summary-hm-legend .summary-hm-cell { width:11px; height:11px; }

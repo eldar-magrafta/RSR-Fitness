@@ -211,6 +211,106 @@ function renderMacroBar(label, color, cur, goal, unit) {
   </div>`;
 }
 
+// ── Consistency heatmap ──
+// GitHub-style grid of the last N weeks. Independent of the week/month toggle —
+// it's a long-range view of training frequency. Each cell = one day, shaded by
+// number of sets logged that day; current streak = consecutive trained days
+// ending today (or yesterday, so a not-yet-trained today doesn't break it).
+
+const HEATMAP_WEEKS = 18;
+
+function computeHeatmap() {
+  // Day -> total sets logged across all exercises.
+  const setsByDay = {};
+  Object.values(exerciseData).forEach(group => {
+    group.exercises.forEach(ex => {
+      const hist = getExHist(ex.name);
+      Object.entries(hist).forEach(([dateStr, entry]) => {
+        const sets = (entry.sets && entry.sets.length) ? entry.sets.length : 1;
+        setsByDay[dateStr] = (setsByDay[dateStr] || 0) + sets;
+      });
+    });
+  });
+
+  // Grid spans whole weeks (Sun..Sat). End on the Saturday of the current week
+  // so today's column is always present; walk back HEATMAP_WEEKS columns.
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayS = dateToStr(today);
+  const gridEnd = new Date(today);
+  gridEnd.setDate(today.getDate() + (6 - today.getDay())); // Saturday of this week
+  const gridStart = new Date(gridEnd);
+  gridStart.setDate(gridEnd.getDate() - (HEATMAP_WEEKS * 7 - 1));
+
+  const weeks = [];
+  const monthLabels = [];
+  let trainedDays = 0;
+  const cur = new Date(gridStart);
+  for (let w = 0; w < HEATMAP_WEEKS; w++) {
+    const col = [];
+    for (let d = 0; d < 7; d++) {
+      const ds = dateToStr(cur);
+      const sets = setsByDay[ds] || 0;
+      const future = ds > todayS;
+      if (sets > 0 && !future) trainedDays++;
+      // Label the column with the month name when its first day starts a month.
+      if (d === 0) {
+        if (cur.getDate() <= 7) monthLabels[w] = cur.toLocaleDateString('en-GB', { month: 'short' });
+        else monthLabels[w] = '';
+      }
+      col.push({ date: ds, sets, future });
+      cur.setDate(cur.getDate() + 1);
+    }
+    weeks.push(col);
+  }
+
+  // Current streak: consecutive trained days ending today or yesterday.
+  let streak = 0;
+  const probe = new Date(today);
+  if (!setsByDay[dateToStr(probe)]) probe.setDate(probe.getDate() - 1); // allow "not yet today"
+  while (setsByDay[dateToStr(probe)]) {
+    streak++;
+    probe.setDate(probe.getDate() - 1);
+  }
+
+  return { weeks, monthLabels, trainedDays, streak, totalDays: HEATMAP_WEEKS * 7 };
+}
+
+function renderHeatmap(hm) {
+  const DOW = ['', 'M', '', 'W', '', 'F', '']; // sparse weekday labels (Sun..Sat)
+  // Shade levels by sets-per-day.
+  const level = sets => sets === 0 ? 0 : sets <= 6 ? 1 : sets <= 12 ? 2 : sets <= 20 ? 3 : 4;
+
+  const dowCol = DOW.map(l => `<div class="summary-hm-dow">${l}</div>`).join('');
+  const cols = hm.weeks.map((col, wi) => {
+    const cells = col.map(c => {
+      if (c.future) return `<div class="summary-hm-cell is-future"></div>`;
+      const lv = level(c.sets);
+      const title = c.sets > 0 ? `${c.date}: ${c.sets} set${c.sets === 1 ? '' : 's'}` : `${c.date}: rest`;
+      return `<div class="summary-hm-cell" data-lv="${lv}" title="${title}"></div>`;
+    }).join('');
+    const mLbl = hm.monthLabels[wi] ? `<div class="summary-hm-month">${hm.monthLabels[wi]}</div>` : `<div class="summary-hm-month"></div>`;
+    return `<div class="summary-hm-col">${mLbl}<div class="summary-hm-coldays">${cells}</div></div>`;
+  }).join('');
+
+  const legend = `<div class="summary-hm-legend">
+    <span>Less</span>
+    ${[0, 1, 2, 3, 4].map(l => `<div class="summary-hm-cell" data-lv="${l}"></div>`).join('')}
+    <span>More</span>
+  </div>`;
+
+  return `<div class="summary-hm-stats">
+      <div class="summary-hm-stat"><span class="summary-hm-stat-val">🔥 ${hm.streak}</span><span class="summary-hm-stat-lbl">day streak</span></div>
+      <div class="summary-hm-stat"><span class="summary-hm-stat-val">${hm.trainedDays}</span><span class="summary-hm-stat-lbl">days in ${HEATMAP_WEEKS} wks</span></div>
+    </div>
+    <div class="summary-hm-scroll">
+      <div class="summary-hm-grid">
+        <div class="summary-hm-dowcol"><div class="summary-hm-month"></div>${dowCol}</div>
+        ${cols}
+      </div>
+    </div>
+    ${legend}`;
+}
+
 export function openSummary() {
   showView('summaryView');
   setHeader('Activity Summary', true);
@@ -240,6 +340,15 @@ export function renderSummary() {
         ${renderMiniChart(s.bwEntries)}
       </div>
     </div>`;
+
+  // Consistency heatmap (range-independent long-range view)
+  const hm = computeHeatmap();
+  if (hm.trainedDays > 0) {
+    html += `<div class="summary-section">
+      <div class="summary-section-title">Workout Consistency</div>
+      ${renderHeatmap(hm)}
+    </div>`;
+  }
 
   // Top 5 exercises by sets
   if (s.topExercises.length > 0) {
