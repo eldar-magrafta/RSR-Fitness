@@ -222,7 +222,7 @@ const DEFAULT_MEALS = [
     type: 'saved',
     image: 'assets/foods/saved-meals/Spicy-Salmon-Sweet-Potato.jpg',
     ingredients: [
-      {name:'Salmon (cooked)',  grams:180, p:20,  c:0,  f:13,  cal:197, img:'assets/foods/seafood/salmon.jpg'},
+      {name:'Salmon (cooked)',  grams:180, p:20,  c:0,  f:13,  cal:197, img:'assets/foods/proteins/salmon.jpg'},
       {name:'Sweet Potato',    grams:200, p:1.6, c:20, f:0.1, cal:87,  img:'assets/foods/vegetables/sweet-potato.jpg'},
       {name:'Spinach',         grams:100, p:2.9, c:3.6,f:0.4, cal:30,  img:'assets/foods/vegetables/spinach.jpg'},
     ],
