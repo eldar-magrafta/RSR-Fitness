@@ -7,6 +7,7 @@ import { exHistMaxWeight } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 import { state } from './state.js';
 import { openExHistory } from './history.js';
+import { showToast } from './toast.js';
 
 /** Non-destructive check: would this weight be a new PR for this exercise?
  * Used by the session view to flash a gold glow on the row when the user
@@ -106,13 +107,7 @@ export function renderPRBadge(exerciseName) {
 
 /** Show a toast notification for a new PR with confetti */
 export function showNewPRToast(exerciseName, weight) {
-  const existing = document.querySelector('.pr-toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'pr-toast';
-  toast.textContent = `🏆 New PR! ${exerciseName}: ${weight}kg`;
-  document.body.appendChild(toast);
-  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+  showToast(`🏆 New PR! ${exerciseName}: ${weight}kg`, { replace: true });
   showPRConfetti();
 }
 

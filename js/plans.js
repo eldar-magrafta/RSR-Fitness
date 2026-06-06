@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getPlans, savePlans, getPlan, getLog, getCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { openModal, findExercise } from './exercises.js';
-import { escHtml, openConfirmDialog, initDragReorder, initSheetSwipe } from './utils.js';
+import { escHtml, openConfirmDialog, initDragReorder, initSheetSwipe, isCloudMarker } from './utils.js';
 import { loadPhotoDoc } from './cloud.js';
 import { hasActiveSession, getActiveSessionPlanId, startSession, resumeSession, discardSession } from './session.js';
 import { generatePlan, MUSCLE_GROUP_OPTIONS, EQUIPMENT_OPTIONS, INJURY_OPTIONS } from './ai.js';
@@ -221,7 +221,7 @@ function _showAIPreview(plan) {
     const exName = it;
     const found = findExercise(exName);
     const thumbSrc = found ? (found.ex.thumb || found.ex.gif || '') : '';
-    const isCloud = thumbSrc.startsWith('cloud:');
+    const isCloud = isCloudMarker(thumbSrc);
     const showThumb = thumbSrc && !isCloud;
     const sub = found ? found.groupName : '';
     const row = document.createElement('div');
@@ -427,7 +427,7 @@ export function showPlanDetail(planId) {
       el.dataset.planItemIdx = idx;
       const subText = log ? `Last: ${log.setList.map(s => `${s.w}kg \u00d7 ${s.r}`).join(' / ')}` : found.groupName;
       const thumbSrc = found.ex.thumb || found.ex.gif || '';
-      const isCloud = thumbSrc.startsWith('cloud:');
+      const isCloud = isCloudMarker(thumbSrc);
       const showThumb = thumbSrc && !isCloud;
       el.innerHTML = `
         <span class="drag-handle">\u2807</span>

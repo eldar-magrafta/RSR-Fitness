@@ -6,7 +6,7 @@ import { state } from './state.js';
 import { getLog, getNotes, saveNotesData, deleteLastLog, getCustomExercises, saveCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { getPR, renderPRBadge, recalcPR } from './prs.js';
-import { debounce, openConfirmDialog, escHtml } from './utils.js';
+import { debounce, openConfirmDialog, escHtml, isCloudMarker } from './utils.js';
 import { savePhotoDoc, loadPhotoDoc, deletePhotoDoc } from './cloud.js';
 
 export function findExercise(name) {
@@ -81,7 +81,7 @@ export const globalExSearchHandler = debounce(function() {
         const item = document.createElement('div');
         item.className = 'exercise-item';
         const thumbSrc = ex.thumb || ex.gif || '';
-        const isCloudThumb = thumbSrc.startsWith('cloud:');
+        const isCloudThumb = isCloudMarker(thumbSrc);
         const showThumb = thumbSrc && !isCloudThumb;
         item.innerHTML = `
           ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
@@ -145,7 +145,7 @@ function _renderGroupList(group, filter) {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     const thumbSrc = ex.thumb || ex.gif || '';
-    const isCloud = thumbSrc.startsWith('cloud:');
+    const isCloud = isCloudMarker(thumbSrc);
     const showThumb = thumbSrc && !isCloud;
     item.innerHTML = `
       ${showThumb ? `<img class="ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : '<div class="ex-thumb-placeholder"><i class="bi bi-person-arms-up"></i></div>'}
@@ -230,7 +230,7 @@ export function openModal(ex, muscleName, fromPlan = false) {
   };
 
   const mediaSrc = ex.gif || ex.thumb || '';
-  if (mediaSrc.startsWith('cloud:')) {
+  if (isCloudMarker(mediaSrc)) {
     if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
     if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
     const parts = mediaSrc.slice(6).split('/');
@@ -469,7 +469,7 @@ export function deleteCustomEx(exName) {
       const idx = customs.findIndex(c => c.name === exName);
       if (idx >= 0) {
         const ex = customs[idx];
-        if (ex.thumb && ex.thumb.startsWith('cloud:')) {
+        if (isCloudMarker(ex.thumb)) {
           const docId = encodeURIComponent(ex.name);
           deletePhotoDoc('custom_ex_thumb', docId);
         }

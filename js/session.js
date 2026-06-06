@@ -7,7 +7,7 @@ import { state } from './state.js';
 import { getPlan, getExHist, saveExHist, getLog, getPrefs } from './store.js';
 import { findExercise } from './exercises.js';
 import { showView, setHeader } from './navigation.js';
-import { escHtml, openConfirmDialog, dateToStr } from './utils.js';
+import { escHtml, openConfirmDialog, dateToStr, isCloudMarker } from './utils.js';
 import { checkForNewPR, showNewPRToast, wouldBeNewPR } from './prs.js';
 import { renderPlans, showPlanDetail } from './plans.js';
 
@@ -122,7 +122,7 @@ export function renderSession() {
     const found = findExercise(it.name);
     const groupName = found ? found.groupName : '';
     const thumbSrc = found ? (found.ex.thumb || found.ex.gif || '') : '';
-    const isCloudThumb = thumbSrc.startsWith('cloud:');
+    const isCloudThumb = isCloudMarker(thumbSrc);
     const showThumb = thumbSrc && !isCloudThumb;
     const thumbHtml = showThumb
       ? `<img class="session-card-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />`

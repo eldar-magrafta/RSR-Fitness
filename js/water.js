@@ -2,7 +2,7 @@
 
 import { state } from './state.js';
 import { showView, setHeader } from './navigation.js';
-import { todayStr } from './utils.js';
+import { todayStr, dateToStr } from './utils.js';
 
 const STORAGE_KEY_TARGET = 'trainer_water_target';
 const STORAGE_KEY_INTAKE = 'trainer_water_intake';
@@ -83,16 +83,10 @@ function getCalendarRange(range) {
     // 1st of month → today
     start = new Date(now.getFullYear(), now.getMonth(), 1);
   }
-  const toStr = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${dd}`;
-  };
   // Days elapsed in the period, inclusive of today.
   const msPerDay = 24 * 60 * 60 * 1000;
   const days = Math.floor((now - start) / msPerDay) + 1;
-  return { startStr: toStr(start), days };
+  return { startStr: dateToStr(start), days };
 }
 
 function computeAverages() {

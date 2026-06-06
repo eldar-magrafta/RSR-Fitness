@@ -51,6 +51,44 @@ export function initSheetSwipe(overlayId, sheetId, closeFn) {
   });
 }
 
+/** Swipe-down-to-dismiss for centered modals (distinct from initSheetSwipe,
+ * which targets bottom sheets — this variant uses the modal's own transform and
+ * a 72px grab zone / 110px dismiss threshold). The swipe must start in the top
+ * 72px so scrolling the modal body doesn't trigger dismissal. */
+export function initModalSwipeDismiss(overlayId, modalId, onClose) {
+  const overlay = document.getElementById(overlayId);
+  const modal = document.getElementById(modalId);
+  if (!overlay || !modal) return;
+  let _md = null;
+  modal.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    const rect = modal.getBoundingClientRect();
+    if (touch.clientY - rect.top > 72) return;
+    _md = { startY: touch.clientY };
+  }, { passive: true });
+  modal.addEventListener('touchmove', e => {
+    if (!_md) return;
+    const dy = Math.max(0, e.touches[0].clientY - _md.startY);
+    e.preventDefault();
+    modal.style.transition = 'none';
+    modal.style.transform = `translateY(${dy}px)`;
+    overlay.style.background = `rgba(0,0,0,${Math.max(0.05, 0.6 - dy / 350)})`;
+  }, { passive: false });
+  modal.addEventListener('touchend', e => {
+    if (!_md) return;
+    const dy = e.changedTouches[0].clientY - _md.startY;
+    modal.style.transition = '';
+    overlay.style.background = '';
+    if (dy > 110) {
+      modal.style.transform = 'translateY(110%)';
+      setTimeout(() => { modal.style.transform = ''; onClose(); }, 240);
+    } else {
+      modal.style.transform = '';
+    }
+    _md = null;
+  });
+}
+
 /** Format a Date to 'YYYY-MM-DD' string in local time. */
 export function dateToStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -238,6 +276,14 @@ export function exHistMaxWeight(entry) {
 export function exHistTotalReps(entry) {
   if (entry.sets) return entry.sets.map(s => parseInt(s.r) || 0);
   return [parseInt(entry.r) || 0];
+}
+
+/** True if an image src is a cloud-stored photo marker (`cloud:...`) rather
+ * than an inline base64 string or asset path. The text after the prefix is
+ * context-specific (a bare doc id, or `collection/docId`), so callers parse it
+ * themselves. */
+export function isCloudMarker(src) {
+  return typeof src === 'string' && src.startsWith('cloud:');
 }
 
 /** Calculate macro totals for a meal */

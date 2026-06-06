@@ -5,19 +5,22 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted, getUserHeight, getBWData, bwGetWeight, getUserProfile, saveUserProfile } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr, MEAL_SLOTS, MEAL_SLOT_LABELS, MEAL_SLOT_ICONS, defaultMealSlot } from './utils.js';
+import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr, dateToStr, isCloudMarker, initModalSwipeDismiss, MEAL_SLOTS, MEAL_SLOT_LABELS, MEAL_SLOT_ICONS, defaultMealSlot } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 import { identifyMealFromPhoto } from './ai.js';
+import { showToast } from './toast.js';
+import { cloudImgCache } from './nutrition-shared.js';
 
 function getAllIngs() { return [...NL_INGREDIENTS, ...getCustomIngs()]; }
 
 function ingUnit(ing) { return ing && ing.unit === 'ml' ? 'ml' : 'g'; }
 
-function _isCloudMarker(img) { return typeof img === 'string' && img.startsWith('cloud:'); }
+const _isCloudMarker = isCloudMarker;
 function _cloudDocId(img) { return img.slice(6); }
 
-// Session-scoped in-memory cache so list re-renders don't re-hit IndexedDB.
-const _cloudImgCache = new Map();
+// Session-scoped in-memory photo cache (shared with the barcode module so a
+// photo saved there is instantly available here).
+const _cloudImgCache = cloudImgCache;
 
 function _cloudImgTag(cls, collection, docId) {
   const key = `${collection}/${docId}`;
@@ -1106,51 +1109,15 @@ export function closeMacroGoalsModal() {
   document.getElementById('macroGoalsOverlay').classList.remove('open');
 }
 
-// Wire swipe-down-to-dismiss on a modal. The user must start the swipe in
-// the top 72px of the modal so scrolling the body doesn't trigger dismissal.
-function _initSwipeDismiss(overlayId, modalId, onClose) {
-  const overlay = document.getElementById(overlayId);
-  const modal = document.getElementById(modalId);
-  if (!overlay || !modal) return;
-  let _md = null;
-  modal.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    const rect = modal.getBoundingClientRect();
-    if (touch.clientY - rect.top > 72) return;
-    _md = { startY: touch.clientY };
-  }, { passive: true });
-  modal.addEventListener('touchmove', e => {
-    if (!_md) return;
-    const dy = Math.max(0, e.touches[0].clientY - _md.startY);
-    e.preventDefault();
-    modal.style.transition = 'none';
-    modal.style.transform = `translateY(${dy}px)`;
-    overlay.style.background = `rgba(0,0,0,${Math.max(0.05, 0.6 - dy / 350)})`;
-  }, { passive: false });
-  modal.addEventListener('touchend', e => {
-    if (!_md) return;
-    const dy = e.changedTouches[0].clientY - _md.startY;
-    modal.style.transition = '';
-    overlay.style.background = '';
-    if (dy > 110) {
-      modal.style.transform = 'translateY(110%)';
-      setTimeout(() => { modal.style.transform = ''; onClose(); }, 240);
-    } else {
-      modal.style.transform = '';
-    }
-    _md = null;
-  });
-}
-
 export function initMacroGoalsSwipe() {
-  _initSwipeDismiss('macroGoalsOverlay', 'macroGoalsModal', closeMacroGoalsModal);
-  _initSwipeDismiss('macroWizardOverlay', 'macroWizardModal', closeMacroWizard);
+  initModalSwipeDismiss('macroGoalsOverlay', 'macroGoalsModal', closeMacroGoalsModal);
+  initModalSwipeDismiss('macroWizardOverlay', 'macroWizardModal', closeMacroWizard);
   // Other nutrition-tab sheets that have an X close button.
-  _initSwipeDismiss('nlCreateOverlay', 'nlCreateModal', nlCloseCreate);
-  _initSwipeDismiss('nlCustomOverlay', 'nlCustomModal', nlCloseCustom);
-  _initSwipeDismiss('nlRenameOverlay', 'nlRenameModal', nlCloseRename);
-  _initSwipeDismiss('nlSavedPickerOverlay', 'nlSavedPickerSheet', closeSavedMealPicker);
-  _initSwipeDismiss('barcodeResultOverlay', 'barcodeResultSheet', nlCloseBarcodeResult);
+  initModalSwipeDismiss('nlCreateOverlay', 'nlCreateModal', nlCloseCreate);
+  initModalSwipeDismiss('nlCustomOverlay', 'nlCustomModal', nlCloseCustom);
+  initModalSwipeDismiss('nlRenameOverlay', 'nlRenameModal', nlCloseRename);
+  initModalSwipeDismiss('nlSavedPickerOverlay', 'nlSavedPickerSheet', closeSavedMealPicker);
+  // (barcode result sheet wired separately via initBarcodeSwipe in nutrition-barcode.js)
 }
 
 export function saveMacroGoalsFromModal() {
@@ -1398,12 +1365,7 @@ export function pickSavedMeal(id) {
   renderNLCalendar();
   renderNLMeals();
   renderMacroGoals();
-  const toast = document.createElement('div');
-  toast.className = 'pr-toast';
-  toast.style.background = 'linear-gradient(135deg, var(--green), #27ae60)';
-  toast.textContent = `Logged "${meal.name}"`;
-  document.body.appendChild(toast);
-  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+  showToast(`Logged "${meal.name}"`, { background: 'linear-gradient(135deg, var(--green), #27ae60)' });
 }
 
 // ── Delete All Meal Logs ──
@@ -1432,16 +1394,12 @@ function _parseISODate(ds) {
   return new Date(y, m - 1, d);
 }
 
-function _formatISODate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
 // Show the Sun–Sat week that contains the selected date.
 export function renderNLCalendar() {
   const meals = getNLMeals().filter(m => (m.type || 'logged') === 'logged');
   const mealDates = new Set(meals.map(m => m.createdAt));
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const todayStr = _formatISODate(today);
+  const todayStr = dateToStr(today);
   const selected = state.nlSelectedDate || todayStr;
   const sel = _parseISODate(selected);
   const weekStart = new Date(sel); weekStart.setDate(sel.getDate() - sel.getDay());
@@ -1449,7 +1407,7 @@ export function renderNLCalendar() {
   let html = '';
   for (let i = 0; i < 7; i++) {
     const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
-    const ds = _formatISODate(d);
+    const ds = dateToStr(d);
     const isToday = ds === todayStr;
     const isSelected = ds === selected;
     const isFuture = d > today;
@@ -1469,10 +1427,10 @@ export function renderNLCalendar() {
 }
 
 function _shiftSelectedDate(days) {
-  const cur = _parseISODate(state.nlSelectedDate || _formatISODate(new Date()));
+  const cur = _parseISODate(state.nlSelectedDate || dateToStr(new Date()));
   cur.setDate(cur.getDate() + days);
   if (cur.getFullYear() < MIN_CAL_YEAR || cur.getFullYear() > 2035) return;
-  state.nlSelectedDate = _formatISODate(cur);
+  state.nlSelectedDate = dateToStr(cur);
   state.nlCalYear = cur.getFullYear();
   state.nlCalMon = cur.getMonth();
 }
@@ -1513,316 +1471,4 @@ export function nlSelectDate(dateStr) {
   renderNLMeals();
   renderMacroGoals();
   _updateNLFabForDate();
-}
-
-// ── Barcode Scanner (photo-based with BarcodeDetector + WASM polyfill) ──
-
-let _barcodeDetectorClass = null;
-
-async function _getBarcodeDetector() {
-  if (_barcodeDetectorClass) return _barcodeDetectorClass;
-  if ('BarcodeDetector' in window) {
-    _barcodeDetectorClass = window.BarcodeDetector;
-    return _barcodeDetectorClass;
-  }
-  const mod = await import('https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/es/ponyfill.min.js');
-  _barcodeDetectorClass = mod.BarcodeDetector;
-  return _barcodeDetectorClass;
-}
-
-let _scannerStream = null;
-let _scannerInterval = null;
-
-export async function nlOpenBarcodeScanner() {
-  const overlay = document.getElementById('barcodeScannerOverlay');
-  const video = document.getElementById('barcodeScannerVideo');
-  overlay.classList.add('open');
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    _scannerStream = stream;
-    video.srcObject = stream;
-    await video.play();
-    _startScanLoop();
-  } catch {
-    overlay.classList.remove('open');
-    alert('Could not access camera. Please check permissions.');
-  }
-}
-
-async function _startScanLoop() {
-  const BDClass = await _getBarcodeDetector();
-  const detector = new BDClass({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-  const video = document.getElementById('barcodeScannerVideo');
-  const canvas = document.getElementById('barcodeScannerCanvas');
-  const ctx = canvas.getContext('2d');
-
-  _scannerInterval = setInterval(async () => {
-    if (video.readyState < 2) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-    try {
-      const results = await detector.detect(canvas);
-      if (results.length) {
-        const code = results[0].rawValue;
-        nlCloseBarcodeScanner();
-        document.getElementById('nlBarcodeInput').value = code;
-        document.getElementById('nlBarcodeRow').style.display = '';
-        nlSearchBarcode();
-      }
-    } catch {}
-  }, 400);
-}
-
-export function nlCloseBarcodeScanner() {
-  if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
-  if (_scannerStream) { _scannerStream.getTracks().forEach(t => t.stop()); _scannerStream = null; }
-  const video = document.getElementById('barcodeScannerVideo');
-  if (video) video.srcObject = null;
-  const overlay = document.getElementById('barcodeScannerOverlay');
-  if (overlay) overlay.classList.remove('open');
-}
-
-// Stop the camera + interval if the page is being hidden/closed without
-// the user explicitly tapping the close button.
-window.addEventListener('pagehide', () => { if (_scannerInterval || _scannerStream) nlCloseBarcodeScanner(); });
-
-export async function nlBarcodeScanFile(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  input.value = '';
-  try {
-    const BDClass = await _getBarcodeDetector();
-    const detector = new BDClass({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-    const bitmap = await createImageBitmap(file);
-    const results = await detector.detect(bitmap);
-    bitmap.close();
-    if (!results.length) throw new Error('none');
-    const code = results[0].rawValue;
-    document.getElementById('nlBarcodeInput').value = code;
-    document.getElementById('nlBarcodeRow').style.display = '';
-    nlSearchBarcode();
-  } catch {
-    alert('Could not read barcode from photo. Make sure the barcode is clearly visible and in focus.');
-  }
-}
-
-async function _fetchProductData(barcode) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-
-  try {
-    const resp = await fetch(
-      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-      { signal: controller.signal }
-    );
-    clearTimeout(timeout);
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    if (data.status === 0 || !data.product) return null;
-    const p = data.product;
-    const n = p.nutriments || {};
-    return {
-      name: p.product_name || p.product_name_en || p.product_name_he || p.product_name_fr || 'Unknown Product',
-      brand: p.brands || '',
-      p: Math.round((n.proteins_100g || 0) * 10) / 10,
-      c: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
-      f: Math.round((n.fat_100g || 0) * 10) / 10,
-      cal: Math.round(n['energy-kcal_100g'] || (n.energy_100g ? n.energy_100g / 4.184 : 0)),
-      imageUrl: p.image_front_url || p.image_url || p.image_front_small_url || '',
-    };
-  } catch (e) {
-    clearTimeout(timeout);
-    if (e.name === 'AbortError') throw e;
-    throw e;
-  }
-}
-
-let _barcodeBusy = false;
-
-export async function nlSearchBarcode() {
-  const input = document.getElementById('nlBarcodeInput');
-  const barcode = input.value.trim();
-  if (!barcode || _barcodeBusy) return;
-  _barcodeBusy = true;
-  input.disabled = true;
-
-  try {
-    const result = await _fetchProductData(barcode);
-    if (!result) {
-      _showBarcodeNotFound(barcode);
-      return;
-    }
-    _showBarcodeResult(result);
-    input.value = '';
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      alert('Request timed out. Please try again.');
-    } else {
-      alert('Network error. Please check your connection and try again.');
-    }
-  } finally {
-    _barcodeBusy = false;
-    input.disabled = false;
-  }
-}
-
-async function _fetchImageAsBase64(url) {
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('image fetch failed');
-  const blob = await resp.blob();
-  return await new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => resolve(fr.result);
-    fr.onerror = () => reject(new Error('read failed'));
-    fr.readAsDataURL(blob);
-  });
-}
-
-function _showBarcodeResult(product) {
-  state._barcodeProduct = product;
-  state._barcodePhotoBase64 = null;
-  const content = document.getElementById('barcodeResultContent');
-  const brandDisplay = product.brand ? `${product.name} (${product.brand})` : product.name;
-  content.innerHTML = `
-    <div class="nl-custom-row">
-      <div class="nl-custom-field" style="flex:1;">
-        <label>Name</label>
-        <input id="barcodeEditName" type="text" value="${escHtml(brandDisplay)}">
-      </div>
-    </div>
-    <div class="nl-custom-row">
-      <div class="nl-custom-field">
-        <label>Protein (g)</label>
-        <input id="barcodeEditP" type="number" step="0.1" value="${product.p}">
-      </div>
-      <div class="nl-custom-field">
-        <label>Carbs (g)</label>
-        <input id="barcodeEditC" type="number" step="0.1" value="${product.c}">
-      </div>
-    </div>
-    <div class="nl-custom-row">
-      <div class="nl-custom-field">
-        <label>Fat (g)</label>
-        <input id="barcodeEditF" type="number" step="0.1" value="${product.f}">
-      </div>
-      <div class="nl-custom-field">
-        <label>Calories</label>
-        <input id="barcodeEditCal" type="number" step="1" value="${product.cal}">
-      </div>
-    </div>
-    <div class="nl-custom-photo-area">
-      <input type="file" id="barcodePhotoInput" accept="image/*" style="display:none" onchange="nlBarcodePhotoSelected(this)">
-      <div id="barcodePhotoArea">
-        <button class="nl-custom-photo-btn" onclick="document.getElementById('barcodePhotoInput').click()">📷 Add Photo (optional)</button>
-      </div>
-    </div>
-    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:16px;text-align:center;">Values per 100g — edit if needed</div>
-    <button class="nl-confirm-btn" onclick="nlSaveBarcodeAsCustom()">Add to Foods List</button>
-  `;
-  document.getElementById('barcodeResultOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
-
-  if (product.imageUrl) {
-    const requestUrl = product.imageUrl;
-    _fetchImageAsBase64(requestUrl).then(base64 => {
-      if (state._barcodeProduct !== product) return;
-      if (state._barcodePhotoBase64) return;
-      state._barcodePhotoBase64 = base64;
-      const area = document.getElementById('barcodePhotoArea');
-      if (!area) return;
-      area.innerHTML = `
-        <img src="${base64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:14px;margin-bottom:8px;">
-        <button class="nl-custom-photo-btn" onclick="nlRemoveBarcodePhoto()">Remove Photo</button>
-      `;
-    }).catch(() => {});
-  }
-}
-
-export function nlBarcodePhotoSelected(input) {
-  if (!input.files || !input.files[0]) return;
-  resizeImage(input.files[0], 1200, 0.92, base64 => {
-    state._barcodePhotoBase64 = base64;
-    const area = document.getElementById('barcodePhotoArea');
-    area.innerHTML = `
-      <img src="${base64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:14px;margin-bottom:8px;">
-      <button class="nl-custom-photo-btn" onclick="nlRemoveBarcodePhoto()">Remove Photo</button>
-    `;
-  });
-}
-
-export function nlRemoveBarcodePhoto() {
-  state._barcodePhotoBase64 = null;
-  document.getElementById('barcodePhotoInput').value = '';
-  document.getElementById('barcodePhotoArea').innerHTML =
-    '<button class="nl-custom-photo-btn" onclick="document.getElementById(\'barcodePhotoInput\').click()">📷 Add Photo (optional)</button>';
-}
-
-function _showBarcodeNotFound(barcode) {
-  state._barcodeProduct = null;
-  const content = document.getElementById('barcodeResultContent');
-  content.innerHTML = `
-    <div style="text-align:center;padding:20px 0;">
-      <div style="font-size:2.5rem;margin-bottom:12px;">🔍</div>
-      <div style="font-weight:700;font-size:1.05rem;margin-bottom:8px;">Product Not Found</div>
-      <div style="color:var(--muted);font-size:0.88rem;margin-bottom:20px;">
-        Barcode <b>${escHtml(barcode)}</b> was not found in the database.
-      </div>
-      <button class="nl-add-ing-btn" onclick="nlCloseBarcodeResult();nlOpenCustomModal()">Create Custom Ingredient</button>
-      <button class="nl-add-ing-btn" style="margin-top:8px;background:none;border-color:var(--border);" onclick="nlCloseBarcodeResult()">Close</button>
-    </div>
-  `;
-  document.getElementById('barcodeResultOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('barcodeResultSheet').style.transform = 'translateY(0)', 10);
-}
-
-export function nlCloseBarcodeResult() {
-  document.getElementById('barcodeResultSheet').style.transform = '';
-  document.getElementById('barcodeResultOverlay').classList.remove('open');
-  state._barcodeProduct = null;
-  state._barcodePhotoBase64 = null;
-}
-
-export async function nlSaveBarcodeAsCustom() {
-  const name = (document.getElementById('barcodeEditName').value || '').trim();
-  const p = parseFloat(document.getElementById('barcodeEditP').value) || 0;
-  const c = parseFloat(document.getElementById('barcodeEditC').value) || 0;
-  const f = parseFloat(document.getElementById('barcodeEditF').value) || 0;
-  const cal = Math.round(parseFloat(document.getElementById('barcodeEditCal').value) || 0);
-  if (!name) { document.getElementById('barcodeEditName').focus(); return; }
-  const customs = getCustomIngs();
-  if (customs.some(x => x.name === name)) {
-    nlCloseBarcodeResult();
-    const toast = document.createElement('div');
-    toast.className = 'pr-toast';
-    toast.style.background = 'linear-gradient(135deg, var(--accent), var(--accent2))';
-    toast.textContent = `"${name}" already exists`;
-    document.body.appendChild(toast);
-    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
-    return;
-  }
-  const ingData = { name, cat: 'custom', p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal };
-  if (state._barcodePhotoBase64) {
-    const docId = 'cing_' + Date.now();
-    try {
-      await savePhoto('custom-ing-photos', docId, state._barcodePhotoBase64);
-      ingData.img = 'cloud:' + docId;
-      _cloudImgCache.set(`custom-ing-photos/${docId}`, state._barcodePhotoBase64);
-    } catch {
-      ingData.img = state._barcodePhotoBase64;
-    }
-  }
-  customs.push(ingData);
-  saveCustomIngs(customs);
-  state._barcodePhotoBase64 = null;
-  nlCloseBarcodeResult();
-  const toast = document.createElement('div');
-  toast.className = 'pr-toast';
-  toast.style.background = 'linear-gradient(135deg, var(--green), #00c9a7)';
-  toast.textContent = `Added "${name}" to Foods List`;
-  document.body.appendChild(toast);
-  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
-  renderNLPicker();
 }

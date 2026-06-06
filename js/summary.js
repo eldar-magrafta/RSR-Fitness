@@ -21,13 +21,7 @@ function getDateRange(range) {
     start = new Date(now.getFullYear(), now.getMonth(), 1);
     end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   }
-  const toStr = d => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${dd}`;
-  };
-  return { startDate: toStr(start), endDate: toStr(end) };
+  return { startDate: dateToStr(start), endDate: dateToStr(end) };
 }
 
 function computeSummary(range) {
