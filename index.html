@@ -323,6 +323,7 @@
         <div id="nlMealDetailPhoto"></div>
         <input type="file" id="nlMealPhotoInput" accept="image/*" style="display:none" onchange="nlUploadMealPhoto(this)">
         <div id="nlAISkippedBanner"></div>
+        <div id="nlSlotPicker"></div>
         <div id="nlMealChart"></div>
         <div class="nl-totals" id="nlTotals"></div>
         <div id="nlIngList"></div>
@@ -891,7 +892,44 @@
             <button class="nl-fab-choice-btn nl-fab-choice-saved" onclick="closeNLFabChoice();openSavedMealPicker()">📋
                 Use Saved Meal
             </button>
+            <button class="nl-fab-choice-btn nl-fab-choice-quick" onclick="closeNLFabChoice();nlOpenQuickAdd()">⚡
+                Quick Add Calories
+            </button>
             <button class="confirm-btn-cancel" onclick="closeNLFabChoice()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- NL Quick Add Calories Modal -->
+    <div class="modal-overlay" id="nlQuickAddOverlay" onclick="if(event.target===this)nlCloseQuickAdd()">
+        <div class="modal" id="nlQuickAddModal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">Quick Add Calories</div>
+                <button class="modal-close" onclick="nlCloseQuickAdd()">✕</button>
+            </div>
+            <input class="plan-name-input" id="nlQuickName" type="text" placeholder="e.g. Restaurant burger, Coffee…" maxlength="50"/>
+            <div class="nl-custom-row" style="margin-top:12px;">
+                <div class="nl-custom-field" style="flex:1;">
+                    <label>Calories</label>
+                    <input id="nlQuickCal" type="number" inputmode="numeric" step="1" min="0" placeholder="0" oninput="nlQuickFillCalFromMacros(false)">
+                </div>
+            </div>
+            <div style="font-size:0.78rem;color:var(--muted);margin:2px 0 12px;">Macros optional — fill them to track protein / carbs / fat too.</div>
+            <div class="nl-custom-row">
+                <div class="nl-custom-field">
+                    <label>Protein (g)</label>
+                    <input id="nlQuickP" type="number" step="0.1" min="0" placeholder="0" oninput="nlQuickFillCalFromMacros(true)">
+                </div>
+                <div class="nl-custom-field">
+                    <label>Carbs (g)</label>
+                    <input id="nlQuickC" type="number" step="0.1" min="0" placeholder="0" oninput="nlQuickFillCalFromMacros(true)">
+                </div>
+                <div class="nl-custom-field">
+                    <label>Fat (g)</label>
+                    <input id="nlQuickF" type="number" step="0.1" min="0" placeholder="0" oninput="nlQuickFillCalFromMacros(true)">
+                </div>
+            </div>
+            <button class="create-btn" onclick="nlSaveQuickAdd()">Add to Diary</button>
         </div>
     </div>
 

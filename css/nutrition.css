@@ -384,6 +384,30 @@
 }
 .nl-fab-choice-btn:active { border-color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.06); }
 .nl-fab-choice-saved { background:var(--subtle-bg); }
+.nl-fab-choice-quick { background:var(--subtle-bg); }
+
+/* ── Diary Meal-Time Groups ── */
+.nl-slot-group { margin-bottom:18px; }
+.nl-slot-header {
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:8px; margin-bottom:8px; padding:0 2px;
+}
+.nl-slot-title {
+  font-size:0.82rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:0.6px; color:var(--accent);
+}
+.nl-slot-sub { font-size:0.72rem; color:var(--muted); font-weight:600; text-align:right; }
+
+/* ── Meal Detail Slot Picker ── */
+.nl-slot-picker { display:flex; gap:6px; margin-bottom:16px; }
+.nl-slot-btn {
+  flex:1; background:var(--subtle-bg); border:1px solid var(--border-med); color:var(--text-secondary);
+  padding:9px 4px; border-radius:11px; font-size:0.74rem; font-weight:600; font-family:inherit;
+  cursor:pointer; text-align:center; transition:all 0.15s; white-space:nowrap;
+}
+.nl-slot-btn.active {
+  background:rgba(0,229,255,0.12); border-color:var(--accent); color:var(--accent);
+}
 
 /* ── Macro Goals ── */
 .macro-goals-wrap {

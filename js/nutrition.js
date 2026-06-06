@@ -5,7 +5,7 @@ import { NL_INGREDIENTS } from '../data/ingredients.js';
 import { state } from './state.js';
 import { getNLMeals, saveNLMeals, getCustomIngs, saveCustomIngs, getGoalsForDate, setGoalForDate, removeGoalEntry, DEFAULT_MACRO_GOALS, markDefaultMealDeleted, getUserHeight, getBWData, bwGetWeight, getUserProfile, saveUserProfile } from './store.js';
 import { showView, setHeader } from './navigation.js';
-import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr } from './utils.js';
+import { calcMealTotals, escHtml, resizeImage, openConfirmDialog, debounce, MIN_CAL_YEAR, todayStr, MEAL_SLOTS, MEAL_SLOT_LABELS, MEAL_SLOT_ICONS, defaultMealSlot } from './utils.js';
 import { savePhoto, loadPhoto, deletePhoto } from './storage.js';
 import { identifyMealFromPhoto } from './ai.js';
 
@@ -145,20 +145,41 @@ export function renderNLMeals() {
     list.innerHTML = `<div class="nl-empty"><div class="nl-empty-icon">${state.nlViewMode === 'today' ? '🍽️' : '📖'}</div><div class="nl-empty-text">${emptyMsg}</div></div>`;
     return;
   }
-  list.innerHTML = meals.map(m => {
-    const t = nlCalcTotals(m);
-    const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '★' : '☆'}</button>` : '';
-    const cardImg = _mealCardImg(m);
-    return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
-      ${cardImg}<div class="nl-meal-card-body">
-      <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span>${favBtn}</div>
-        <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal"><i class="bi bi-trash3"></i></button>
-      </div>
-      <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
-      <div class="nl-meal-cals">🔥 ${t.cal} cal</div>
-      </div></div>`;
-  }).join('');
+
+  // Diary view (sorted by date) groups meals under their meal-time slot.
+  if (state.nlViewMode === 'today' && state.nlSortBy === 'date') {
+    list.innerHTML = MEAL_SLOTS.map(slot => {
+      const slotMeals = meals.filter(m => (m.slot || 'snack') === slot);
+      if (slotMeals.length === 0) return '';
+      let sp = 0, sc = 0, sf = 0, scal = 0;
+      slotMeals.forEach(m => { const t = nlCalcTotals(m); sp += t.p; sc += t.c; sf += t.f; scal += t.cal; });
+      const cards = slotMeals.map(_mealCardHtml).join('');
+      return `<div class="nl-slot-group">
+        <div class="nl-slot-header">
+          <span class="nl-slot-title">${MEAL_SLOT_ICONS[slot]} ${MEAL_SLOT_LABELS[slot]}</span>
+          <span class="nl-slot-sub">🔥 ${Math.round(scal)} · P ${Math.round(sp)}g · C ${Math.round(sc)}g · F ${Math.round(sf)}g</span>
+        </div>
+        ${cards}
+      </div>`;
+    }).join('');
+  } else {
+    list.innerHTML = meals.map(_mealCardHtml).join('');
+  }
   _resolveCloudImages(list);
+}
+
+function _mealCardHtml(m) {
+  const t = nlCalcTotals(m);
+  const favBtn = m.type === 'saved' ? `<button class="nl-meal-fav" onclick="event.stopPropagation();nlToggleFav('${m.id}')">${m.favorite ? '★' : '☆'}</button>` : '';
+  const cardImg = _mealCardImg(m);
+  return `<div class="nl-meal-card nl-meal-has-img" onclick="nlShowMeal('${m.id}')">
+    ${cardImg}<div class="nl-meal-card-body">
+    <div class="nl-meal-top"><div class="nl-meal-name-row"><span class="nl-meal-name">${escHtml(m.name)}</span>${favBtn}</div>
+      <button class="nl-meal-del" onclick="event.stopPropagation();openDeleteMealConfirm('${m.id}')" title="Delete meal"><i class="bi bi-trash3"></i></button>
+    </div>
+    <div class="nl-meal-macros"><div>P: <b>${t.p}g</b></div><div>C: <b>${t.c}g</b></div><div>F: <b>${t.f}g</b></div></div>
+    <div class="nl-meal-cals">🔥 ${t.cal} cal</div>
+    </div></div>`;
 }
 
 export function nlShowMeal(id) {
@@ -213,7 +234,8 @@ function renderNLMealDetail() {
   // Save as Meal button (only for logged meals with ingredients)
   const saveAsBtn = document.getElementById('nlSaveAsMealBtn');
   if (saveAsBtn) {
-    saveAsBtn.style.display = (meal.type === 'logged' && meal.ingredients && meal.ingredients.length > 0) ? '' : 'none';
+    const hasContent = (meal.ingredients && meal.ingredients.length > 0) || !!meal.quick;
+    saveAsBtn.style.display = (meal.type === 'logged' && hasContent) ? '' : 'none';
   }
 
   // AI-skipped banner — shows ingredients Gemini saw but couldn't match.
@@ -228,6 +250,18 @@ function renderNLMealDetail() {
       </div>`;
     } else {
       skippedEl.innerHTML = '';
+    }
+  }
+  // Meal-time slot picker (logged meals only — saved templates have no slot).
+  const slotPicker = document.getElementById('nlSlotPicker');
+  if (slotPicker) {
+    if ((meal.type || 'logged') === 'logged') {
+      const cur = meal.slot || 'snack';
+      slotPicker.innerHTML = `<div class="nl-slot-picker">
+        ${MEAL_SLOTS.map(s => `<button class="nl-slot-btn${s === cur ? ' active' : ''}" onclick="nlSetMealSlot('${s}')">${MEAL_SLOT_ICONS[s]} ${MEAL_SLOT_LABELS[s]}</button>`).join('')}
+      </div>`;
+    } else {
+      slotPicker.innerHTML = '';
     }
   }
   document.getElementById('nlMealChart').innerHTML = `<div class="nl-chart-wrap">${nlRenderPie(t.p, t.c, t.f)}</div>`;
@@ -310,6 +344,16 @@ export function nlRemoveIng(idx) {
   meal.ingredients.splice(idx, 1);
   nlInvalidateTotalsCache(meal);
   saveNLMeals(meals); renderNLMealDetail(); renderMacroGoals();
+}
+
+export function nlSetMealSlot(slot) {
+  if (!MEAL_SLOTS.includes(slot)) return;
+  const meals = getNLMeals(), meal = meals.find(m => m.id === state.nlCurrentMealId);
+  if (!meal) return;
+  meal.slot = slot;
+  saveNLMeals(meals);
+  document.querySelectorAll('#nlSlotPicker .nl-slot-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim().endsWith(MEAL_SLOT_LABELS[slot])));
 }
 
 export function nlAutoSaveNotes() {
@@ -477,6 +521,7 @@ export function nlCreateMeal() {
   const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
   const date = type === 'logged' ? (state.nlSelectedDate || todayStr()) : todayStr();
   const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: date };
+  if (type === 'logged') meal.slot = defaultMealSlot();
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
   nlCloseCreate(); nlShowMeal(meal.id);
 }
@@ -521,6 +566,7 @@ export function nlIdentifyMealFromPhoto(input) {
           favorite: false,
           createdAt: date,
         };
+        if (type === 'logged') meal.slot = defaultMealSlot();
         if (result.skipped && result.skipped.length) meal._aiSkipped = result.skipped;
         const docId = meal.id;
         try {
@@ -601,6 +647,8 @@ export function nlDuplicateMeal() {
   if (!meal) return;
   const dup = { id: 'meal_' + Date.now(), name: meal.name + ' (copy)', type: meal.type || 'logged', ingredients: meal.ingredients.map(i => ({ ...i })), notes: meal.notes, favorite: false, createdAt: todayStr() };
   if (meal.image) dup.image = meal.image;
+  if (meal.quick) dup.quick = { ...meal.quick };
+  if ((dup.type || 'logged') === 'logged') dup.slot = meal.slot || defaultMealSlot();
   meals.push(dup); saveNLMeals(meals); nlShowMeal(dup.id);
 }
 
@@ -617,6 +665,7 @@ export function nlSaveAsSavedMeal() {
     createdAt: todayStr()
   };
   if (meal.image) saved.image = meal.image;
+  if (meal.quick) saved.quick = { ...meal.quick };
   meals.push(saved);
   saveNLMeals(meals);
   const btn = document.getElementById('nlSaveAsMealBtn');
@@ -1101,6 +1150,7 @@ export function initMacroGoalsSwipe() {
   _initSwipeDismiss('macroWizardOverlay', 'macroWizardModal', closeMacroWizard);
   // Other nutrition-tab sheets that have an X close button.
   _initSwipeDismiss('nlCreateOverlay', 'nlCreateModal', nlCloseCreate);
+  _initSwipeDismiss('nlQuickAddOverlay', 'nlQuickAddModal', nlCloseQuickAdd);
   _initSwipeDismiss('nlCustomOverlay', 'nlCustomModal', nlCloseCustom);
   _initSwipeDismiss('nlRenameOverlay', 'nlRenameModal', nlCloseRename);
   _initSwipeDismiss('nlSavedPickerOverlay', 'nlSavedPickerSheet', closeSavedMealPicker);
@@ -1293,6 +1343,71 @@ export function closeNLFabChoice() {
   document.getElementById('nlFabChoiceOverlay').classList.remove('open');
 }
 
+// ── Quick Add Calories ──
+// Logs a meal with no ingredients, carrying macros directly in `meal.quick`.
+
+export function nlOpenQuickAdd() {
+  document.getElementById('nlQuickName').value = '';
+  document.getElementById('nlQuickCal').value = '';
+  document.getElementById('nlQuickP').value = '';
+  document.getElementById('nlQuickC').value = '';
+  document.getElementById('nlQuickF').value = '';
+  document.getElementById('nlQuickAddOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('nlQuickName').focus(), 300);
+}
+
+export function nlCloseQuickAdd() {
+  document.getElementById('nlQuickAddOverlay').classList.remove('open');
+}
+
+// Auto-derive calories from macros as the user types them (4/4/9 kcal). Only
+// overwrites the calorie field while editing macros, so a manually typed
+// calorie value is preserved when no macros are entered.
+export function nlQuickFillCalFromMacros(fromMacro) {
+  if (!fromMacro) return;
+  const p = parseFloat(document.getElementById('nlQuickP').value) || 0;
+  const c = parseFloat(document.getElementById('nlQuickC').value) || 0;
+  const f = parseFloat(document.getElementById('nlQuickF').value) || 0;
+  if (p === 0 && c === 0 && f === 0) return;
+  document.getElementById('nlQuickCal').value = Math.round(p * 4 + c * 4 + f * 9);
+}
+
+export function nlSaveQuickAdd() {
+  const cal = Math.round(parseFloat(document.getElementById('nlQuickCal').value) || 0);
+  const p = Math.round((parseFloat(document.getElementById('nlQuickP').value) || 0) * 10) / 10;
+  const c = Math.round((parseFloat(document.getElementById('nlQuickC').value) || 0) * 10) / 10;
+  const f = Math.round((parseFloat(document.getElementById('nlQuickF').value) || 0) * 10) / 10;
+  if (cal <= 0 && p <= 0 && c <= 0 && f <= 0) {
+    document.getElementById('nlQuickCal').focus();
+    return;
+  }
+  const name = (document.getElementById('nlQuickName').value || '').trim().slice(0, 50) || 'Quick Add';
+  const meal = {
+    id: 'meal_' + Date.now(),
+    name,
+    type: 'logged',
+    slot: defaultMealSlot(),
+    ingredients: [],
+    quick: { cal, p, c, f },
+    notes: '',
+    favorite: false,
+    createdAt: state.nlSelectedDate || todayStr(),
+  };
+  const meals = getNLMeals();
+  meals.push(meal);
+  saveNLMeals(meals);
+  nlCloseQuickAdd();
+  renderNLCalendar();
+  renderNLMeals();
+  renderMacroGoals();
+  const toast = document.createElement('div');
+  toast.className = 'pr-toast';
+  toast.style.background = 'linear-gradient(135deg, var(--green), #27ae60)';
+  toast.textContent = `Added ${cal} cal`;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+}
+
 export function openSavedMealPicker() {
   const meals = getNLMeals().filter(m => m.type === 'saved');
   const list = document.getElementById('nlSavedPickerList');
@@ -1339,12 +1454,14 @@ export function pickSavedMeal(id) {
     id: 'meal_' + Date.now(),
     name: meal.name,
     type: 'logged',
+    slot: defaultMealSlot(),
     ingredients: meal.ingredients.map(i => ({ ...i })),
     notes: '',
     favorite: false,
     createdAt: state.nlSelectedDate || todayStr()
   };
   if (meal.image) logged.image = meal.image;
+  if (meal.quick) logged.quick = { ...meal.quick };
   meals.push(logged);
   saveNLMeals(meals);
   closeSavedMealPicker();
