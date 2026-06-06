@@ -208,7 +208,7 @@ const DEFAULT_MEALS = [
     type: 'saved',
     image: 'assets/foods/saved-meals/teriyaki-chicken-rice-bowl.jpg',
     ingredients: [
-      {name:'Chicken Breast (cooked)', grams:200, p:31,  c:0,  f:3.6, cal:156, img:'assets/foods/meat/chicken-breast.jpg'},
+      {name:'Chicken Breast (cooked)', grams:200, p:31,  c:0,  f:3.6, cal:156, img:'assets/foods/proteins/chicken-breast.jpg'},
       {name:'White Rice (cooked)',     grams:200, p:2.7, c:28, f:0.3, cal:126, img:'assets/foods/grains/white-rice.jpg'},
       {name:'Broccoli',               grams:150, p:2.8, c:7,  f:0.4, cal:43,  img:'assets/foods/vegetables/broccoli.jpg'},
     ],
@@ -252,7 +252,7 @@ const DEFAULT_MEALS = [
     image: 'assets/foods/saved-meals/burger.jpg',
     ingredients: [
       {name:'White Bread',             grams:90,  p:9,    c:49, f:3.2, cal:239, img:'assets/foods/grains/white-bread.jpg'},
-      {name:'Ground Beef lean (cooked)', grams:120, p:26,   c:0,  f:15,  cal:305, img:'assets/foods/meat/ground-beef.jpg'},
+      {name:'Ground Beef lean (cooked)', grams:120, p:26,   c:0,  f:15,  cal:305, img:'assets/foods/proteins/ground-beef.jpg'},
       {name:'Cheddar Cheese',          grams:20,  p:25,   c:1.3,f:33,  cal:80,  img:'assets/foods/dairy/cheddar-cheese.jpg'},
       {name:'Lettuce',                 grams:15,  p:1.4,  c:2.9,f:0.2, cal:2,   img:'assets/foods/vegetables/lettuce.jpg'},
       {name:'Tomato',                  grams:25,  p:0.9,  c:3.9,f:0.2, cal:5,   img:'assets/foods/vegetables/tomato.jpg'},
