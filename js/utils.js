@@ -244,8 +244,6 @@ export function exHistTotalReps(entry) {
 export function calcMealTotals(meal) {
   let p = 0, c = 0, f = 0, cal = 0;
   (meal.ingredients || []).forEach(i => { const m = i.grams / 100; p += i.p * m; c += i.c * m; f += i.f * m; cal += i.cal * m; });
-  // Quick-add meals carry macros directly (no ingredients).
-  if (meal.quick) { p += meal.quick.p || 0; c += meal.quick.c || 0; f += meal.quick.f || 0; cal += meal.quick.cal || 0; }
   return { p: Math.round(p * 10) / 10, c: Math.round(c * 10) / 10, f: Math.round(f * 10) / 10, cal: Math.round(cal) };
 }
 
