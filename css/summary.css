@@ -66,3 +66,14 @@
 }
 .summary-cal-balance.deficit { color:var(--green); border-color:rgba(0,232,123,0.25); background:rgba(0,232,123,0.06); }
 .summary-cal-balance.surplus { color:var(--carbs); border-color:rgba(255,61,113,0.25); background:rgba(255,61,113,0.06); }
+.summary-nutr-metric-row { display:flex; gap:6px; margin-bottom:12px; }
+.summary-nutr-metric-btn {
+  flex:1; background:var(--subtle-bg); border:1px solid var(--border);
+  color:var(--text-secondary); border-radius:10px; padding:7px 4px;
+  font-size:0.74rem; font-weight:700; cursor:pointer; font-family:inherit;
+  transition:all 0.15s;
+}
+.summary-nutr-metric-btn.active {
+  background:rgba(0,229,255,0.1); border-color:rgba(0,229,255,0.25); color:var(--accent);
+}
+.summary-nutr-chart { width:100%; }

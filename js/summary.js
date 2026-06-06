@@ -105,12 +105,32 @@ function computeSummary(range) {
     avgCalorieDiff = Math.round(totalDiff / daysWithMeals);
   }
 
+  // Ordered per-day series for the day-by-day chart: one entry per calendar
+  // day in the period (zero on unlogged days), carrying that day's macro goal.
+  const today = dateToStr(new Date());
+  const nutrSeries = [];
+  const cursor = new Date(startDate + 'T00:00:00');
+  const last = new Date(endDate + 'T00:00:00');
+  while (cursor <= last) {
+    const ds = dateToStr(cursor);
+    if (ds <= today) {
+      const d = dailyNutr[ds] || { cal: 0, p: 0, c: 0, f: 0 };
+      const goals = getGoalsForDate(ds) || {};
+      nutrSeries.push({
+        date: ds,
+        cal: Math.round(d.cal), p: Math.round(d.p), c: Math.round(d.c), f: Math.round(d.f),
+        goal: { cal: Number(goals.calories) || 0, p: Number(goals.protein) || 0, c: Number(goals.carbs) || 0, f: Number(goals.fat) || 0 },
+      });
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
   return {
     workoutCount: workoutDates.size,
     topExercises,
     bwEntries, weightStart, weightEnd, weightDelta,
     avgCalories, avgProtein, avgCarbs, avgFat, daysWithMeals,
-    avgCalorieDiff,
+    avgCalorieDiff, nutrSeries,
     startDate, endDate, range
   };
 }
@@ -153,6 +173,71 @@ function renderMiniChart(entries) {
     <path d="${areaPath}" fill="url(#smG)"/>
     <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     ${yLbls}${dots}
+  </svg>`;
+}
+
+// ── Daily nutrition bar chart ──
+
+const NUTR_METRICS = {
+  cal: { label: 'Calories', unit: '', color: 'var(--accent)', rgb: '0,229,255' },
+  p: { label: 'Protein', unit: 'g', color: 'var(--protein)', rgb: '0,229,255' },
+  c: { label: 'Carbs', unit: 'g', color: 'var(--carbs)', rgb: '255,209,102' },
+  f: { label: 'Fat', unit: 'g', color: 'var(--fat)', rgb: '255,61,113' },
+};
+
+function renderNutrChart(series, metric) {
+  const m = NUTR_METRICS[metric] || NUTR_METRICS.cal;
+  if (!series || series.length === 0) {
+    return '<div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:16px 0;">No days in this period yet.</div>';
+  }
+
+  const vals = series.map(d => d[metric]);
+  const goals = series.map(d => d.goal[metric]).filter(g => g > 0);
+  const maxData = Math.max(...vals, ...goals, 1);
+  const maxV = maxData * 1.12; // headroom above the tallest bar / goal line
+
+  const W = 300, H = 120, P = { t: 10, r: 8, b: 20, l: 30 };
+  const cW = W - P.l - P.r, cH = H - P.t - P.b;
+  const n = series.length;
+  // Bar width scales with day count; clamp so weekly bars aren't absurdly wide.
+  const slot = cW / n;
+  const bw = Math.max(2, Math.min(slot * 0.7, 26));
+  const yS = v => P.t + cH - (v / maxV) * cH;
+
+  // Only label a sparse set of days on the x-axis so a month doesn't crowd.
+  const everyN = n <= 10 ? 1 : Math.ceil(n / 8);
+
+  const bars = series.map((d, i) => {
+    const x = P.l + slot * i + (slot - bw) / 2;
+    const v = d[metric];
+    const y = yS(v);
+    const h = Math.max(0, P.t + cH - y);
+    const dim = v === 0 ? ' opacity="0.25"' : '';
+    const dd = d.date.slice(8);
+    const xlbl = (i % everyN === 0)
+      ? `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="-apple-system,sans-serif">${dd}</text>`
+      : '';
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="2" fill="${m.color}"${dim}/>${xlbl}`;
+  }).join('');
+
+  // Goal reference line — only when every day in the period shares one goal value.
+  let goalLine = '';
+  if (goals.length === series.length && goals.length > 0) {
+    const uniform = goals.every(g => g === goals[0]);
+    if (uniform) {
+      const gy = yS(goals[0]);
+      goalLine = `<line x1="${P.l}" y1="${gy}" x2="${W - P.r}" y2="${gy}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+        <text x="${W - P.r}" y="${gy - 3}" text-anchor="end" fill="var(--text-secondary)" font-size="8" font-family="-apple-system,sans-serif">goal ${goals[0]}${m.unit}</text>`;
+    }
+  }
+
+  const yLbls = [0, maxData].map(v =>
+    `<text x="${P.l - 4}" y="${yS(v)}" text-anchor="end" dominant-baseline="middle" fill="var(--muted)" font-size="8" font-family="-apple-system,sans-serif">${Math.round(v)}</text>`
+  ).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block;">
+    <line x1="${P.l}" y1="${P.t + cH}" x2="${W - P.r}" y2="${P.t + cH}" stroke="var(--border)" stroke-width="1"/>
+    ${bars}${goalLine}${yLbls}
   </svg>`;
 }
 
@@ -230,6 +315,19 @@ export function renderSummary() {
       }
     }
     html += `</div>`;
+
+    // Day-by-day nutrition chart
+    const metric = state.summaryNutrMetric;
+    const mInfo = NUTR_METRICS[metric] || NUTR_METRICS.cal;
+    html += `<div class="summary-section">
+      <div class="summary-section-title">Daily ${mInfo.label}</div>
+      <div class="summary-nutr-metric-row">
+        ${Object.entries(NUTR_METRICS).map(([k, v]) =>
+          `<button class="summary-nutr-metric-btn ${metric === k ? 'active' : ''}" onclick="setSummaryNutrMetric('${k}')">${v.label}</button>`
+        ).join('')}
+      </div>
+      <div class="summary-nutr-chart">${renderNutrChart(s.nutrSeries, metric)}</div>
+    </div>`;
   }
 
   // Empty state
@@ -245,5 +343,11 @@ export function renderSummary() {
 
 export function setSummaryRange(range) {
   state.summaryRange = range;
+  renderSummary();
+}
+
+export function setSummaryNutrMetric(metric) {
+  if (!NUTR_METRICS[metric]) return;
+  state.summaryNutrMetric = metric;
   renderSummary();
 }

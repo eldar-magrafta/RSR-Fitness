@@ -42,6 +42,7 @@ export const state = {
 
   // Summary
   summaryRange: 'week',
+  summaryNutrMetric: 'cal',  // 'cal' | 'p' | 'c' | 'f'
 
   // Muscle Balance
   mbRange: 'month',
