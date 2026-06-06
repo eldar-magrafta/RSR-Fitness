@@ -6,6 +6,7 @@ import { getBWData, bwGetWeight, bwGetPhotos, bwHasPhoto } from './store.js';
 import { loadPhoto } from './storage.js';
 import { showView, setHeader } from './navigation.js';
 import { fmtDateLabel } from './utils.js';
+import { timelapsePhotoCount } from './timelapse.js';
 
 export function openGallery() {
   showView('galleryView');
@@ -35,6 +36,10 @@ async function renderGallery() {
   }
 
   let html = '';
+  // Timelapse needs at least two dated photos to be meaningful.
+  if (timelapsePhotoCount() >= 2) {
+    html += `<button class="gallery-timelapse-btn" onclick="openTimelapse()">🎬 Create Timelapse Video</button>`;
+  }
   for (const [dateStr, val] of photoDates) {
     const weight = bwGetWeight(val);
     const photos = bwGetPhotos(val);

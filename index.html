@@ -414,6 +414,40 @@
     <div class="view" id="galleryView">
         <div id="galleryContent"></div>
     </div>
+
+    <!-- Timelapse Video Modal -->
+    <div class="modal-overlay" id="timelapseOverlay" onclick="if(event.target===this)closeTimelapse()">
+        <div class="modal" id="timelapseModal">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">🎬 Progress Timelapse</div>
+                <button class="modal-close" onclick="closeTimelapse()">✕</button>
+            </div>
+            <div class="tl-sub">Stitch your <b id="tlCount">0</b> progress photos into a video, oldest to newest.</div>
+
+            <div class="tl-opt-label">Speed</div>
+            <div class="tl-speed-row">
+                <label class="tl-speed-opt"><input type="radio" name="tlSpeed" value="slow"><span>Slow</span></label>
+                <label class="tl-speed-opt"><input type="radio" name="tlSpeed" value="normal" checked><span>Normal</span></label>
+                <label class="tl-speed-opt"><input type="radio" name="tlSpeed" value="fast"><span>Fast</span></label>
+            </div>
+
+            <label class="tl-caption-row">
+                <input type="checkbox" id="tlCaption" checked>
+                <span>Show date &amp; weight on each frame</span>
+            </label>
+
+            <button class="create-btn" id="tlGenerateBtn" onclick="generateTimelapse()">Generate Video</button>
+
+            <div class="tl-progress" id="tlProgress" style="display:none;">
+                <div class="tl-progress-txt" id="tlProgressTxt">Working…</div>
+                <div class="tl-progress-track"><div class="tl-progress-bar" id="tlProgressBar"></div></div>
+                <div class="tl-progress-hint">Keep this screen open while the video records.</div>
+            </div>
+
+            <div class="tl-result" id="tlResult"></div>
+        </div>
+    </div>
     <div class="view" id="waterView">
         <div id="waterContent"></div>
     </div>
