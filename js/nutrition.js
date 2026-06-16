@@ -988,9 +988,9 @@ export function renderMacroGoals() {
       <span class="macro-goals-title">${dateLabel}</span>
       ${canEdit ? '<button class="macro-goals-edit" onclick="openMacroGoalsModal()">Edit</button>' : ''}
     </div>
-    ${rows.map(r => {
+    ${rows.map((r, i) => {
       const pct = r.goal > 0 ? Math.min(100, Math.round(r.cur / r.goal * 100)) : 0;
-      return `<div class="macro-goal-row">
+      return `<div class="macro-goal-row${i === 0 ? ' macro-goal-row-cal' : ''}">
         <div class="macro-goal-label">
           <span class="macro-goal-name" style="color:${r.color}">${r.name}</span>
           <span class="macro-goal-nums">${r.cur}${r.unit} / ${r.goal}${r.unit}</span>
