@@ -73,7 +73,7 @@ function renderExLogDayDetail(dateStr, exercises) {
       setsHtml = entry.sets.map(s => {
         if (Array.isArray(s.drops) && s.drops.length) {
           // Drop set: a tinted block labelled "drop" holding one chip per stage.
-          const stages = [s, ...s.drops].map(st => stageChip(st.w, st.r)).join('<span class="exlog-stage-sep">&middot;</span>');
+          const stages = [s, ...s.drops].map(st => stageChip(st.w, st.r)).join('<span class="exlog-stage-sep">|</span>');
           return `<div class="exlog-set exlog-set-drop">
             <span class="exlog-drop-label">drop</span>
             <span class="exlog-drop-stages">${stages}</span>
