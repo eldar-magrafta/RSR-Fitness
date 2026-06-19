@@ -90,6 +90,67 @@
 .log-input-wrap input::placeholder { color: var(--muted); }
 .log-input-wrap span { color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
 
+/* ── Exercise history entry: per-set editor with drop-set stages ── */
+.exhist-set {
+  background: var(--subtle-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px; margin-bottom: 10px;
+}
+.exhist-set-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.exhist-set-num {
+  font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);
+}
+.exhist-drop-tag {
+  font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.7px; color: #b89bff;
+}
+.exhist-set-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 0.95rem; padding: 2px 4px;
+}
+.exhist-set-del:active { color: var(--carbs); }
+.exhist-drop-stage {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+}
+.exhist-drop-num {
+  font-size: 0.72rem; font-weight: 700; color: #b89bff;
+  width: 14px; flex-shrink: 0; text-align: center;
+}
+.exhist-drop-input { flex: 1; min-width: 0; padding: 8px 10px; }
+.exhist-drop-input input { font-size: 0.95rem; }
+.exhist-drop-x { color: var(--text-faint); font-size: 0.85rem; }
+.exhist-stage-del {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: transparent; border: 1px solid var(--border-med);
+  color: var(--muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.exhist-stage-del:active { color: var(--carbs); border-color: var(--carbs); }
+.exhist-add-stage {
+  margin-top: 8px; background: rgba(168,130,255,0.08);
+  border: 1px dashed rgba(168,130,255,0.3); color: #b89bff;
+  padding: 5px 10px; border-radius: 9px;
+  font-size: 0.75rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+}
+.exhist-add-stage:active { background: rgba(168,130,255,0.18); }
+.exhist-add-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.exhist-add-btn {
+  flex: 1; background: rgba(0,229,255,0.08);
+  border: 1px solid rgba(0,229,255,0.25); color: var(--accent);
+  padding: 10px; border-radius: 12px;
+  font-size: 0.85rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.exhist-add-btn:active { background: rgba(0,229,255,0.18); }
+.exhist-add-drop {
+  background: rgba(168,130,255,0.08);
+  border-color: rgba(168,130,255,0.3); color: #b89bff;
+}
+.exhist-add-drop:active { background: rgba(168,130,255,0.18); }
+
 /* ── Buttons ── */
 .save-btn {
   width: 100%; background: linear-gradient(135deg, var(--green), #00c9a7);

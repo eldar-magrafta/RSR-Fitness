@@ -120,6 +120,8 @@ function renderExHistChart() {
     let tipText = closest.v + 'kg';
     if (raw.sets && raw.sets.length) {
       tipText += ` \u00b7 ${raw.sets.length} set${raw.sets.length > 1 ? 's' : ''}`;
+      const drops = raw.sets.filter(s => Array.isArray(s.drops) && s.drops.length).length;
+      if (drops) tipText += ` \u00b7 ${drops} drop`;
     } else if (raw.r) {
       tipText += ` \u00d7 ${raw.r} reps`;
     }
@@ -165,21 +167,87 @@ export function exHistJumpToDate(dateStr) {
 }
 
 // ── Entry Sheet ──
+// State-backed editor (mirrors the live session): typing updates _exHistSets in
+// place, while add/remove actions re-render. A set may carry an optional drops[]
+// of lighter stages — the top stage stays in w/r so chart/PR logic are unchanged.
 
-export function renderExHistSets(existingSets) {
-  const count = parseInt(document.getElementById('exHistSetCount').value) || 3;
+let _exHistSets = [];
+
+/** Deep-copy the working set model so edits don't mutate stored history. */
+function cloneSets(sets) {
+  return sets.map(s => {
+    const out = { w: s.w ?? '', r: s.r ?? '' };
+    if (Array.isArray(s.drops)) out.drops = s.drops.map(d => ({ w: d.w ?? '', r: d.r ?? '' }));
+    return out;
+  });
+}
+
+export function renderExHistSets() {
   const container = document.getElementById('exHistSetsContainer');
-  let html = '';
-  for (let i = 0; i < count; i++) {
-    const s = existingSets && existingSets[i] ? existingSets[i] : {};
-    html += `<div style="margin-bottom:10px;">
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;font-weight:600;">Set ${i + 1}</div>
+  const setsHtml = _exHistSets.map((s, i) => {
+    const isDrop = Array.isArray(s.drops);
+    const dropStages = isDrop ? s.drops.map((d, di) => `
+      <div class="exhist-drop-stage">
+        <span class="exhist-drop-num">${di + 2}</span>
+        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="decimal" value="${d.w || ''}" oninput="exHistUpdateDrop(${i}, ${di}, 'w', this.value)"/><span>kg</span></div>
+        <span class="exhist-drop-x">×</span>
+        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="numeric" value="${d.r || ''}" oninput="exHistUpdateDrop(${i}, ${di}, 'r', this.value)"/><span>reps</span></div>
+        <button class="exhist-stage-del" onclick="exHistRemoveDrop(${i}, ${di})" title="Remove stage"><i class="bi bi-x"></i></button>
+      </div>`).join('') : '';
+    const addStageBtn = isDrop
+      ? `<button class="exhist-add-stage" onclick="exHistAddDropStage(${i})"><i class="bi bi-plus-lg"></i> drop stage</button>`
+      : '';
+    return `<div class="exhist-set">
+      <div class="exhist-set-head">
+        <span class="exhist-set-num">Set ${i + 1}${isDrop ? ' · <span class="exhist-drop-tag">drop</span>' : ''}</span>
+        <button class="exhist-set-del" onclick="exHistRemoveSet(${i})" title="Remove set"><i class="bi bi-trash3"></i></button>
+      </div>
       <div class="log-row">
-        <div class="log-field"><label>Weight</label><div class="log-input-wrap"><input type="number" id="exHistW_${i}" placeholder="0" inputmode="decimal" value="${s.w || ''}"/><span>kg</span></div></div>
-        <div class="log-field"><label>Reps</label><div class="log-input-wrap"><input type="number" id="exHistR_${i}" placeholder="0" inputmode="numeric" value="${s.r || ''}"/><span>reps</span></div></div>
-      </div></div>`;
+        <div class="log-field"><label>Weight</label><div class="log-input-wrap"><input type="number" placeholder="0" inputmode="decimal" value="${s.w || ''}" oninput="exHistUpdateSet(${i}, 'w', this.value)"/><span>kg</span></div></div>
+        <div class="log-field"><label>Reps</label><div class="log-input-wrap"><input type="number" placeholder="0" inputmode="numeric" value="${s.r || ''}" oninput="exHistUpdateSet(${i}, 'r', this.value)"/><span>reps</span></div></div>
+      </div>
+      ${dropStages}
+      ${addStageBtn}
+    </div>`;
+  }).join('');
+  container.innerHTML = setsHtml + `
+    <div class="exhist-add-row">
+      <button class="exhist-add-btn" onclick="exHistAddSet()"><i class="bi bi-plus-lg"></i> Add Set</button>
+      <button class="exhist-add-btn exhist-add-drop" onclick="exHistAddDropSet()"><i class="bi bi-arrow-down-short"></i> Add Drop Set</button>
+    </div>`;
+}
+
+export function exHistUpdateSet(i, field, value) {
+  if (_exHistSets[i]) _exHistSets[i][field] = value;
+}
+export function exHistUpdateDrop(i, di, field, value) {
+  const d = _exHistSets[i]?.drops?.[di];
+  if (d) d[field] = value;
+}
+export function exHistAddSet() {
+  _exHistSets.push({ w: '', r: '' });
+  renderExHistSets();
+}
+export function exHistAddDropSet() {
+  _exHistSets.push({ w: '', r: '', drops: [{ w: '', r: '' }] });
+  renderExHistSets();
+}
+export function exHistAddDropStage(i) {
+  if (_exHistSets[i] && Array.isArray(_exHistSets[i].drops)) {
+    _exHistSets[i].drops.push({ w: '', r: '' });
+    renderExHistSets();
   }
-  container.innerHTML = html;
+}
+export function exHistRemoveSet(i) {
+  _exHistSets.splice(i, 1);
+  renderExHistSets();
+}
+export function exHistRemoveDrop(i, di) {
+  const set = _exHistSets[i];
+  if (!set || !Array.isArray(set.drops)) return;
+  set.drops.splice(di, 1);
+  if (set.drops.length === 0) delete set.drops; // collapse back to a plain set
+  renderExHistSets();
 }
 
 export function openExHistEntry(dateStr) {
@@ -188,19 +256,15 @@ export function openExHistEntry(dateStr) {
   document.getElementById('exHistEntryDate').textContent = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const hist = getExHist(state.currentExerciseName);
   const entry = hist[dateStr];
-  if (entry) {
-    let sets = [];
-    let setCount = 3;
-    if (entry.sets) { sets = entry.sets; setCount = sets.length; }
-    else if (entry.w) { sets = [{ w: entry.w, r: entry.r }]; setCount = 1; }
-    document.getElementById('exHistSetCount').value = setCount;
-    renderExHistSets(sets);
-    document.getElementById('exHistNotes').value = entry.n || '';
+  if (entry && entry.sets) {
+    _exHistSets = cloneSets(entry.sets);
+  } else if (entry && entry.w) {
+    _exHistSets = [{ w: entry.w, r: entry.r }];
   } else {
-    document.getElementById('exHistSetCount').value = 3;
-    renderExHistSets();
-    document.getElementById('exHistNotes').value = '';
+    _exHistSets = [{ w: '', r: '' }, { w: '', r: '' }, { w: '', r: '' }];
   }
+  document.getElementById('exHistNotes').value = entry ? (entry.n || '') : '';
+  renderExHistSets();
   document.getElementById('exHistBtnDel').style.display = entry ? '' : 'none';
   document.getElementById('exHistBtnDelTop').style.display = entry ? '' : 'none';
   document.getElementById('exHistEntryOverlay').classList.add('open');
@@ -220,15 +284,21 @@ export function initExHistSheetSwipe() {
 
 export function saveExHistEntry() {
   if (!state.currentExerciseName || !state.exHistSelectedDate) return;
-  const count = parseInt(document.getElementById('exHistSetCount').value) || 3;
-  const sets = [];
   let hasData = false;
-  for (let i = 0; i < count; i++) {
-    const w = document.getElementById('exHistW_' + i).value.trim();
-    const r = document.getElementById('exHistR_' + i).value.trim();
-    sets.push({ w: w || '0', r: r || '0' });
+  const sets = _exHistSets.map(s => {
+    const w = String(s.w ?? '').trim();
+    const r = String(s.r ?? '').trim();
     if (w || r) hasData = true;
-  }
+    const out = { w: w || '0', r: r || '0' };
+    if (Array.isArray(s.drops) && s.drops.length) {
+      const drops = s.drops
+        .map(d => ({ w: String(d.w ?? '').trim(), r: String(d.r ?? '').trim() }))
+        .filter(d => d.w || d.r)
+        .map(d => ({ w: d.w || '0', r: d.r || '0' }));
+      if (drops.length) { out.drops = drops; hasData = true; }
+    }
+    return out;
+  });
   if (!hasData) return;
   const n = document.getElementById('exHistNotes').value.trim();
   const hist = getExHist(state.currentExerciseName);

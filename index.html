@@ -467,17 +467,6 @@
                 <div class="bw-sheet-title" style="margin-bottom:0;">Log Exercise</div>
                 <button id="exHistBtnDelTop" onclick="openDeleteExHistConfirm()" class="plan-card-delete" style="display:none;" title="Delete entry"><i class="bi bi-trash3"></i></button>
             </div>
-            <div style="margin-bottom:14px;">
-                <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Number of
-                    Sets</label>
-                <select id="exHistSetCount" onchange="renderExHistSets()" class="themed-select">
-                    <option value="1">1 set</option>
-                    <option value="2">2 sets</option>
-                    <option value="3" selected>3 sets</option>
-                    <option value="4">4 sets</option>
-                    <option value="5">5 sets</option>
-                </select>
-            </div>
             <div id="exHistSetsContainer"></div>
             <div class="section-label">Notes</div>
             <textarea id="exHistNotes" maxlength="250" placeholder="How did it feel…" class="themed-textarea"></textarea>
