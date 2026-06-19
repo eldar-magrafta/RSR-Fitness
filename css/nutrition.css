@@ -383,7 +383,6 @@
   text-align:center; transition:all 0.15s;
 }
 .nl-fab-choice-btn:active { border-color:var(--accent); box-shadow:0 0 10px rgba(0,229,255,0.06); }
-.nl-fab-choice-saved { background:var(--subtle-bg); }
 
 /* ── Diary Meal-Time Groups ── */
 .nl-slot-group { margin-bottom:18px; }
