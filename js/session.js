@@ -198,6 +198,13 @@ function renderSetRow(exIdx, sIdx, set, exName) {
       <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPh}"
              value="${rVal || ''}" oninput="${onR}"/>`;
 
+  // The save floppy belongs to the LAST stage line so it sits next to the
+  // final input the user fills; saving always commits the whole set.
+  const saveBtn = `<button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>`;
+  const lastDropIdx = isDrop ? set.drops.length - 1 : -1;
+
+  // Top stage. Its X deletes the whole set. Save lives here only when this is
+  // the last line (i.e. a plain, non-drop set).
   const topRow = `
     <div class="session-set-stage">
       ${isDrop ? '<span class="session-set-num">1</span>' : ''}
@@ -205,6 +212,8 @@ function renderSetRow(exIdx, sIdx, set, exName) {
         `sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)`,
         `sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)`,
         wPlaceholder, rPlaceholder)}
+      ${isDrop ? '' : saveBtn}
+      <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove set"><i class="bi bi-x"></i></button>
     </div>`;
 
   const dropRows = isDrop ? set.drops.map((d, dIdx) => `
@@ -214,6 +223,7 @@ function renderSetRow(exIdx, sIdx, set, exName) {
         `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'w', this.value)`,
         `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'r', this.value)`,
         'kg', 'reps')}
+      ${dIdx === lastDropIdx ? saveBtn : ''}
       <button class="session-set-del" onclick="sessionDeleteDrop(${exIdx}, ${sIdx}, ${dIdx})" title="Remove stage"><i class="bi bi-x"></i></button>
     </div>`).join('') : '';
 
@@ -227,10 +237,6 @@ function renderSetRow(exIdx, sIdx, set, exName) {
         ${topRow}
         ${dropRows}
         ${addStageBtn}
-      </div>
-      <div class="session-set-controls">
-        <button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>
-        <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
       </div>
     </div>`;
 }

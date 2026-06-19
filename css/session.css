@@ -110,7 +110,7 @@
   background: rgba(0,229,255,0.06);
   border-color: rgba(0,229,255,0.25);
 }
-/* Drop set: stages stack vertically, controls sit alongside. */
+/* Drop set: stages stack vertically; each line carries its own controls. */
 .session-set-row.drop {
   align-items: stretch;
 }
@@ -120,12 +120,6 @@
 }
 .session-set-stage {
   display: flex; align-items: center; gap: 8px;
-}
-.session-set-controls {
-  display: flex; align-items: center; gap: 8px;
-}
-.session-set-row.drop .session-set-controls {
-  flex-direction: column; justify-content: center;
 }
 .session-drop-stage .session-set-input { font-size: 0.88rem; }
 .session-add-stage-btn {
