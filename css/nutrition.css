@@ -395,6 +395,7 @@
   letter-spacing:0.6px; color:var(--accent);
 }
 .nl-slot-sub { font-size:0.72rem; color:var(--muted); font-weight:600; text-align:right; }
+.nl-slot-cal { color:#fff; font-size:0.82rem; font-weight:700; }
 
 /* ── Meal Detail Slot Picker ── */
 .nl-slot-picker { display:flex; gap:6px; margin-bottom:16px; }
