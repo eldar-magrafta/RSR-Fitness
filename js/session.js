@@ -198,13 +198,12 @@ function renderSetRow(exIdx, sIdx, set, exName) {
       <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPh}"
              value="${rVal || ''}" oninput="${onR}"/>`;
 
-  // The save floppy belongs to the LAST stage line so it sits next to the
-  // final input the user fills; saving always commits the whole set.
+  // For a plain set the save floppy sits on the (single) stage line; for a
+  // drop set it lives in the footer next to the add-stage button. Saving
+  // always commits the whole set.
   const saveBtn = `<button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>`;
-  const lastDropIdx = isDrop ? set.drops.length - 1 : -1;
 
-  // Top stage. Its X deletes the whole set. Save lives here only when this is
-  // the last line (i.e. a plain, non-drop set).
+  // Top stage. Its X deletes the whole set.
   const topRow = `
     <div class="session-set-stage">
       ${isDrop ? '<span class="session-set-num">1</span>' : ''}
@@ -223,12 +222,14 @@ function renderSetRow(exIdx, sIdx, set, exName) {
         `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'w', this.value)`,
         `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'r', this.value)`,
         'kg', 'reps')}
-      ${dIdx === lastDropIdx ? saveBtn : ''}
       <button class="session-set-del" onclick="sessionDeleteDrop(${exIdx}, ${sIdx}, ${dIdx})" title="Remove stage"><i class="bi bi-x"></i></button>
     </div>`).join('') : '';
 
   const addStageBtn = isDrop
-    ? `<button class="session-add-stage-btn" onclick="sessionAddDropStage(${exIdx}, ${sIdx})"><i class="bi bi-plus-lg"></i> drop stage</button>`
+    ? `<div class="session-drop-footer">
+        <button class="session-add-stage-btn" onclick="sessionAddDropStage(${exIdx}, ${sIdx})"><i class="bi bi-plus-lg"></i> drop stage</button>
+        ${saveBtn}
+      </div>`
     : '';
 
   return `
