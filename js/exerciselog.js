@@ -66,17 +66,23 @@ function renderExLogDayDetail(dateStr, exercises) {
 
   exercises.forEach(({ name, entry }) => {
     let setsHtml = '';
+    // A single stage chip: weight bold with a small muted "kg", then a faint × and reps.
+    const stageChip = (w, r) =>
+      `<span class="exlog-stage"><span class="exlog-stage-w">${parseFloat(w) || 0}<span class="exlog-unit">kg</span></span><span class="exlog-stage-x">&times;</span>${parseInt(r) || 0}</span>`;
     if (entry.sets && entry.sets.length) {
       setsHtml = entry.sets.map(s => {
-        let txt = `${parseFloat(s.w) || 0}kg &times; ${parseInt(s.r) || 0}`;
         if (Array.isArray(s.drops) && s.drops.length) {
-          txt += s.drops.map(d => ` &rarr; ${parseFloat(d.w) || 0}&times;${parseInt(d.r) || 0}`).join('');
+          // Drop set: a tinted block labelled "drop" holding one chip per stage.
+          const stages = [s, ...s.drops].map(st => stageChip(st.w, st.r)).join('<span class="exlog-stage-sep">&middot;</span>');
+          return `<div class="exlog-set exlog-set-drop">
+            <span class="exlog-drop-label">drop</span>
+            <span class="exlog-drop-stages">${stages}</span>
+          </div>`;
         }
-        const dropCls = Array.isArray(s.drops) && s.drops.length ? ' exlog-set-drop' : '';
-        return `<span class="exlog-set${dropCls}">${txt}</span>`;
+        return `<span class="exlog-set">${stageChip(s.w, s.r)}</span>`;
       }).join('');
     } else if (entry.w) {
-      setsHtml = `<span class="exlog-set">${parseFloat(entry.w) || 0}kg &times; ${parseInt(entry.r) || 0}</span>`;
+      setsHtml = `<span class="exlog-set">${stageChip(entry.w, entry.r)}</span>`;
     }
     const notesHtml = entry.n ? `<div class="exlog-notes">${entry.n}</div>` : '';
     html += `<div class="exlog-exercise">

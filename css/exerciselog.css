@@ -21,18 +21,40 @@
   font-size: 0.95rem; font-weight: 800; margin-bottom: 8px;
 }
 .exlog-sets-row {
-  display: flex; flex-wrap: wrap; gap: 6px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch;
 }
 .exlog-set {
+  display: inline-flex; align-items: center;
   background: var(--subtle-bg); border: 1px solid var(--border);
-  border-radius: 10px; padding: 4px 10px;
-  font-size: 0.82rem; font-weight: 700; color: var(--text-secondary);
+  border-radius: 10px; padding: 5px 11px;
+  font-size: 0.82rem; font-weight: 700; color: var(--text);
 }
-/* Drop set chip: tinted to distinguish a chained drop set from plain sets. */
+/* A single weight×reps stage: weight bold, small muted unit, faint × separator. */
+.exlog-stage { display: inline-flex; align-items: baseline; }
+.exlog-stage-w { font-weight: 800; }
+.exlog-unit {
+  font-size: 0.68em; font-weight: 600; color: var(--muted);
+  margin-left: 1px;
+}
+.exlog-stage-x {
+  color: var(--text-faint); font-weight: 500;
+  margin: 0 4px; font-size: 0.9em;
+}
+/* Drop set: tinted block labelled "drop", holding one chip per stage. */
 .exlog-set-drop {
-  background: rgba(168,130,255,0.1);
-  border-color: rgba(168,130,255,0.3); color: #b89bff;
+  flex-direction: column; align-items: flex-start; gap: 4px;
+  background: rgba(168,130,255,0.08);
+  border-color: rgba(168,130,255,0.28);
 }
+.exlog-drop-label {
+  font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.7px; color: #b89bff;
+}
+.exlog-drop-stages {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px;
+  color: var(--text);
+}
+.exlog-stage-sep { color: #b89bff; opacity: 0.5; margin: 0 5px; }
 .exlog-notes {
   margin-top: 8px; font-size: 0.8rem; color: var(--muted);
   font-style: italic;
