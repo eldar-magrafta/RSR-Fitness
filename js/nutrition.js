@@ -160,7 +160,7 @@ export function renderNLMeals() {
       return `<div class="nl-slot-group">
         <div class="nl-slot-header">
           <span class="nl-slot-title">${MEAL_SLOT_ICONS[slot]} ${MEAL_SLOT_LABELS[slot]}</span>
-          <span class="nl-slot-sub"><span class="nl-slot-cal">${Math.round(scal)} Kcal</span> · P ${Math.round(sp)}g · C ${Math.round(sc)}g · F ${Math.round(sf)}g</span>
+          <span class="nl-slot-sub"><span class="nl-slot-cal">${Math.round(scal)} cal</span> · P ${Math.round(sp)}g · C ${Math.round(sc)}g · F ${Math.round(sf)}g</span>
         </div>
         ${cards}
       </div>`;
