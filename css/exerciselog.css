@@ -17,8 +17,17 @@
   padding: 14px 16px; margin-bottom: 10px;
   border: 1px solid var(--border);
 }
+.exlog-ex-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.exlog-ex-thumb {
+  width: 36px; height: 36px; border-radius: 9px;
+  object-fit: cover; flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+}
+.exlog-ex-thumb-ph { background: rgba(255,255,255,0.04); }
 .exlog-ex-name {
-  font-size: 0.95rem; font-weight: 800; margin-bottom: 8px;
+  font-size: 0.95rem; font-weight: 800; min-width: 0;
 }
 .exlog-sets-row {
   display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch;

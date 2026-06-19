@@ -3,9 +3,10 @@
 
 import { state } from './state.js';
 import { getAllExHistByDate, clearAllExerciseData } from './store.js';
-import { MONTHS, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR } from './utils.js';
+import { MONTHS, renderCalendarGrid, openConfirmDialog, MIN_CAL_YEAR, isCloudMarker } from './utils.js';
 import { showView, setHeader } from './navigation.js';
 import { deleteCollection } from './cloud.js';
+import { findExercise } from './exercises.js';
 
 export function openExerciseLog() {
   showView('exerciseLogView');
@@ -85,8 +86,17 @@ function renderExLogDayDetail(dateStr, exercises) {
       setsHtml = `<span class="exlog-set">${stageChip(entry.w, entry.r)}</span>`;
     }
     const notesHtml = entry.n ? `<div class="exlog-notes">${entry.n}</div>` : '';
+    const found = findExercise(name);
+    const thumbSrc = found ? (found.ex.thumb || found.ex.gif || '') : '';
+    const isCloudThumb = isCloudMarker(thumbSrc);
+    const thumbHtml = thumbSrc && !isCloudThumb
+      ? `<img class="exlog-ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />`
+      : '<div class="exlog-ex-thumb exlog-ex-thumb-ph"></div>';
     html += `<div class="exlog-exercise">
-      <div class="exlog-ex-name">${name}</div>
+      <div class="exlog-ex-head">
+        ${thumbHtml}
+        <div class="exlog-ex-name">${name}</div>
+      </div>
       <div class="exlog-sets-row">${setsHtml}</div>
       ${notesHtml}
     </div>`;
