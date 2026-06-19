@@ -131,7 +131,7 @@ export function renderSession() {
     if (!isCurrent) {
       const filled = it.sets.filter(isSetCommitted);
       const summary = filled.length
-        ? filled.map(s2 => `${s2.w}×${s2.r}`).join(' · ')
+        ? filled.map(setSummaryText).join(' · ')
         : groupName;
       html += `
         <div class="session-card ${stateCls}" data-idx="${idx}">
@@ -164,6 +164,7 @@ export function renderSession() {
         </div>
         <div class="session-set-actions">
           <button class="session-add-set-btn" onclick="sessionAddSet(${idx})"><i class="bi bi-plus-lg"></i> Add Set</button>
+          <button class="session-add-set-btn session-add-drop-btn" onclick="sessionAddDropSet(${idx})"><i class="bi bi-arrow-down-short"></i> Add Drop Set</button>
         </div>
       </div>`;
   });
@@ -179,29 +180,81 @@ export function renderSession() {
 function renderSetRow(exIdx, sIdx, set, exName) {
   const filled = isSetFilled(set);
   const committed = !!set.committed;
+  const isDrop = Array.isArray(set.drops);
   const last = exName ? getLog(exName) : null;
   const lastSet = last && last.setList.length ? last.setList[Math.min(sIdx, last.setList.length - 1)] : null;
   const wPlaceholder = lastSet && lastSet.w > 0 ? `Last: ${lastSet.w}kg` : 'kg';
   const rPlaceholder = lastSet && lastSet.r > 0 ? `Last: ${lastSet.r} reps` : 'reps';
   const cls = ['session-set-row'];
+  if (isDrop) cls.push('drop');
   if (committed) cls.push('done');
   if (filled) cls.push('filled');
+
+  // Stage inputs: the top stage edits set.w/set.r; each drop stage edits set.drops[i].
+  const stageInputs = (wVal, rVal, onW, onR, wPh, rPh) => `
+      <input class="session-set-input" type="number" inputmode="decimal" placeholder="${wPh}"
+             value="${wVal || ''}" oninput="${onW}"/>
+      <span class="session-set-x">×</span>
+      <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPh}"
+             value="${rVal || ''}" oninput="${onR}"/>`;
+
+  const topRow = `
+    <div class="session-set-stage">
+      ${isDrop ? '<span class="session-set-num">1</span>' : ''}
+      ${stageInputs(set.w, set.r,
+        `sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)`,
+        `sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)`,
+        wPlaceholder, rPlaceholder)}
+    </div>`;
+
+  const dropRows = isDrop ? set.drops.map((d, dIdx) => `
+    <div class="session-set-stage session-drop-stage">
+      <span class="session-set-num">${dIdx + 2}</span>
+      ${stageInputs(d.w, d.r,
+        `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'w', this.value)`,
+        `sessionUpdateDrop(${exIdx}, ${sIdx}, ${dIdx}, 'r', this.value)`,
+        'kg', 'reps')}
+      <button class="session-set-del" onclick="sessionDeleteDrop(${exIdx}, ${sIdx}, ${dIdx})" title="Remove stage"><i class="bi bi-x"></i></button>
+    </div>`).join('') : '';
+
+  const addStageBtn = isDrop
+    ? `<button class="session-add-stage-btn" onclick="sessionAddDropStage(${exIdx}, ${sIdx})"><i class="bi bi-plus-lg"></i> drop stage</button>`
+    : '';
+
   return `
     <div class="${cls.join(' ')}" data-set-row="${exIdx}_${sIdx}">
-      <input class="session-set-input" type="number" inputmode="decimal" placeholder="${wPlaceholder}"
-             value="${set.w || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'w', this.value)"/>
-      <span class="session-set-x">×</span>
-      <input class="session-set-input" type="number" inputmode="numeric" placeholder="${rPlaceholder}"
-             value="${set.r || ''}" oninput="sessionUpdateSet(${exIdx}, ${sIdx}, 'r', this.value)"/>
-      <button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>
-      <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
+      <div class="session-set-stages">
+        ${topRow}
+        ${dropRows}
+        ${addStageBtn}
+      </div>
+      <div class="session-set-controls">
+        <button class="session-set-save" onclick="sessionSaveSet(${exIdx}, ${sIdx})" title="Save set"><i class="bi bi-floppy"></i></button>
+        <button class="session-set-del" onclick="sessionDeleteSet(${exIdx}, ${sIdx})" title="Remove"><i class="bi bi-x"></i></button>
+      </div>
     </div>`;
 }
 
-function isSetFilled(set) {
-  const w = String(set.w ?? '').trim();
-  const r = String(set.r ?? '').trim();
+/** Compact one-line summary of a (possibly drop) set, e.g. "100×4 → 80×4". */
+function setSummaryText(set) {
+  const head = `${set.w}×${set.r}`;
+  if (Array.isArray(set.drops) && set.drops.length) {
+    return head + ' → ' + set.drops.filter(isStageFilled).map(d => `${d.w}×${d.r}`).join(' → ');
+  }
+  return head;
+}
+
+function isStageFilled(stage) {
+  const w = String(stage.w ?? '').trim();
+  const r = String(stage.r ?? '').trim();
   return w !== '' && r !== '' && parseFloat(w) >= 0 && parseInt(r) > 0;
+}
+
+function isSetFilled(set) {
+  if (!isStageFilled(set)) return false;
+  // A drop set requires every stage to be filled before it counts.
+  if (Array.isArray(set.drops)) return set.drops.every(isStageFilled);
+  return true;
 }
 
 function isSetCommitted(set) {
@@ -231,6 +284,64 @@ export function sessionAddSet(exIdx) {
   const row = document.querySelector(`[data-set-row="${exIdx}_${newSIdx}"]`);
   const input = row && row.querySelector('.session-set-input');
   if (input) input.focus();
+}
+
+export function sessionAddDropSet(exIdx) {
+  const s = loadSession();
+  if (!s) return;
+  const ex = s.items[exIdx];
+  if (!ex || ex.kind !== 'ex') return;
+  // A drop set starts with its top stage (w/r) plus one empty drop stage.
+  ex.sets.push({ w: '', r: '', drops: [{ w: '', r: '' }] });
+  const newSIdx = ex.sets.length - 1;
+  saveSession(s);
+  renderSession();
+  const row = document.querySelector(`[data-set-row="${exIdx}_${newSIdx}"]`);
+  const input = row && row.querySelector('.session-set-input');
+  if (input) input.focus();
+}
+
+export function sessionAddDropStage(exIdx, sIdx) {
+  const s = loadSession();
+  if (!s) return;
+  const set = s.items[exIdx]?.sets?.[sIdx];
+  if (!set || !Array.isArray(set.drops)) return;
+  set.drops.push({ w: '', r: '' });
+  if (set.committed) set.committed = false;
+  saveSession(s);
+  renderSession();
+  const row = document.querySelector(`[data-set-row="${exIdx}_${sIdx}"]`);
+  const stages = row && row.querySelectorAll('.session-drop-stage .session-set-input');
+  if (stages && stages.length) stages[stages.length - 2].focus();
+}
+
+export function sessionUpdateDrop(exIdx, sIdx, dIdx, field, value) {
+  const s = loadSession();
+  if (!s) return;
+  const set = s.items[exIdx]?.sets?.[sIdx];
+  const stage = set?.drops?.[dIdx];
+  if (!stage) return;
+  stage[field] = value;
+  if (set.committed) set.committed = false;
+  saveSession(s);
+  const row = document.querySelector(`[data-set-row="${exIdx}_${sIdx}"]`);
+  if (row) {
+    row.classList.toggle('filled', isSetFilled(set));
+    row.classList.remove('done');
+  }
+}
+
+export function sessionDeleteDrop(exIdx, sIdx, dIdx) {
+  const s = loadSession();
+  if (!s) return;
+  const set = s.items[exIdx]?.sets?.[sIdx];
+  if (!set || !Array.isArray(set.drops)) return;
+  set.drops.splice(dIdx, 1);
+  // Removing the last drop stage collapses it back into a plain set.
+  if (set.drops.length === 0) delete set.drops;
+  if (set.committed) set.committed = false;
+  saveSession(s);
+  renderSession();
 }
 
 export function sessionDeleteSet(exIdx, sIdx) {
@@ -470,7 +581,14 @@ function commitSession(s) {
     const doneSets = it.sets.filter(isSetCommitted);
     if (!doneSets.length) return;
 
-    const sets = doneSets.map(x => ({ w: String(x.w), r: String(x.r) }));
+    const sets = doneSets.map(x => {
+      const out = { w: String(x.w), r: String(x.r) };
+      // Persist drop-set stages (top stage stays in w/r; lighter stages in drops).
+      if (Array.isArray(x.drops) && x.drops.length) {
+        out.drops = x.drops.filter(isStageFilled).map(d => ({ w: String(d.w), r: String(d.r) }));
+      }
+      return out;
+    });
     const hist = getExHist(it.name);
     hist[dateStr] = { sets };
     saveExHist(it.name, hist);

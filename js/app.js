@@ -21,7 +21,7 @@ import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openTimelapse, closeTimelapse, generateTimelapse } from './timelapse.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
-import { sessionFocus, sessionAddSet, sessionDeleteSet, sessionUpdateSet, sessionSaveSet, sessionRestAdjust, sessionRestSkip, sessionRestTogglePause, sessionFinish, sessionHandleBack } from './session.js';
+import { sessionFocus, sessionAddSet, sessionAddDropSet, sessionAddDropStage, sessionUpdateDrop, sessionDeleteDrop, sessionDeleteSet, sessionUpdateSet, sessionSaveSet, sessionRestAdjust, sessionRestSkip, sessionRestTogglePause, sessionFinish, sessionHandleBack } from './session.js';
 import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -223,6 +223,10 @@ window.saveTitle = saveTitle;
 // Active Session
 window.sessionFocus = sessionFocus;
 window.sessionAddSet = sessionAddSet;
+window.sessionAddDropSet = sessionAddDropSet;
+window.sessionAddDropStage = sessionAddDropStage;
+window.sessionUpdateDrop = sessionUpdateDrop;
+window.sessionDeleteDrop = sessionDeleteDrop;
 window.sessionDeleteSet = sessionDeleteSet;
 window.sessionUpdateSet = sessionUpdateSet;
 window.sessionSaveSet = sessionSaveSet;

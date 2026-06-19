@@ -110,6 +110,39 @@
   background: rgba(0,229,255,0.06);
   border-color: rgba(0,229,255,0.25);
 }
+/* Drop set: stages stack vertically, controls sit alongside. */
+.session-set-row.drop {
+  align-items: stretch;
+}
+.session-set-stages {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.session-set-stage {
+  display: flex; align-items: center; gap: 8px;
+}
+.session-set-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+.session-set-row.drop .session-set-controls {
+  flex-direction: column; justify-content: center;
+}
+.session-drop-stage .session-set-input { font-size: 0.88rem; }
+.session-add-stage-btn {
+  align-self: flex-start;
+  background: rgba(0,229,255,0.06);
+  border: 1px dashed rgba(0,229,255,0.3); color: var(--accent);
+  padding: 5px 10px; border-radius: 9px;
+  font-size: 0.75rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 2px;
+}
+.session-add-stage-btn:active { background: rgba(0,229,255,0.16); }
+.session-add-drop-btn {
+  background: rgba(168,130,255,0.08);
+  border-color: rgba(168,130,255,0.3); color: #b89bff;
+}
+.session-add-drop-btn:active { background: rgba(168,130,255,0.18); }
 .session-set-num {
   font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);
   width: 18px; text-align: center;
@@ -178,7 +211,7 @@
 }
 
 .session-set-actions {
-  display: flex; padding: 10px 12px 14px;
+  display: flex; gap: 8px; padding: 10px 12px 14px;
 }
 .session-add-set-btn {
   flex: 1; background: rgba(0,229,255,0.08);

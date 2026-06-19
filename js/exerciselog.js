@@ -67,9 +67,14 @@ function renderExLogDayDetail(dateStr, exercises) {
   exercises.forEach(({ name, entry }) => {
     let setsHtml = '';
     if (entry.sets && entry.sets.length) {
-      setsHtml = entry.sets.map(s =>
-        `<span class="exlog-set">${parseFloat(s.w) || 0}kg &times; ${parseInt(s.r) || 0}</span>`
-      ).join('');
+      setsHtml = entry.sets.map(s => {
+        let txt = `${parseFloat(s.w) || 0}kg &times; ${parseInt(s.r) || 0}`;
+        if (Array.isArray(s.drops) && s.drops.length) {
+          txt += s.drops.map(d => ` &rarr; ${parseFloat(d.w) || 0}&times;${parseInt(d.r) || 0}`).join('');
+        }
+        const dropCls = Array.isArray(s.drops) && s.drops.length ? ' exlog-set-drop' : '';
+        return `<span class="exlog-set${dropCls}">${txt}</span>`;
+      }).join('');
     } else if (entry.w) {
       setsHtml = `<span class="exlog-set">${parseFloat(entry.w) || 0}kg &times; ${parseInt(entry.r) || 0}</span>`;
     }
