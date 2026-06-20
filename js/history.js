@@ -184,30 +184,52 @@ function cloneSets(sets) {
 
 export function renderExHistSets() {
   const container = document.getElementById('exHistSetsContainer');
+  // A compact stage row (number + small weight/reps inputs + delete). Used for
+  // every stage of a drop set so they're uniform — including the top stage "1".
+  const stageRow = (num, w, r, onW, onR, onDel, delTitle) => `
+      <div class="exhist-drop-stage">
+        <span class="exhist-drop-num">${num}</span>
+        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="decimal" value="${w || ''}" oninput="${onW}"/><span>kg</span></div>
+        <span class="exhist-drop-x">×</span>
+        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="numeric" value="${r || ''}" oninput="${onR}"/><span>reps</span></div>
+        <button class="exhist-stage-del" onclick="${onDel}" title="${delTitle}"><i class="bi bi-x"></i></button>
+      </div>`;
+
   const setsHtml = _exHistSets.map((s, i) => {
     const isDrop = Array.isArray(s.drops);
-    const dropStages = isDrop ? s.drops.map((d, di) => `
-      <div class="exhist-drop-stage">
-        <span class="exhist-drop-num">${di + 2}</span>
-        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="decimal" value="${d.w || ''}" oninput="exHistUpdateDrop(${i}, ${di}, 'w', this.value)"/><span>kg</span></div>
-        <span class="exhist-drop-x">×</span>
-        <div class="log-input-wrap exhist-drop-input"><input type="number" placeholder="0" inputmode="numeric" value="${d.r || ''}" oninput="exHistUpdateDrop(${i}, ${di}, 'r', this.value)"/><span>reps</span></div>
-        <button class="exhist-stage-del" onclick="exHistRemoveDrop(${i}, ${di})" title="Remove stage"><i class="bi bi-x"></i></button>
-      </div>`).join('') : '';
     const addStageBtn = isDrop
       ? `<button class="exhist-add-stage" onclick="exHistAddDropStage(${i})"><i class="bi bi-plus-lg"></i> drop stage</button>`
       : '';
+
+    // Drop set: all stages share the compact layout; top stage is numbered "1"
+    // and its X removes the whole set, matching the session editor.
+    if (isDrop) {
+      const topStage = stageRow(1, s.w, s.r,
+        `exHistUpdateSet(${i}, 'w', this.value)`, `exHistUpdateSet(${i}, 'r', this.value)`,
+        `exHistRemoveSet(${i})`, 'Remove set');
+      const dropStages = s.drops.map((d, di) => stageRow(di + 2, d.w, d.r,
+        `exHistUpdateDrop(${i}, ${di}, 'w', this.value)`, `exHistUpdateDrop(${i}, ${di}, 'r', this.value)`,
+        `exHistRemoveDrop(${i}, ${di})`, 'Remove stage')).join('');
+      return `<div class="exhist-set">
+        <div class="exhist-set-head">
+          <span class="exhist-set-num">Set ${i + 1} · <span class="exhist-drop-tag">drop</span></span>
+        </div>
+        ${topStage}
+        ${dropStages}
+        ${addStageBtn}
+      </div>`;
+    }
+
+    // Normal set: unchanged big two-column layout.
     return `<div class="exhist-set">
       <div class="exhist-set-head">
-        <span class="exhist-set-num">Set ${i + 1}${isDrop ? ' · <span class="exhist-drop-tag">drop</span>' : ''}</span>
+        <span class="exhist-set-num">Set ${i + 1}</span>
         <button class="exhist-set-del" onclick="exHistRemoveSet(${i})" title="Remove set"><i class="bi bi-trash3"></i></button>
       </div>
       <div class="log-row">
         <div class="log-field"><label>Weight</label><div class="log-input-wrap"><input type="number" placeholder="0" inputmode="decimal" value="${s.w || ''}" oninput="exHistUpdateSet(${i}, 'w', this.value)"/><span>kg</span></div></div>
         <div class="log-field"><label>Reps</label><div class="log-input-wrap"><input type="number" placeholder="0" inputmode="numeric" value="${s.r || ''}" oninput="exHistUpdateSet(${i}, 'r', this.value)"/><span>reps</span></div></div>
       </div>
-      ${dropStages}
-      ${addStageBtn}
     </div>`;
   }).join('');
   container.innerHTML = setsHtml + `
@@ -261,7 +283,8 @@ export function openExHistEntry(dateStr) {
   } else if (entry && entry.w) {
     _exHistSets = [{ w: entry.w, r: entry.r }];
   } else {
-    _exHistSets = [{ w: '', r: '' }, { w: '', r: '' }, { w: '', r: '' }];
+    // New day: start empty so the user adds sets via the Add buttons.
+    _exHistSets = [];
   }
   document.getElementById('exHistNotes').value = entry ? (entry.n || '') : '';
   renderExHistSets();
