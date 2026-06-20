@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v134';
+const CACHE = 'trainer-v135';
 
 const CORE = [
   './',
@@ -342,10 +342,13 @@ self.addEventListener('activate', e => {
 });
 
 // Cache-first for static assets (images, fonts) — they never change without
-// a deploy, so serving from cache eliminates the network round-trip that
-// was causing thumbnails to paint a few seconds late.
-// Network-first for everything else so code/data stays fresh.
+// a deploy, so serving from cache eliminates the network round-trip.
 const ASSET_RE = /\.(?:gif|png|jpe?g|webp|svg|woff2?|ttf|otf)$/i;
+
+// Stale-while-revalidate for app shell (html/js/css) — serve the cached copy
+// instantly so the app launches with no network wait, then fetch a fresh copy
+// in the background so the next launch picks up any deploy.
+const SHELL_RE = /\.(?:html|js|css)$/i;
 
 // Hosts whose responses must never be cached (auth tokens, Firestore, Worker proxy).
 // Their responses are user-specific and short-lived; caching them risks serving
@@ -369,6 +372,27 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  // App shell (html/js/css) + navigations: stale-while-revalidate. Return the
+  // cached copy immediately for an instant launch; refresh the cache in the
+  // background. Falls back to the network on a cold cache.
+  const isShell = e.request.mode === 'navigate' || SHELL_RE.test(url.pathname);
+  if (isShell) {
+    e.respondWith(
+      caches.match(e.request).then(hit => {
+        const fetchAndUpdate = fetch(e.request).then(res => {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+          return res;
+        });
+        // Cached → instant; kick off the refresh but don't wait on it.
+        if (hit) { fetchAndUpdate.catch(() => {}); return hit; }
+        return fetchAndUpdate;
+      })
+    );
+    return;
+  }
+
+  // Everything else: network-first, fall back to cache offline.
   e.respondWith(
     fetch(e.request)
       .then(res => {
