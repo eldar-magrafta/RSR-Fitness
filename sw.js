@@ -1,4 +1,4 @@
-const CACHE = 'trainer-v135';
+const CACHE = 'trainer-v136';
 
 const CORE = [
   './',
@@ -189,6 +189,9 @@ const ASSETS = [
   './assets/foods/saved-meals/pizza-slice.jpg',
   './assets/foods/saved-meals/burger.jpg',
   './assets/foods/proteins/salmon.jpg',
+  './assets/foods/proteins/hamachi-salmon.jpg',
+  './assets/foods/proteins/hamachi-tuna.jpg',
+  './assets/foods/proteins/hamachi-sashimi.jpg',
   './assets/foods/proteins/sardines.jpg',
   './assets/foods/proteins/tilapia.jpg',
   './assets/foods/proteins/tuna.jpg',

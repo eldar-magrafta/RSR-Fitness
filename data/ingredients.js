@@ -39,6 +39,9 @@ const PROTEINS = [
   {name:'Tempeh',cat:'protein',p:19,c:9,f:11,cal:192,img:'tempeh.jpg'},
   {name:'Soybeans (cooked)',cat:'protein',p:17,c:8.4,f:9,cal:173,img:'soybeans.jpg'},
   {name:'Edamame (cooked)',cat:'protein',p:11,c:9,f:5,cal:121,img:'edamame.jpg'},
+  {name:'Salmon Sashimi (raw)',cat:'protein',p:20,c:0,f:13,cal:208,img:'hamachi-salmon.jpg'},
+  {name:'Tuna Sashimi (raw)',cat:'protein',p:24,c:0,f:1,cal:109,img:'hamachi-tuna.jpg'},
+  {name:'Hamachi Sashimi (raw)',cat:'protein',p:23,c:0,f:5,cal:146,img:'hamachi-sashimi.jpg'},
 ];
 
 const DAIRY_DIR = 'assets/foods/dairy/';
