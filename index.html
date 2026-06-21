@@ -817,10 +817,10 @@
             </div>
             <div class="macro-dist-info">
                 <div class="macro-dist-item">
-                    <span class="macro-dot bg-protein"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct"><input type="number" id="macroPctP" class="macro-pct-input" inputmode="numeric" value="30" oninput="onMacroPctInput('p', this.value)"/>%</span><span class="macro-dist-g" id="macroGramsP">150g</span>
+                    <span class="macro-dot bg-protein"></span><span class="macro-dist-name">Protein</span><span class="macro-dist-pct"><input type="text" id="macroPctP" class="macro-pct-input" inputmode="numeric" maxlength="2" value="30" oninput="onMacroPctInput('p', this.value)" onblur="onMacroPctBlur('p')"/>%</span><span class="macro-dist-g" id="macroGramsP">150g</span>
                 </div>
                 <div class="macro-dist-item">
-                    <span class="macro-dot bg-carbs"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct"><input type="number" id="macroPctC" class="macro-pct-input" inputmode="numeric" value="40" oninput="onMacroPctInput('c', this.value)"/>%</span><span class="macro-dist-g" id="macroGramsC">200g</span>
+                    <span class="macro-dot bg-carbs"></span><span class="macro-dist-name">Carbs</span><span class="macro-dist-pct"><input type="text" id="macroPctC" class="macro-pct-input" inputmode="numeric" maxlength="2" value="40" oninput="onMacroPctInput('c', this.value)" onblur="onMacroPctBlur('c')"/>%</span><span class="macro-dist-g" id="macroGramsC">200g</span>
                 </div>
                 <div class="macro-dist-item">
                     <span class="macro-dot bg-fat"></span><span class="macro-dist-name">Fat</span><span class="macro-dist-pct"><span id="macroPctF">30</span>%</span><span class="macro-dist-g" id="macroGramsF">67g</span>

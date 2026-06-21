@@ -1032,20 +1032,49 @@ function _updateMacroSliderUI(skip) {
   document.getElementById('macroGramsF').textContent = fG + 'g';
 }
 
-/** Typed percentage edit for protein/carbs. The other two adjust to keep the
- * sum at 100% with each macro held to a sane 5–90% range; fat takes the rest. */
+const MACRO_PCT_MIN = 5;
+const MACRO_PCT_MAX = 90;
+
+/** Typed percentage edit for protein/carbs. Sanitizes the field to a clean
+ * 1–2 digit number (digits only, no leading zeros, ≤90), then keeps the split
+ * at 100% with fat taking the remainder. The 5% minimum is enforced on blur so
+ * the user can transiently type a single low digit (e.g. "1" on the way to 15).
+ */
 export function onMacroPctInput(which, raw) {
-  let v = parseInt(raw);
-  if (isNaN(v)) return; // mid-edit (empty field) — wait for a number
-  v = Math.max(0, Math.min(90, v));
+  const input = document.getElementById(which === 'p' ? 'macroPctP' : 'macroPctC');
+  // Strip anything non-digit, drop leading zeros, cap to two digits.
+  let clean = String(raw).replace(/\D/g, '').replace(/^0+/, '').slice(0, 2);
+  // Clamp the typed value to the max as soon as it would exceed it.
+  if (clean !== '' && parseInt(clean) > MACRO_PCT_MAX) clean = String(MACRO_PCT_MAX);
+  // Reflect the sanitized text back into the field (removes rejected chars).
+  if (input && input.value !== clean) input.value = clean;
+
+  if (clean === '') return; // empty mid-edit — wait for a digit, finalize on blur
+  let v = parseInt(clean);
+
   if (which === 'p') {
     _pPct = v;
-    if (_pPct + _cPct > 95) _cPct = 95 - _pPct; // keep ≥5% for fat
+    if (_pPct + _cPct > 100 - MACRO_PCT_MIN) _cPct = (100 - MACRO_PCT_MIN) - _pPct;
   } else {
     _cPct = v;
-    if (_pPct + _cPct > 95) _pPct = 95 - _cPct;
+    if (_pPct + _cPct > 100 - MACRO_PCT_MIN) _pPct = (100 - MACRO_PCT_MIN) - _cPct;
   }
   _updateMacroSliderUI(which);
+}
+
+/** On blur, snap an out-of-range or empty field up to the 5% minimum so we
+ * never persist an invalid split. */
+export function onMacroPctBlur(which) {
+  const cur = which === 'p' ? _pPct : _cPct;
+  if (cur >= MACRO_PCT_MIN) { _updateMacroSliderUI(); return; }
+  if (which === 'p') {
+    _pPct = MACRO_PCT_MIN;
+    if (_pPct + _cPct > 100 - MACRO_PCT_MIN) _cPct = (100 - MACRO_PCT_MIN) - _pPct;
+  } else {
+    _cPct = MACRO_PCT_MIN;
+    if (_pPct + _cPct > 100 - MACRO_PCT_MIN) _pPct = (100 - MACRO_PCT_MIN) - _cPct;
+  }
+  _updateMacroSliderUI();
 }
 
 function _initMacroSliderDrag() {
