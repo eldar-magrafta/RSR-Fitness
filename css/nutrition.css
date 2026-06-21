@@ -207,7 +207,7 @@
 }
 .nl-add-ing-btn:active { background:rgba(0,229,255,0.15); box-shadow:0 0 12px rgba(0,229,255,0.1); }
 .nl-eat-today-btn {
-  width:100%; background:linear-gradient(135deg, var(--green), #00c9a7);
+  width:100%; background:linear-gradient(135deg, var(--green), var(--green2));
   border:none; color:#fff; padding:15px; border-radius:14px;
   font-size:1rem; font-weight:700; font-family:inherit; cursor:pointer;
   margin-bottom:12px; margin-top:4px;

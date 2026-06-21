@@ -104,7 +104,7 @@
 }
 .exhist-drop-tag {
   font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.7px; color: #b89bff;
+  letter-spacing: 0.7px; color: var(--dropset);
 }
 .exhist-set-del {
   background: none; border: none; cursor: pointer;
@@ -115,7 +115,7 @@
   display: flex; align-items: center; gap: 6px; margin-top: 8px;
 }
 .exhist-drop-num {
-  font-size: 0.72rem; font-weight: 700; color: #b89bff;
+  font-size: 0.72rem; font-weight: 700; color: var(--dropset);
   width: 14px; flex-shrink: 0; text-align: center;
 }
 .exhist-drop-input { flex: 1; min-width: 0; padding: 8px 10px; }
@@ -129,13 +129,13 @@
 }
 .exhist-stage-del:active { color: var(--carbs); border-color: var(--carbs); }
 .exhist-add-stage {
-  margin-top: 8px; background: rgba(168,130,255,0.08);
-  border: 1px dashed rgba(168,130,255,0.3); color: #b89bff;
+  margin-top: 8px; background: rgba(var(--dropset-rgb),0.08);
+  border: 1px dashed rgba(var(--dropset-rgb),0.3); color: var(--dropset);
   padding: 5px 10px; border-radius: 9px;
   font-size: 0.75rem; font-weight: 700; font-family: inherit;
   cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
 }
-.exhist-add-stage:active { background: rgba(168,130,255,0.18); }
+.exhist-add-stage:active { background: rgba(var(--dropset-rgb),0.18); }
 .exhist-add-row { display: flex; gap: 8px; margin-bottom: 14px; }
 .exhist-add-btn {
   flex: 1; background: rgba(0,229,255,0.08);
@@ -146,14 +146,14 @@
 }
 .exhist-add-btn:active { background: rgba(0,229,255,0.18); }
 .exhist-add-drop {
-  background: rgba(168,130,255,0.08);
-  border-color: rgba(168,130,255,0.3); color: #b89bff;
+  background: rgba(var(--dropset-rgb),0.08);
+  border-color: rgba(var(--dropset-rgb),0.3); color: var(--dropset);
 }
-.exhist-add-drop:active { background: rgba(168,130,255,0.18); }
+.exhist-add-drop:active { background: rgba(var(--dropset-rgb),0.18); }
 
 /* ── Buttons ── */
 .save-btn {
-  width: 100%; background: linear-gradient(135deg, var(--green), #00c9a7);
+  width: 100%; background: linear-gradient(135deg, var(--green), var(--green2));
   color: #fff; border: none; border-radius: 14px; padding: 15px;
   font-size: 1rem; font-weight: 700; cursor: pointer; margin-bottom: 12px;
   box-shadow: 0 4px 16px rgba(0,232,123,0.2);
@@ -378,7 +378,7 @@
 .confirm-title { font-size: 1.1rem; font-weight: 800; text-align: center; margin-bottom: 8px; }
 .confirm-msg { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 28px; line-height: 1.5; }
 .confirm-btn-del {
-  width: 100%; background: linear-gradient(135deg, var(--carbs), #e02060);
+  width: 100%; background: linear-gradient(135deg, var(--carbs), var(--danger2));
   border: none; color: #fff; padding: 16px; border-radius: 16px;
   font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; margin-bottom: 10px;
   box-shadow: 0 4px 16px rgba(255,61,113,0.2);

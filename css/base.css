@@ -20,6 +20,15 @@ input, textarea, [contenteditable] { -webkit-user-select: text; user-select: tex
   --protein: #69D158;
   --carbs: #ff3d71;
   --fat: #ffc107;
+  /* Drop-set accent — a fixed lavender used wherever drop sets appear
+     (session editor, history editor, exercise log). Kept theme-independent
+     so a drop set reads the same across all themes. */
+  --dropset: #b89bff;
+  --dropset-rgb: 168,130,255;
+  /* Second stops for the save (green) and delete (danger) CTA gradients,
+     paired with --green / --carbs respectively. */
+  --green2: #00c9a7;
+  --danger2: #e02060;
   --chart-label: rgba(238,240,255,0.3);
   --chart-grid: rgba(0,229,255,0.06);
   --safe-top: env(safe-area-inset-top);
@@ -595,7 +604,7 @@ body {
 .color-carbs { color: var(--carbs); }
 .color-fat { color: var(--fat); }
 .color-accent { color: var(--accent); }
-.color-red { color: #e94560; }
+.color-red { color: var(--carbs); }
 .color-green { color: var(--green); }
 .color-muted { color: var(--muted); }
 .bg-protein { background: var(--protein); }

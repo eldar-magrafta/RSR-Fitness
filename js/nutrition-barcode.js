@@ -306,7 +306,7 @@ export async function nlSaveBarcodeAsCustom() {
   saveCustomIngs(customs);
   state._barcodePhotoBase64 = null;
   nlCloseBarcodeResult();
-  showToast(`Added "${name}" to Foods List`, { background: 'linear-gradient(135deg, var(--green), #00c9a7)' });
+  showToast(`Added "${name}" to Foods List`, { background: 'linear-gradient(135deg, var(--green), var(--green2))' });
   renderNLPicker();
 }
 
