@@ -1009,7 +1009,9 @@ let _pPct = 30, _cPct = 40; // fatPct = 100 - _pPct - _cPct
 let _dragHandle = null;
 let _sliderInited = false;
 
-function _updateMacroSliderUI() {
+// `skip` ('p' | 'c') leaves that percentage <input> alone so we don't clobber
+// the field the user is actively typing in. Fat is always derived (100−P−C).
+function _updateMacroSliderUI(skip) {
   const fPct = 100 - _pPct - _cPct;
   document.getElementById('macroSegP').style.flexBasis = _pPct + '%';
   document.getElementById('macroSegC').style.flexBasis = _cPct + '%';
@@ -1022,12 +1024,28 @@ function _updateMacroSliderUI() {
   const cG = cal > 0 ? Math.round((cal * _cPct / 100) / 4) : 0;
   const fG = cal > 0 ? Math.round((cal * fPct / 100) / 9) : 0;
 
-  document.getElementById('macroPctP').textContent = _pPct + '%';
-  document.getElementById('macroPctC').textContent = _cPct + '%';
-  document.getElementById('macroPctF').textContent = fPct + '%';
+  if (skip !== 'p') document.getElementById('macroPctP').value = _pPct;
+  if (skip !== 'c') document.getElementById('macroPctC').value = _cPct;
+  document.getElementById('macroPctF').textContent = fPct;
   document.getElementById('macroGramsP').textContent = pG + 'g';
   document.getElementById('macroGramsC').textContent = cG + 'g';
   document.getElementById('macroGramsF').textContent = fG + 'g';
+}
+
+/** Typed percentage edit for protein/carbs. The other two adjust to keep the
+ * sum at 100% with each macro held to a sane 5–90% range; fat takes the rest. */
+export function onMacroPctInput(which, raw) {
+  let v = parseInt(raw);
+  if (isNaN(v)) return; // mid-edit (empty field) — wait for a number
+  v = Math.max(0, Math.min(90, v));
+  if (which === 'p') {
+    _pPct = v;
+    if (_pPct + _cPct > 95) _cPct = 95 - _pPct; // keep ≥5% for fat
+  } else {
+    _cPct = v;
+    if (_pPct + _cPct > 95) _pPct = 95 - _cPct;
+  }
+  _updateMacroSliderUI(which);
 }
 
 function _initMacroSliderDrag() {
