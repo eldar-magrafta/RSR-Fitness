@@ -151,26 +151,16 @@ export function renderNLMeals() {
 
   // Diary view (sorted by date) groups meals under their meal-time slot.
   if (state.nlViewMode === 'today' && state.nlSortBy === 'date') {
-    const viewDate = state.nlSelectedDate || today;
-    const dayGoals = getGoalsForDate(viewDate);
-    const slotTargets = (dayGoals && dayGoals.slots) || {};
     list.innerHTML = MEAL_SLOTS.map(slot => {
       const slotMeals = meals.filter(m => (m.slot || 'snack') === slot);
       if (slotMeals.length === 0) return '';
       let sp = 0, sc = 0, sf = 0, scal = 0;
       slotMeals.forEach(m => { const t = nlCalcTotals(m); sp += t.p; sc += t.c; sf += t.f; scal += t.cal; });
       const cards = slotMeals.map(_mealCardHtml).join('');
-      // If a per-slot calorie target exists, show "logged / target" and tint
-      // the number once the target is exceeded.
-      const target = slotTargets[slot];
-      const over = target && Math.round(scal) > target;
-      const calText = target
-        ? `${Math.round(scal)} / ${target} cal`
-        : `${Math.round(scal)} cal`;
       return `<div class="nl-slot-group">
         <div class="nl-slot-header">
           <span class="nl-slot-title">${MEAL_SLOT_ICONS[slot]} ${MEAL_SLOT_LABELS[slot]}</span>
-          <span class="nl-slot-sub"><span class="nl-slot-cal${over ? ' nl-slot-cal-over' : ''}">${calText}</span> · P ${Math.round(sp)}g · C ${Math.round(sc)}g · F ${Math.round(sf)}g</span>
+          <span class="nl-slot-sub"><span class="nl-slot-cal">${Math.round(scal)} cal</span> · P ${Math.round(sp)}g · C ${Math.round(sc)}g · F ${Math.round(sf)}g</span>
         </div>
         ${cards}
       </div>`;
@@ -1125,13 +1115,6 @@ export function openMacroGoalsModal() {
     document.getElementById('goalCalInput').value = DEFAULT_MACRO_GOALS.calories;
     _pPct = 40; _cPct = 30;
   }
-  // Per-slot calorie targets (optional).
-  const slots = (goals && goals.slots) || {};
-  MEAL_SLOTS.forEach(s => {
-    const el = document.getElementById('slotTarget_' + s);
-    if (el) el.value = slots[s] || '';
-  });
-
   _updateMacroSliderUI();
   _initMacroSliderDrag();
   // Show clear button only if a real goal exists (not null/default)
@@ -1177,14 +1160,6 @@ export function saveMacroGoalsFromModal() {
   const carbs = Math.round((cal * normalizedC / 100) / 4);
   const fat = Math.round((cal * normalizedF / 100) / 9);
   const goals = { calories: cal, protein, carbs, fat };
-
-  // Optional per-meal-slot calorie targets. Only persisted if at least one is set.
-  const slots = {};
-  MEAL_SLOTS.forEach(s => {
-    const v = parseInt(document.getElementById('slotTarget_' + s).value);
-    if (!isNaN(v) && v > 0) slots[s] = v;
-  });
-  if (Object.keys(slots).length) goals.slots = slots;
 
   const viewDate = state.nlSelectedDate || todayStr();
   setGoalForDate(viewDate, goals);
