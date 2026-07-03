@@ -151,7 +151,7 @@ export function renderSession() {
     // current — expanded
     html += `
       <div class="session-card current" data-idx="${idx}">
-        <div class="session-card-head">
+        <div class="session-card-head" onclick="sessionFocus(${idx})">
           <span class="session-status-dot"></span>
           ${thumbHtml}
           <div class="session-card-info">
@@ -273,8 +273,13 @@ function isSetCommitted(set) {
 export function sessionFocus(idx) {
   const s = loadSession();
   if (!s || s.items[idx]?.kind !== 'ex') return;
-  s.currentIdx = idx;
-  if (s.items[idx].sets.length === 0) s.items[idx].sets.push({ w: '', r: '' });
+  // Tapping the already-expanded card collapses it.
+  if (s.currentIdx === idx) {
+    s.currentIdx = -1;
+  } else {
+    s.currentIdx = idx;
+    if (s.items[idx].sets.length === 0) s.items[idx].sets.push({ w: '', r: '' });
+  }
   saveSession(s);
   renderSession();
 }
