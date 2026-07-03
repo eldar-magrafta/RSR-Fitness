@@ -127,6 +127,22 @@ export function saveNotesData(name, text) {
   _debouncedCloudSave('notes', encodeURIComponent(name), t);
 }
 
+// ── Exercise Note Photo (one compressed image per exercise, e.g. a machine) ──
+export function getNotePhoto(name) {
+  try { return localStorage.getItem('trainer_notephoto_' + name) || ''; } catch { return ''; }
+}
+export function saveNotePhoto(name, dataUrl) {
+  // Stored as a base64 data URL, synced like notes (its own Firestore doc).
+  if (!safeSetItem('trainer_notephoto_' + name, dataUrl)) return false;
+  _debouncedCloudSave('notephotos', encodeURIComponent(name), dataUrl);
+  return true;
+}
+export function deleteNotePhoto(name) {
+  localStorage.removeItem('trainer_notephoto_' + name);
+  // Empty value marks the doc deleted so other devices clear it on next load.
+  _debouncedCloudSave('notephotos', encodeURIComponent(name), '');
+}
+
 // ── Body Weight ──
 export function getBWData() {
   try { return JSON.parse(localStorage.getItem('trainer_bw') || '{}'); } catch { return {}; }

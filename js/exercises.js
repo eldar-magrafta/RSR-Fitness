@@ -3,7 +3,7 @@
 
 import { exerciseData, findExercise as findBuiltIn } from '../data/exercises.js';
 import { state } from './state.js';
-import { getLog, getNotes, saveNotesData, deleteLastLog, getCustomExercises, saveCustomExercises } from './store.js';
+import { getLog, getNotes, saveNotesData, getNotePhoto, saveNotePhoto, deleteNotePhoto, deleteLastLog, getCustomExercises, saveCustomExercises } from './store.js';
 import { showView, setHeader } from './navigation.js';
 import { getPR, renderPRBadge, recalcPR } from './prs.js';
 import { debounce, openConfirmDialog, escHtml, isCloudMarker } from './utils.js';
@@ -275,6 +275,8 @@ export function openModal(ex, muscleName, fromPlan = false) {
     const notesCount = document.getElementById('modalNotesCount');
     notesEl.value = getNotes(ex.name);
     notesCount.textContent = `${notesEl.value.length} / 250`;
+
+    _renderNotePhoto(getNotePhoto(ex.name));
   }
 
   document.getElementById('ytBtn').onclick = () => {
@@ -296,6 +298,77 @@ export function autoSaveExNotes() {
   if (!state.currentExerciseName) return;
   saveNotesData(state.currentExerciseName, document.getElementById('modalNotes').value);
   document.getElementById('modalNotesCount').textContent = `${document.getElementById('modalNotes').value.length} / 250`;
+}
+
+// ── Exercise Note Photo (e.g. a picture of the machine) ──
+
+/** Show either the "add image" button or the thumbnail, based on whether a photo exists */
+function _renderNotePhoto(dataUrl) {
+  const wrap = document.getElementById('notePhotoWrap');
+  const addBtn = document.getElementById('notePhotoAddBtn');
+  const img = document.getElementById('notePhotoImg');
+  if (dataUrl) {
+    img.src = dataUrl;
+    wrap.style.display = '';
+    addBtn.style.display = 'none';
+  } else {
+    img.src = '';
+    wrap.style.display = 'none';
+    addBtn.style.display = '';
+  }
+}
+
+/** Compress a selected image and store it as the current exercise's note photo */
+export function notePhotoSelected(e) {
+  const file = e.target.files[0];
+  if (!file || !state.currentExerciseName) return;
+  e.target.value = '';
+  const exName = state.currentExerciseName;
+
+  const canvas = document.createElement('canvas');
+  const img = new Image();
+  const objUrl = URL.createObjectURL(file);
+  img.onload = () => {
+    const w = Math.min(img.width, 800);
+    const h = Math.round((w / img.width) * img.height);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL('image/webp', 0.75);
+    URL.revokeObjectURL(objUrl);
+    // Guard against the modal having been closed/changed while decoding.
+    if (state.currentExerciseName !== exName) return;
+    if (saveNotePhoto(exName, dataUrl)) _renderNotePhoto(dataUrl);
+  };
+  img.onerror = () => URL.revokeObjectURL(objUrl);
+  img.src = objUrl;
+}
+
+/** Remove the current exercise's note photo */
+export function removeNotePhoto() {
+  if (!state.currentExerciseName) return;
+  const exName = state.currentExerciseName;
+  openConfirmDialog({
+    title: 'Remove Image?',
+    message: 'Remove the image from this exercise?',
+    confirmLabel: 'Remove',
+    onConfirm: () => {
+      deleteNotePhoto(exName);
+      if (state.currentExerciseName === exName) _renderNotePhoto('');
+    },
+  });
+}
+
+/** Open the note photo full-screen */
+export function openNotePhotoViewer() {
+  const src = document.getElementById('notePhotoImg').src;
+  if (!src) return;
+  document.getElementById('notePhotoViewerImg').src = src;
+  document.getElementById('notePhotoViewer').classList.add('open');
+}
+
+export function closeNotePhotoViewer() {
+  document.getElementById('notePhotoViewer').classList.remove('open');
 }
 
 let _onModalClose = null;

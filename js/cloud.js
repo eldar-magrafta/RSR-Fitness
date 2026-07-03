@@ -100,6 +100,16 @@ export async function loadFromCloud(uid) {
       localStorage.setItem('trainer_notes_' + decodeURIComponent(d.id), d.data().value);
     });
   } catch (e) { console.warn('[cloud] failed to load notes', e.code); }
+  try {
+    const snaps = await getDocs(collection(db, 'users', uid, 'notephotos'));
+    snaps.forEach(d => {
+      const key = 'trainer_notephoto_' + decodeURIComponent(d.id);
+      const val = d.data().value;
+      // Empty value = tombstone (photo deleted on another device).
+      if (val) localStorage.setItem(key, val);
+      else localStorage.removeItem(key);
+    });
+  } catch (e) { console.warn('[cloud] failed to load note photos', e.code); }
   invalidateGoalDatesCache();
   invalidateExHistCache();
 }

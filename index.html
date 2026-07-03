@@ -297,6 +297,10 @@
         <button class="bw-viewer-close" onclick="nlCloseMealPhotoViewer()" aria-label="Close viewer">✕</button>
         <img id="nlMealPhotoViewerImg"/>
     </div>
+    <div class="bw-viewer" id="notePhotoViewer" onclick="closeNotePhotoViewer()">
+        <button class="bw-viewer-close" onclick="closeNotePhotoViewer()" aria-label="Close viewer">✕</button>
+        <img id="notePhotoViewerImg"/>
+    </div>
 
     <!-- ── Nutrition Lab Tab ── -->
     <div class="view" id="nutritionView">
@@ -539,6 +543,14 @@
                           oninput="autoSaveExNotes()" class="themed-textarea" style="height:90px;"></textarea>
                 <div id="modalNotesCount" style="text-align:right;font-size:0.75rem;color:var(--muted);margin-top:4px;margin-bottom:8px;">
                     0 / 250
+                </div>
+                <input type="file" id="notePhotoInput" accept="image/*" style="display:none" onchange="notePhotoSelected(event)">
+                <button class="note-photo-add" id="notePhotoAddBtn" onclick="document.getElementById('notePhotoInput').click()">
+                    <i class="bi bi-camera"></i> + Add image
+                </button>
+                <div class="note-photo-wrap" id="notePhotoWrap" style="display:none;">
+                    <img id="notePhotoImg" alt="Exercise note image" onclick="openNotePhotoViewer()">
+                    <button class="note-photo-del" onclick="removeNotePhoto()" title="Remove image"><i class="bi bi-trash3"></i></button>
                 </div>
                 <button class="yt-btn yt-btn-alt" onclick="openExHistory()">
                     📊&nbsp; Log & History
