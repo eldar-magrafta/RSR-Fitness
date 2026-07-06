@@ -425,7 +425,13 @@ export function showPlanDetail(planId) {
       const el = document.createElement('div');
       el.className = 'plan-ex-item';
       el.dataset.planItemIdx = idx;
-      const subText = log ? `Last: ${log.setList.map(s => `${s.w}kg \u00d7 ${s.r}`).join(' / ')}` : found.groupName;
+      // When logged, show last weight\u00d7reps as chips (matching the Exercise Log style);
+      // otherwise fall back to the muscle-group name as plain muted text.
+      const stageChip = (w, r) =>
+        `<span class="plan-ex-set"><span class="plan-ex-stage-w">${w}<span class="plan-ex-unit">kg</span></span><span class="plan-ex-stage-x">\u00d7</span>${r}</span>`;
+      const subInner = log
+        ? `<div class="plan-ex-sets">${log.setList.map(s => stageChip(s.w, s.r)).join('')}</div>`
+        : `<div class="plan-ex-sub">${escHtml(found.groupName)}</div>`;
       const thumbSrc = found.ex.thumb || found.ex.gif || '';
       const isCloud = isCloudMarker(thumbSrc);
       const showThumb = thumbSrc && !isCloud;
@@ -434,7 +440,7 @@ export function showPlanDetail(planId) {
         ${showThumb ? `<img class="plan-ex-thumb" src="${thumbSrc}" loading="lazy" decoding="async" />` : (isCloud ? '<div class="plan-ex-thumb-ph"></div>' : '')}
         <div class="plan-ex-info">
           <div class="plan-ex-name">${escHtml(exName)}</div>
-          <div class="plan-ex-sub ${log ? 'logged' : ''}">${subText}</div>
+          ${subInner}
         </div>
         <button class="plan-ex-remove" title="Remove">−</button>`;
       if (isCloud) {
