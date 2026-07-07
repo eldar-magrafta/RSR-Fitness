@@ -59,6 +59,7 @@
 /* Logged last-session sets, shown as chips (matching the Exercise Log style). */
 .plan-ex-sets {
   display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;
+  align-items: flex-start;
 }
 .plan-ex-set {
   display: inline-flex; align-items: baseline;
