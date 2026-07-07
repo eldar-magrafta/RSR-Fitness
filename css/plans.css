@@ -59,10 +59,10 @@
 /* Logged last-session sets, shown as chips (matching the Exercise Log style). */
 .plan-ex-sets {
   display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 .plan-ex-set {
-  display: inline-flex; align-items: baseline;
+  display: inline-flex; align-items: center; justify-content: center;
   background: var(--subtle-bg); border: 1px solid var(--border);
   border-radius: 8px; padding: 3px 8px;
   font-size: 0.74rem; font-weight: 700; color: var(--text);
