@@ -67,7 +67,14 @@ export function getLog(name) {
   const d = new Date(ds + 'T00:00:00');
   const date = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   if (e.sets && e.sets.length) {
-    const setList = e.sets.map(s => ({ w: parseFloat(s.w) || 0, r: parseInt(s.r) || 0 }));
+    const setList = e.sets.map(s => {
+      const out = { w: parseFloat(s.w) || 0, r: parseInt(s.r) || 0 };
+      // Preserve drop-set stages so consumers can show them as a drop chip.
+      if (Array.isArray(s.drops) && s.drops.length) {
+        out.drops = s.drops.map(d => ({ w: parseFloat(d.w) || 0, r: parseInt(d.r) || 0 }));
+      }
+      return out;
+    });
     return { setList, date };
   }
   return { setList: [{ w: parseFloat(e.w) || 0, r: parseInt(e.r) || 0 }], date };

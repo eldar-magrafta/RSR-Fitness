@@ -428,9 +428,15 @@ export function showPlanDetail(planId) {
       // When logged, show last weight\u00d7reps as chips (matching the Exercise Log style);
       // otherwise fall back to the muscle-group name as plain muted text.
       const stageChip = (w, r) =>
-        `<span class="plan-ex-set"><span class="plan-ex-stage-w">${w}<span class="plan-ex-unit">kg</span></span><span class="plan-ex-stage-x">\u00d7</span>${r}</span>`;
+        `<span class="plan-ex-stage"><span class="plan-ex-stage-w">${w}<span class="plan-ex-unit">kg</span></span><span class="plan-ex-stage-x">\u00d7</span>${r}</span>`;
+      // A drop set renders as a purple-tinted block labelled "drop" holding one
+      // chip per stage, matching the Exercise Log page.
+      const setChip = s =>
+        Array.isArray(s.drops) && s.drops.length
+          ? `<div class="plan-ex-set plan-ex-set-drop"><span class="plan-ex-drop-label">drop</span><span class="plan-ex-drop-stages">${[s, ...s.drops].map(st => stageChip(st.w, st.r)).join('<span class="plan-ex-stage-sep">|</span>')}</span></div>`
+          : `<span class="plan-ex-set">${stageChip(s.w, s.r)}</span>`;
       const subInner = log
-        ? `<div class="plan-ex-sets">${log.setList.map(s => stageChip(s.w, s.r)).join('')}</div>`
+        ? `<div class="plan-ex-sets">${log.setList.map(setChip).join('')}</div>`
         : `<div class="plan-ex-sub">${escHtml(found.groupName)}</div>`;
       const thumbSrc = found.ex.thumb || found.ex.gif || '';
       const isCloud = isCloudMarker(thumbSrc);
