@@ -236,6 +236,16 @@
 
 /* ── Photo ── */
 .bw-photo-area { margin-bottom: 20px; display: flex; justify-content: center; }
+.bw-add-photo-btn {
+  width: 260px; max-width: 100%; padding: 14px;
+  background: var(--subtle-bg); border: 1px dashed var(--border-med);
+  color: var(--muted); border-radius: 18px;
+  font-size: 0.9rem; font-weight: 600; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.bw-add-photo-btn:active { background: var(--subtle-bg-hover); border-color: var(--accent); color: var(--accent); }
+.bw-add-photo-opt { font-size: 0.75rem; opacity: 0.5; margin-left: 4px; }
 .bw-photos-row {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   justify-content: center; width: 260px; max-width: 100%;

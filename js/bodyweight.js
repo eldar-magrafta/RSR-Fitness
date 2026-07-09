@@ -399,6 +399,15 @@ export function openDeleteBWConfirm() {
 function bwRenderPhotoArea() {
   const area = document.getElementById('bwPhotoArea');
   const photos = state.bwCurrentPhotos;
+
+  // Empty state: one full-width labeled button that lines up with the weight
+  // input and Save button, so the sheet reads as a clean stacked column
+  // instead of a lonely small square.
+  if (photos.length === 0) {
+    area.innerHTML = `<button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">📷&nbsp; Add Progress Photo <span class="bw-add-photo-opt">(optional)</span></button>`;
+    return;
+  }
+
   let html = '<div class="bw-photos-row">';
 
   photos.forEach((p, i) => {

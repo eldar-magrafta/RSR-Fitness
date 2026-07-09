@@ -240,7 +240,7 @@
             <button class="sheet-close-btn" onclick="closeBWEntry()" aria-label="Close">&times;</button>
             <div class="bw-sheet-dateLbl" id="bwSheetDate"></div>
             <div class="sheet-row" style="margin-bottom:4px;">
-                <div class="bw-sheet-title" style="margin-bottom:0;">Log Body Weight</div>
+                <div class="bw-sheet-title" style="margin-bottom:0; flex:1;">Log Body Weight</div>
                 <button id="bwBtnDelTop" onclick="openDeleteBWConfirm()" class="plan-card-delete" style="display:none;" title="Delete entry"><i class="bi bi-trash3"></i></button>
             </div>
             <div class="bw-input-row">
@@ -249,11 +249,7 @@
             </div>
             <!-- Photo area -->
             <input type="file" id="bwFileInput" accept="image/*" style="display:none" onchange="bwOnFileSelect(event)">
-            <div class="bw-photo-area" id="bwPhotoArea">
-                <button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">
-                    📷&nbsp; Add Progress Photo <span style="font-size:0.75rem;opacity:0.5;">(optional)</span>
-                </button>
-            </div>
+            <div class="bw-photo-area" id="bwPhotoArea"></div>
             <div class="bw-save-spinner" id="bwSaveSpinner" style="display:none;">
                 <div class="bw-spinner"></div>
                 <div style="color: var(--muted); font-size: 0.9rem; margin-top: 8px;">Saving photo...</div>
