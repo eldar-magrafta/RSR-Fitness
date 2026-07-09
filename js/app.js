@@ -630,6 +630,9 @@ onAuthChange(async (user) => {
       document.getElementById('siError').textContent = 'Please verify your email before signing in. Check your inbox.';
       return;
     }
+    // Account creation date (from Firebase Auth) anchors the consistency heatmap.
+    const created = user.metadata && user.metadata.creationTime;
+    state.regDate = created ? dateToStr(new Date(created)) : null;
     showLoadingScreen();
     await loadFromCloud(user.uid);
     updateUserUI(user);

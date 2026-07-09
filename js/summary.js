@@ -227,19 +227,32 @@ function computeHeatmap() {
   });
 
   // Grid spans whole weeks (Sun..Sat). End on the Saturday of the current week
-  // so today's column is always present; walk back HEATMAP_WEEKS columns.
+  // so today's column is always present; walk back up to HEATMAP_WEEKS columns.
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const todayS = dateToStr(today);
   const gridEnd = new Date(today);
   gridEnd.setDate(today.getDate() + (6 - today.getDay())); // Saturday of this week
+
+  // Anchor the left edge at the user's registration week so the grid never
+  // shows empty months from before they joined. Once the account is older than
+  // HEATMAP_WEEKS the window caps at HEATMAP_WEEKS and rolls forward normally.
+  let numWeeks = HEATMAP_WEEKS;
+  if (state.regDate) {
+    const reg = new Date(state.regDate); reg.setHours(0, 0, 0, 0);
+    const regSunday = new Date(reg);
+    regSunday.setDate(reg.getDate() - reg.getDay()); // Sunday of registration week
+    const spanWeeks = Math.floor((gridEnd - regSunday) / (7 * 86400000)) + 1;
+    numWeeks = Math.max(1, Math.min(HEATMAP_WEEKS, spanWeeks));
+  }
+
   const gridStart = new Date(gridEnd);
-  gridStart.setDate(gridEnd.getDate() - (HEATMAP_WEEKS * 7 - 1));
+  gridStart.setDate(gridEnd.getDate() - (numWeeks * 7 - 1));
 
   const weeks = [];
   const monthLabels = [];
   let trainedDays = 0;
   const cur = new Date(gridStart);
-  for (let w = 0; w < HEATMAP_WEEKS; w++) {
+  for (let w = 0; w < numWeeks; w++) {
     const col = [];
     for (let d = 0; d < 7; d++) {
       const ds = dateToStr(cur);
@@ -266,7 +279,7 @@ function computeHeatmap() {
     probe.setDate(probe.getDate() - 1);
   }
 
-  return { weeks, monthLabels, trainedDays, streak, totalDays: HEATMAP_WEEKS * 7 };
+  return { weeks, monthLabels, trainedDays, streak, numWeeks, totalDays: numWeeks * 7 };
 }
 
 function renderHeatmap(hm) {
@@ -294,7 +307,7 @@ function renderHeatmap(hm) {
 
   return `<div class="summary-hm-stats">
       <div class="summary-hm-stat"><span class="summary-hm-stat-val">🔥 ${hm.streak}</span><span class="summary-hm-stat-lbl">day streak</span></div>
-      <div class="summary-hm-stat"><span class="summary-hm-stat-val">${hm.trainedDays}</span><span class="summary-hm-stat-lbl">days in ${HEATMAP_WEEKS} wks</span></div>
+      <div class="summary-hm-stat"><span class="summary-hm-stat-val">${hm.trainedDays}</span><span class="summary-hm-stat-lbl">days in ${hm.numWeeks} wk${hm.numWeeks === 1 ? '' : 's'}</span></div>
     </div>
     <div class="summary-hm-scroll">
       <div class="summary-hm-grid">

@@ -42,6 +42,7 @@ export const state = {
 
   // Summary
   summaryRange: 'week',
+  regDate: null,   // 'YYYY-MM-DD' account creation date (from Firebase Auth); anchors the consistency heatmap
 
   // Muscle Balance
   mbRange: 'month',
