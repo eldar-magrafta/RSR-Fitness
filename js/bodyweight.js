@@ -155,6 +155,9 @@ function renderBWChart() {
   const last = pts[pts.length - 1];
   const endDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="${stroke}"/>`;
 
+  // A dot on every logged day so users can see where the tappable points are.
+  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('');
+
   // Compact min/max scale on the right edge so the sparkline still has context.
   const scaleLbls = `
     <text x="${W - 4}" y="${(yS(maxV) + 3).toFixed(1)}" text-anchor="end" fill="${chartLbl}" font-size="9" font-family="-apple-system,sans-serif">${maxV.toFixed(1)}</text>
@@ -167,6 +170,7 @@ function renderBWChart() {
     ${goalLine}
     <path d="${areaPath}" fill="${fill}"/>
     <path d="${linePath}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
     ${endDot}
     ${scaleLbls}`;
 
