@@ -21,7 +21,7 @@ import { exportData } from './export.js';
 import { openGallery } from './gallery.js';
 import { openTimelapse, closeTimelapse, generateTimelapse } from './timelapse.js';
 import { openWaterView, waterAdd, waterUndo, waterReset, waterAdjustTarget, waterAddBottle, waterAdjustBottle } from './water.js';
-import { sessionFocus, sessionAddSet, sessionAddDropSet, sessionAddDropStage, sessionUpdateDrop, sessionDeleteDrop, sessionDeleteSet, sessionUpdateSet, sessionSaveSet, sessionRestAdjust, sessionRestSkip, sessionRestTogglePause, sessionFinish, sessionHandleBack } from './session.js';
+import { sessionFocus, sessionAddSet, sessionAddDropSet, sessionAddDropStage, sessionUpdateDrop, sessionDeleteDrop, sessionDeleteSet, sessionUpdateSet, sessionSaveSet, sessionRestAdjust, sessionRestSkip, sessionRestTogglePause, sessionFinish, sessionHandleBack, pauseSessionClock, resumeSessionClock } from './session.js';
 import { openMuscleBalance, setMBRange } from './musclebalance.js';
 import { showSignInScreen, showLoadingScreen, showApp, updateUserUI, handleSignIn, handleEmailSignIn, handleEmailRegister, handleForgotPassword, showAuthTab, handleSignOut, confirmSignOut, cancelSignOut } from './auth.js';
 
@@ -40,6 +40,9 @@ function switchTab(tab) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
+  // Leaving an active workout via the tab bar pauses its elapsed-time clock;
+  // resuming the session restarts it. Keeps time away from being counted.
+  if (state.navContext === 'session') pauseSessionClock();
   resetTransientState();
   state.currentTab = tab;
   document.getElementById('tabEx').classList.toggle('active', tab === 'exercises');
@@ -585,6 +588,14 @@ if ('serviceWorker' in navigator) {
 
 // Apply theme early to prevent flash
 applyStoredTheme();
+
+// Pause the workout clock while the app is backgrounded (tab hidden / phone
+// locked) and resume on return, so time away from the app isn't counted.
+document.addEventListener('visibilitychange', () => {
+  if (state.navContext !== 'session') return;
+  if (document.hidden) pauseSessionClock();
+  else resumeSessionClock();
+});
 
 // One-time warning when localStorage fills up — silent failure was masking data loss.
 window.addEventListener('rsr-quota-exceeded', () => {

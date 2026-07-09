@@ -35,6 +35,34 @@ export function hasActiveSession() {
   return !!loadSession();
 }
 
+// ── Elapsed-time clock ──
+// Active time = banked activeMs plus the current running stretch. The clock is
+// paused whenever the user leaves the workout view and resumed on return, so
+// time spent away (or with the app backgrounded) is not counted.
+
+/** Milliseconds of active workout time for a session object. */
+function sessionElapsedMs(s) {
+  const running = s.runningSince ? Date.now() - s.runningSince : 0;
+  return s.activeMs + running;
+}
+
+/** Bank the current running stretch and stop the clock. Safe to call twice. */
+export function pauseSessionClock() {
+  const s = loadSession();
+  if (!s || !s.runningSince) return;
+  s.activeMs += Date.now() - s.runningSince;
+  s.runningSince = null;
+  saveSession(s);
+}
+
+/** Restart the clock from now. Safe to call twice. */
+export function resumeSessionClock() {
+  const s = loadSession();
+  if (!s || s.runningSince) return;
+  s.runningSince = Date.now();
+  saveSession(s);
+}
+
 export function getActiveSessionPlanId() {
   return loadSession()?.planId || null;
 }
@@ -53,10 +81,17 @@ export function startSession(planId) {
       return { kind: 'ex', name: it, sets: [], srcIdx: idx };
     });
 
+  const now = Date.now();
   const session = {
     planId,
     planName: plan.name,
-    startedAt: Date.now(),
+    startedAt: now,
+    // Elapsed time is accumulated active time, not wall-clock since start, so
+    // leaving/resuming (or backgrounding) the workout doesn't inflate it.
+    // activeMs = banked active time; runningSince = start of the current
+    // running stretch (null while paused).
+    activeMs: 0,
+    runningSince: now,
     items,
     currentIdx: items.findIndex(i => i.kind === 'ex'),
     restSec: getPrefs().defaultRestSec,
@@ -89,6 +124,7 @@ export function openSessionView() {
   document.getElementById('fab').classList.add('hidden');
   state.navContext = 'session';
   requestWakeLock();
+  resumeSessionClock();
   renderSession();
 }
 
@@ -99,7 +135,7 @@ export function renderSession() {
   const totalEx = s.items.filter(i => i.kind === 'ex').length;
   const doneEx = s.items.filter(i => i.kind === 'ex' && i.sets.some(isSetCommitted)).length;
   const doneSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetCommitted).length : sum, 0);
-  const elapsedMin = Math.floor((Date.now() - s.startedAt) / 60000);
+  const elapsedMin = Math.floor(sessionElapsedMs(s) / 60000);
 
   let html = `
     <div class="session-progress-card">
@@ -631,7 +667,7 @@ function exitSession() {
 
 function showSessionToast(s, newPRs) {
   const totalSets = s.items.reduce((sum, i) => i.kind === 'ex' ? sum + i.sets.filter(isSetCommitted).length : sum, 0);
-  const minutes = Math.max(1, Math.floor((Date.now() - s.startedAt) / 60000));
+  const minutes = Math.max(1, Math.floor(sessionElapsedMs(s) / 60000));
   const toast = document.createElement('div');
   toast.className = 'session-finish-toast';
   toast.innerHTML = `
@@ -658,6 +694,7 @@ export function sessionHandleBack() {
     message: 'Your in-progress session will be saved. You can resume from the plan.',
     confirmLabel: 'Leave',
     onConfirm: () => {
+      pauseSessionClock();
       stopRest();
       releaseWakeLock();
       showPlanDetail(s.planId);
