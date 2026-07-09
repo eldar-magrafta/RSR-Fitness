@@ -400,11 +400,10 @@ function bwRenderPhotoArea() {
   const area = document.getElementById('bwPhotoArea');
   const photos = state.bwCurrentPhotos;
 
-  // Empty state: one full-width labeled button that lines up with the weight
-  // input and Save button, so the sheet reads as a clean stacked column
-  // instead of a lonely small square.
+  // Empty state: a compact camera button that sits on the same line as the
+  // weight input.
   if (photos.length === 0) {
-    area.innerHTML = `<button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()">📷&nbsp; Add Progress Photo <span class="bw-add-photo-opt">(optional)</span></button>`;
+    area.innerHTML = `<button class="bw-add-photo-btn" onclick="document.getElementById('bwFileInput').click()" title="Add progress photo (optional)">📷</button>`;
     return;
   }
 
