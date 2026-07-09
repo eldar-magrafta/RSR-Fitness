@@ -156,7 +156,8 @@ function renderBWChart() {
   const endDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="${stroke}"/>`;
 
   // A dot on every logged day so users can see where the tappable points are.
-  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('');
+  // Tagged so the tooltip can read each dot's real on-screen position.
+  const dots = pts.map((p, i) => `<circle class="bw-dot" data-i="${i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('');
 
   // Compact min/max scale on the right edge so the sparkline still has context.
   const scaleLbls = `
@@ -181,13 +182,32 @@ function renderBWChart() {
   function showTip(clientX) {
     const rect = clean.getBoundingClientRect();
     const relX = (clientX - rect.left) * (W / rect.width);
-    let best = pts[0];
-    pts.forEach(p => { if (Math.abs(p.x - relX) < Math.abs(best.x - relX)) best = p; });
+    let bestI = 0;
+    pts.forEach((p, i) => { if (Math.abs(p.x - relX) < Math.abs(pts[bestI].x - relX)) bestI = i; });
+    const best = pts[bestI];
     document.getElementById('bwTooltipVal').textContent = `${best.v.toFixed(1)} kg`;
     document.getElementById('bwTooltipDate').textContent = fmtDateLabel(best.d);
-    const pct = ((best.x - P.l) / cW) * 100;
-    tooltip.style.left = `${Math.min(Math.max(pct, 5), 65)}%`;
-    tooltip.classList.add('visible');
+
+    // Anchor the balloon to the selected dot's real on-screen position, then
+    // clamp it inside the chart and slide its arrow so it keeps pointing at
+    // the dot even when clamped.
+    const container = clean.parentNode;
+    const cRect = container.getBoundingClientRect();
+    const dot = clean.querySelector(`.bw-dot[data-i="${bestI}"]`);
+    const dRect = dot.getBoundingClientRect();
+    const dotX = dRect.left + dRect.width / 2 - cRect.left;
+    const dotY = dRect.top + dRect.height / 2 - cRect.top;
+
+    tooltip.classList.add('visible'); // make measurable before reading width
+    const halfW = tooltip.offsetWidth / 2;
+    const M = 4; // keep this far from the chart edges
+    const clampedX = Math.min(Math.max(dotX, halfW + M), cRect.width - halfW - M);
+    tooltip.style.left = `${clampedX}px`;
+    tooltip.style.top = `${dotY}px`;
+    tooltip.style.setProperty('--arrow-dx', `${dotX - clampedX}px`);
+
+    // Flip below the dot if the balloon would overflow the top of the chart.
+    tooltip.classList.toggle('below', dotY - tooltip.offsetHeight - 9 < 0);
   }
   clean.addEventListener('touchstart', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });
   clean.addEventListener('touchmove', e => { e.preventDefault(); showTip(e.touches[0].clientX); }, { passive: false });

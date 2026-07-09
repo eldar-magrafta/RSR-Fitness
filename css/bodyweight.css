@@ -49,6 +49,22 @@
 .bw-tooltip-val { font-size: 0.95rem; font-weight: 700; color: #fff; }
 .bw-tooltip-date { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
 
+/* Body-weight chart tooltip is a speech balloon: it points at the selected
+   dot. JS sets left/top to the dot and --arrow-dx to keep the pointer on the
+   dot even when the balloon is clamped away from the chart edges. */
+#bwTooltip { top: 0; left: 0; transform: translate(-50%, calc(-100% - 9px)); }
+#bwTooltip::after {
+  content: ''; position: absolute; top: 100%;
+  left: calc(50% + var(--arrow-dx, 0px)); transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: rgba(6,6,17,0.95);
+}
+/* Flip below the dot when it sits too near the top of the chart. */
+#bwTooltip.below { transform: translate(-50%, 9px); }
+#bwTooltip.below::after {
+  top: auto; bottom: 100%;
+  border-top-color: transparent; border-bottom-color: rgba(6,6,17,0.95);
+}
+
 /* ── Weight Goal Row ── */
 .bw-goal-row {
   display:flex; align-items:center; gap:8px; margin-bottom:14px;
