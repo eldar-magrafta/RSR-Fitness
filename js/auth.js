@@ -56,6 +56,11 @@ const LOADING_TIPS = [
     'Be stronger than your strongest excuse.',
     'Suffer the pain of discipline or the pain of regret.',
     'You don\'t find willpower. You create it.',
+    'Motivation gets you started. Habit keeps you going.',
+    'Rest is part of the plan, not a break from it.',
+    'Lift heavy, recover heavier.',
+    'Progress you can measure is progress you can repeat.',
+    'Show up on the days you don\'t feel like it — those count double.',
 ];
 
 let _loadingInterval = null;
