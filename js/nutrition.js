@@ -521,7 +521,15 @@ export function nlCreateMeal() {
   const meal = { id: 'meal_' + Date.now(), name: 'New Meal', type, ingredients: [], notes: '', favorite: false, createdAt: date };
   if (type === 'logged') meal.slot = defaultMealSlot();
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
-  nlCloseCreate(); nlShowMeal(meal.id); nlOpenRenameModal();
+  nlCloseCreate(); nlShowMeal(meal.id); nlOpenNameModal();
+}
+
+export function nlOpenNameModal() {
+  document.getElementById('nlRenameTitle').textContent = 'Name Meal';
+  document.getElementById('nlRenameInput').value = '';
+  document.getElementById('nlRenameInput').placeholder = 'e.g. Breakfast, Post-Workout, Chicken Bowl…';
+  document.getElementById('nlRenameOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('nlRenameInput').focus(), 300);
 }
 
 export function nlDismissAISkipped() {
@@ -613,6 +621,8 @@ export function openDeleteMealConfirm(mealId) {
 export function nlOpenRenameModal() {
   const meal = getNLMeals().find(m => m.id === state.nlCurrentMealId);
   if (!meal) return;
+  document.getElementById('nlRenameTitle').textContent = 'Rename Meal';
+  document.getElementById('nlRenameInput').placeholder = 'Meal name';
   document.getElementById('nlRenameInput').value = meal.name;
   document.getElementById('nlRenameOverlay').classList.add('open');
   setTimeout(() => { document.getElementById('nlRenameInput').focus(); document.getElementById('nlRenameInput').select(); }, 300);
