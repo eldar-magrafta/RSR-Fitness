@@ -728,7 +728,6 @@
                 <div class="modal-title">New Meal</div>
                 <button class="modal-close" onclick="nlCloseCreate()">✕</button>
             </div>
-            <input class="plan-name-input" id="nlMealNameInput" type="text" placeholder="e.g. Breakfast, Post-Workout, Chicken Bowl…" maxlength="50" onkeydown="if(event.key==='Enter')nlCreateMeal()"/>
             <button class="create-btn" onclick="nlCreateMeal()">Create Meal</button>
             <div style="text-align:center;color:var(--muted);font-size:0.78rem;margin:14px 0 10px;letter-spacing:0.5px;">— OR —</div>
             <input type="file" id="nlMealPhotoAIInput" accept="image/*" style="display:none" onchange="nlIdentifyMealFromPhoto(this)">

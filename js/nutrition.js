@@ -511,21 +511,17 @@ export function nlConfirmAddIng() {
 // ── Create/Delete Meal ──
 
 export function nlOpenCreateModal() {
-  document.getElementById('nlMealNameInput').value = '';
   document.getElementById('nlCreateOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('nlMealNameInput').focus(), 300);
 }
 export function nlCloseCreate() { document.getElementById('nlCreateOverlay').classList.remove('open'); }
 
 export function nlCreateMeal() {
-  const name = document.getElementById('nlMealNameInput').value.trim().slice(0, 100);
-  if (!name) return;
   const type = state.nlViewMode === 'saved' ? 'saved' : 'logged';
   const date = type === 'logged' ? (state.nlSelectedDate || todayStr()) : todayStr();
-  const meal = { id: 'meal_' + Date.now(), name, type, ingredients: [], notes: '', favorite: false, createdAt: date };
+  const meal = { id: 'meal_' + Date.now(), name: 'New Meal', type, ingredients: [], notes: '', favorite: false, createdAt: date };
   if (type === 'logged') meal.slot = defaultMealSlot();
   const meals = getNLMeals(); meals.push(meal); saveNLMeals(meals);
-  nlCloseCreate(); nlShowMeal(meal.id);
+  nlCloseCreate(); nlShowMeal(meal.id); nlOpenRenameModal();
 }
 
 export function nlDismissAISkipped() {
