@@ -79,7 +79,23 @@ export function onAuthChange(callback) {
   });
 }
 
+const LAST_UID_KEY = 'trainer_last_uid';
+
+// Local data belongs to whoever signed in last. If a different account signs in,
+// drop it so it neither shows up for them nor gets pushed to their cloud.
+function resetLocalDataIfUserChanged(uid) {
+  const last = localStorage.getItem(LAST_UID_KEY);
+  if (last && last !== uid) {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('trainer_'))
+      .forEach(k => localStorage.removeItem(k));
+    _photoCache.clear();
+  }
+  localStorage.setItem(LAST_UID_KEY, uid);
+}
+
 export async function loadFromCloud(uid) {
+  resetLocalDataIfUserChanged(uid);
   await Promise.all(
     Object.entries(SECTION_MAP).map(async ([section, lsKey]) => {
       try {
